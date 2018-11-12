@@ -283,6 +283,7 @@ namespace VodafoneInvoiceModifier
 
         private void ApplicationExit()
         {
+            //Delete Test data
             if (File.Exists(Application.StartupPath + @"\listTempContract.txt"))
             { File.Delete(Application.StartupPath + @"\listTempContract.txt"); }
 
