@@ -955,7 +955,7 @@ namespace VodafoneInvoiceModifier
                             dtMobile.Rows.Add(row);
 
                             //запись дубля в список
-                            sb.AppendLine(mcpCurrent.mobNumberName+"  - "+mcpCurrent.totalCost * 1.275);
+                            sb.AppendLine(mcpCurrent.mobNumberName+" - "+mcpCurrent.totalCost * 1.275+"(with tax) - "+mcpCurrent.totalCost+"(without tax) - ");
                         }
 
                         mcpCurrent = new MobileContractPerson();
