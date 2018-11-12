@@ -281,7 +281,7 @@ namespace VodafoneInvoiceModifier
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         { ApplicationExit(); }
 
-        private async void ApplicationExit()
+        private void ApplicationExit()
         {
             if (File.Exists(Application.StartupPath + @"\listTempContract.txt"))
             { File.Delete(Application.StartupPath + @"\listTempContract.txt"); }
