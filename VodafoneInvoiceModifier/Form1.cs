@@ -882,18 +882,11 @@ namespace VodafoneInvoiceModifier
             //DateTime localDate = DateTime.Now;
 
             strNewModels = "";
-            try
-            {
                 if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
                 { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
                 sb.AppendLine(@"");
-                sb.AppendLine(@"");
 
-                sb.AppendLine(@"");
 
-                File.WriteAllText(Application.StartupPath + @"\VodafoneCollector.txt", sb.ToString(), Encoding.GetEncoding(1251));
-            }
-            catch { }           
 
 
             MobileContractPerson mcpCurrent = new MobileContractPerson();
@@ -911,7 +904,7 @@ namespace VodafoneInvoiceModifier
                             mcpCurrent.dateBillEnd = dataEnd;
                             mcpCurrent.tax = tax(mcpCurrent.totalCost);
                             mcpCurrent.pF = pF(mcpCurrent.totalCost);
-                            mcpCurrent.totalCostWithTax = mcpCurrent.totalCost * 1.275;  //+НДС+ПФ
+                            mcpCurrent.totalCostWithTax = mcpCurrent.totalCost * 1.275;  //number spend+НДС+ПФ
 
                             searchNumber = mcpCurrent.mobNumberName;
                             foreach (DataRow dr in dtTarif.Rows)
@@ -929,7 +922,7 @@ namespace VodafoneInvoiceModifier
                             mcpCurrent.isUsed = isUsedCurrent;
                             if (mcpCurrent.totalCostWithTax > 0.01)
                             { mcpCurrent.isUnblocked = true; }
-
+                            
                             row = dtMobile.NewRow();
                             row[0] = mcpCurrent.ownerName;
                             row[1] = mcpCurrent.contractName;
@@ -962,6 +955,7 @@ namespace VodafoneInvoiceModifier
                             dtMobile.Rows.Add(row);
 
                             //запись дубля в список
+                            sb.AppendLine(mcpCurrent.mobNumberName+"  - "+mcpCurrent.totalCost * 1.275);
                         }
 
                         mcpCurrent = new MobileContractPerson();
@@ -1092,6 +1086,9 @@ namespace VodafoneInvoiceModifier
                 dtMobile.Rows.Add(row);
             }
             catch (Exception Expt) { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+
+            File.WriteAllText(Application.StartupPath + @"\VodafoneCollector.txt", sb.ToString(), Encoding.GetEncoding(1251));
+
             row = null;
             mcpCurrent = null;
             listTempContract.Clear();

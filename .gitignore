@@ -6,25 +6,39 @@
 *.user
 *.userosscache
 *.sln.docstates
-
-# User-specific files (MonoDevelop/Xamarin Studio)
-*.userprefs
 *.txt
-*.sql
-*.ico
+*.vbs
+*.reg
 *.jpg
+*.bmp
 *.png
-*.key
+*.ico
+*.xls*
+*.doc*
+*.ppt*
+*.sql
+*.db
 *.htm*
 *.tmp
 *.ini
+.gitignore
+.gitattributes
+*.key
+*.zip
+*.rar
+*.7z
+*.ps1
+*.msg
+*.lst
 
+
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
 
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
 bld/
-[Bb]in/
 [Oo]bj/
 [Ll]og/
 
