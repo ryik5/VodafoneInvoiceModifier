@@ -882,16 +882,18 @@ namespace VodafoneInvoiceModifier
             string n = "", searchNumber;
             string[] substrings = new string[1];
 
-            strNewModels = "";
+             strNewModels = "";
 
             /*
-            StringBuilder sb = new StringBuilder(String.Empty);
-            DateTime localDate = DateTime.Now;
-            Test only
-            if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
-                { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
-            sb.AppendLine(@"");                       
-            */
+StringBuilder sb = new StringBuilder(String.Empty);
+DateTime localDate = DateTime.Now;
+Test only
+if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
+    { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
+sb.AppendLine(@"");                       
+*/
+
+
 
             MobileContractPerson mcpCurrent = new MobileContractPerson();
             try
@@ -1004,9 +1006,11 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
+
                         mcpCurrent.totalCost = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                         isCheckFinishedTitles = true;
-                        isUsedCurrent = false;                        
+                        isUsedCurrent = false;
+                        
                     }
 
                     else if (s.Contains(pListParseStrings[11]))
@@ -1093,7 +1097,6 @@ namespace VodafoneInvoiceModifier
             //Test only
             //File.WriteAllText(Application.StartupPath + @"\VodafoneCollector.txt", sb.ToString(), Encoding.GetEncoding(1251));
             //sb = null;
-
             row = null;
             mcpCurrent = null;
             listTempContract.Clear();
