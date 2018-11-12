@@ -19,9 +19,10 @@ namespace VodafoneInvoiceModifier
         private string about = "";
         private string dataStart = ""; // дата начала периода счета
         private string dataEnd = "";  // дата конца периода счета
-        private string sConnection=""; //string connection to MS SQL DB
+        private string sConnection = ""; //string connection to MS SQL DB
 
-        private string[] p = new string[]
+
+        private string[] pListParseStrings = new string[]
         {
             // со счета
             @"Владелец",                                        //0
@@ -224,7 +225,21 @@ namespace VodafoneInvoiceModifier
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            StatusLabel1.Text = "";
+            myFileVersionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(Application.ExecutablePath);
+            about = myFileVersionInfo.Comments + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
+            StatusLabel1.Text = myFileVersionInfo.ProductName + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
+            StatusLabel1.Alignment = ToolStripItemAlignment.Right;
+
+            notifyIcon1.Text = myFileVersionInfo.Comments + " " + myFileVersionInfo.LegalCopyright;
+            notifyIcon1.BalloonTipText = about;
+
+            contextMenu1 = new ContextMenu();  //Context Menu on notify Icon
+            notifyIcon1.ContextMenu = contextMenu1;
+            contextMenu1.MenuItems.Add("About", AboutSoft);
+            contextMenu1.MenuItems.Add("Exit", ApplicationExit);
+            notifyIcon1.Text = myFileVersionInfo.ProductName + "\nv." + myFileVersionInfo.FileVersion + "\n" + myFileVersionInfo.CompanyName;
+            this.Text = myFileVersionInfo.Comments;
+
             groupBox1.BackColor = System.Drawing.Color.Ivory;
 
             labelAccount.Visible = false;
@@ -245,21 +260,6 @@ namespace VodafoneInvoiceModifier
 
             dtMobile.Columns.AddRange(dcMobile);
             dtTarif.Columns.AddRange(dcTarif);
-
-            myFileVersionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(Application.ExecutablePath);
-            about = myFileVersionInfo.Comments + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
-            StatusLabel1.Text = myFileVersionInfo.ProductName + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
-            StatusLabel1.Alignment = ToolStripItemAlignment.Right;
-
-            notifyIcon1.Text = myFileVersionInfo.Comments + " " + myFileVersionInfo.LegalCopyright;
-            notifyIcon1.BalloonTipText = about;
-
-            contextMenu1 = new ContextMenu();  //Context Menu on notify Icon
-            notifyIcon1.ContextMenu = contextMenu1;
-            contextMenu1.MenuItems.Add("About", AboutSoft);
-            contextMenu1.MenuItems.Add("Exit", ApplicationExit);
-            notifyIcon1.Text = myFileVersionInfo.ProductName + "\nv." + myFileVersionInfo.FileVersion + "\n" + myFileVersionInfo.CompanyName;
-            this.Text = myFileVersionInfo.Comments;
         }
 
         private void AboutSoft(object sender, EventArgs e) //Кнопка "О программе"
@@ -289,7 +289,7 @@ namespace VodafoneInvoiceModifier
             await Task.Run(() => writeinitofile());
             Application.Exit();
         }
-        
+
         private void ApplicationExit(object sender, EventArgs e) //Кнопка "Выход"
         { ApplicationExit(); }
 
@@ -313,13 +313,13 @@ namespace VodafoneInvoiceModifier
 
             infoStatusBar = "";
             //Чтение параметров парсинга с textbox`es
-            p[1] = textBoxP1.Text;
-            p[2] = textBoxP2.Text;
-            p[3] = textBoxP3.Text;
-            p[4] = textBoxP4.Text;
-            p[5] = textBoxP5.Text;
-            p[6] = textBoxP6.Text;
-            p[7] = textBoxP7.Text;
+            pListParseStrings[1] = textBoxP1.Text;
+            pListParseStrings[2] = textBoxP2.Text;
+            pListParseStrings[3] = textBoxP3.Text;
+            pListParseStrings[4] = textBoxP4.Text;
+            pListParseStrings[5] = textBoxP5.Text;
+            pListParseStrings[6] = textBoxP6.Text;
+            pListParseStrings[7] = textBoxP7.Text;
             pStop = textBoxP8.Text;
 
             StatusLabel1.Text = "Обрабатываю исходные данные...";
@@ -527,6 +527,7 @@ namespace VodafoneInvoiceModifier
             // textBox1.ScrollToCaret();
         }
 
+
         private void buttonReport1_Click(object sender, EventArgs e)
         { MakeExcelReport(ExportDataTableToExcelForAccount); }
 
@@ -597,10 +598,10 @@ namespace VodafoneInvoiceModifier
                         { sConnection = Regex.Split(s, "pConnection=")[1].Trim(); }
 
                         //Далее - обработка ini файла только с наличием авторства
-                        for (int i = 0; i < p.Length; i++)
+                        for (int i = 0; i < pListParseStrings.Length; i++)
                         {
                             if (s.Contains("p" + i + "=") && b1 == "1" && b2 == "1")
-                            { p[i] = Regex.Split(s, "p" + i + "=")[1].Trim(); }
+                            { pListParseStrings[i] = Regex.Split(s, "p" + i + "=")[1].Trim(); }
                         }
 
                         if (s.Contains("pStop=") && b1 == "1" && b2 == "1")
@@ -619,18 +620,24 @@ namespace VodafoneInvoiceModifier
                 }
             }
 
-            textBoxP1.Text = p[1];
-            textBoxP2.Text = p[2];
-            textBoxP3.Text = p[3];
-            textBoxP4.Text = p[4];
-            textBoxP5.Text = p[5];
-            textBoxP6.Text = p[6];
-            textBoxP7.Text = p[7];
+            textBoxP1.Text = pListParseStrings[1];
+            textBoxP2.Text = pListParseStrings[2];
+            textBoxP3.Text = pListParseStrings[3];
+            textBoxP4.Text = pListParseStrings[4];
+            textBoxP5.Text = pListParseStrings[5];
+            textBoxP6.Text = pListParseStrings[6];
+            textBoxP7.Text = pListParseStrings[7];
             textBoxP8.Text = pStop;
             if (sConnection.Length < 15)
-            { MessageBox.Show("Строка подключения к базе Tfactura слишком короткая:\n" + sConnection, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
-                        
-            s = null; b1 = null; b2 = null; 
+            {
+                infoStatusBar = "Строка подключения к базе Tfactura слишком короткая:\n" + sConnection;
+                MessageBox.Show(infoStatusBar, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                StatusLabel1.Text = infoStatusBar;
+
+                StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
+            }
+
+            s = null; b1 = null; b2 = null;
         }
 
         private void writeinitofile() //Запись всех рабочих парсеров в ini файл
@@ -642,14 +649,14 @@ namespace VodafoneInvoiceModifier
             {
                 if (File.Exists(Application.StartupPath + @"\VodafoneInvoiceModifier.ini"))
                 { File.Delete(Application.StartupPath + @"\VodafoneInvoiceModifier.ini"); }
-                sb.AppendLine(@"; This VodafoneInvoiceModifier.ini for "+ myFileVersionInfo.ProductName);
-                sb.AppendLine(@"; "+ @"Author " + myFileVersionInfo.LegalCopyright);
+                sb.AppendLine(@"; This VodafoneInvoiceModifier.ini for " + myFileVersionInfo.ProductName);
+                sb.AppendLine(@"; " + @"Author " + myFileVersionInfo.LegalCopyright);
                 sb.AppendLine(@"");
 
-                for (int i = 0; i < p.Length; i++)
-                { sb.AppendLine("p" + i + "=" + p[i]); }
+                for (int i = 0; i < pListParseStrings.Length; i++)
+                { sb.AppendLine("p" + i + "=" + pListParseStrings[i]); }
 
-                sb.AppendLine (@"pConnection=" + sConnection); 
+                sb.AppendLine(@"pConnection=" + sConnection);
 
                 sb.AppendLine(@"pStop=" + pStop);
                 sb.AppendLine(@"");
@@ -704,22 +711,22 @@ namespace VodafoneInvoiceModifier
                                 labelDate.Text = substrings[substrings.Length - 1].Trim();
                             }
 
-                            if (s.Contains(p[1]))
+                            if (s.Contains(pListParseStrings[1]))
                             {
                                 mystatusbegin = true;
                                 i += 1;
                             }
 
-                            foreach (string pString in p)
+                            foreach (string pParseString in pListParseStrings)
                             {
-                                if ((s.Contains(pString) || s.Contains(pStop)) && mystatusbegin)
+                                if ((s.Contains(pParseString) || s.Contains(pStop)) && mystatusbegin)
                                 { listTempContract.Add(s.Trim()); break; }
                             }
                         }
                         labelSummaryNumbers.Visible = true;
                         labelSummaryNumbers.Text = " " + i + " шт.";
                     }
-                    /* //Test Module
+                    //Test module Start
                     StringBuilder sb = new StringBuilder(String.Empty);
                     try
                     {
@@ -735,7 +742,9 @@ namespace VodafoneInvoiceModifier
                     {
                         MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                    finally { sb = null; }*/
+                    finally { sb = null; }
+                    //Test module The End
+
                     ChosenFile = true;
                 }
                 catch (Exception Expt)
@@ -867,12 +876,33 @@ namespace VodafoneInvoiceModifier
             string n = "", searchNumber;
             string[] substrings = new string[1];
 
+            //--
+
+            StringBuilder sb = new StringBuilder(String.Empty);
+            //DateTime localDate = DateTime.Now;
+
+            strNewModels = "";
+            try
+            {
+                if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
+                { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
+                sb.AppendLine(@"");
+                sb.AppendLine(@"");
+
+                sb.AppendLine(@"");
+
+                File.WriteAllText(Application.StartupPath + @"\VodafoneCollector.txt", sb.ToString(), Encoding.GetEncoding(1251));
+            }
+            catch { }           
+
+
             MobileContractPerson mcpCurrent = new MobileContractPerson();
             try
             {
+                
                 foreach (string s in listTempContract.ToArray())
                 {
-                    if (s.Contains(p[1]) || s.Contains(pStop))
+                    if (s.Contains(pListParseStrings[1]) || s.Contains(pStop))
                     {
                         isCheckFinishedTitles = false;
                         if (mcpCurrent.contractName.Length > 1)
@@ -938,85 +968,86 @@ namespace VodafoneInvoiceModifier
                         substrings = s.Split('№')[s.Split('№').Length - 1].Trim().Split(' ');
                         mcpCurrent.contractName = substrings[0].Trim();
 
-                        if (s.Contains(p[2]))
+                        if (s.Contains(pListParseStrings[2]))
                         {
                             substrings = s.Split(':')[s.Split(':').Length - 1].Trim().Split(' ');
                             mcpCurrent.mobNumberName = substrings[substrings.Length - 1].Trim();
                         }
                     }
 
-                    else if (s.Contains(p[3]))
+                    else if (s.Contains(pListParseStrings[3]))
                     {
                         substrings = s.Split(':');
                         mcpCurrent.tarifPackageName = substrings[substrings.Length - 1].Trim();
                     }
 
-                    else if (s.Contains(p[4]))
+                    else if (s.Contains(pListParseStrings[4]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.monthCost = Convert.ToDouble(n.Replace('.', ',')) * 0.7 * 1.275;
                     }
 
-                    else if (s.Contains(p[5]))
+                    else if (s.Contains(pListParseStrings[5]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.roming = Convert.ToDouble(n.Replace('.', ',')) * 1.275;
                     }
 
-                    else if (s.Contains(p[6]))
+                    else if (s.Contains(pListParseStrings[6]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.discount = Convert.ToDouble(n.Replace('.', ','));
                     }
 
-                    else if (s.Contains(p[7]))
+                    else if (s.Contains(pListParseStrings[7]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.totalCost = Convert.ToDouble(n.Replace('.', ','));
                         isCheckFinishedTitles = true;
                         isUsedCurrent = false;
+                        
                     }
 
-                    else if (s.Contains(p[11]))
+                    else if (s.Contains(pListParseStrings[11]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.romingData += Convert.ToDouble(n.Replace('.', ',')) * 1.275;
                     }
 
-                    else if (s.Contains(p[12]))
+                    else if (s.Contains(pListParseStrings[12]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.extraInternetOrdered += Convert.ToDouble(n.Replace('.', ',')) * 0.7 * 1.275;
                     }
 
-                    else if (s.Contains(p[13]))
+                    else if (s.Contains(pListParseStrings[13]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.outToCity += Convert.ToDouble(n.Replace('.', ',')) * 0.7 * 1.275;
                     }
 
-                    else if (s.Contains(p[14]))
+                    else if (s.Contains(pListParseStrings[14]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.extraService += Convert.ToDouble(n.Replace('.', ','));
                     }
 
-                    else if (s.Contains(p[15]))
+                    else if (s.Contains(pListParseStrings[15]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.content += Convert.ToDouble(n.Replace('.', ',')) * 1.275;
                     }
 
-                    else if (s.Contains(p[23]))
+                    else if (s.Contains(pListParseStrings[23]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
@@ -1095,7 +1126,7 @@ namespace VodafoneInvoiceModifier
         {
             int rows = 1;
             int rowsInTable = dtMobile.Rows.Count;
-            int columnsInTable = p.Length; // p.Length;
+            int columnsInTable = pListParseStrings.Length; // p.Length;
             string lastCell = GetColumnName(columnsInTable) + rowsInTable;
 
             Excel.Application excel = new Excel.Application
@@ -1509,9 +1540,9 @@ namespace VodafoneInvoiceModifier
                 {
                     if (File.Exists(Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt"))
                     { File.Delete(Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt"); }
-                    sb.AppendLine(@"; This VodafoneInvoiceModifierNewModels.txt for the VodafonInvoiceModifier.exe");
-                    sb.AppendLine(@"; Author @Yuri Ryabchenko 2016-2018");
-                    sb.AppendLine(@";");
+                    sb.AppendLine(@"; This VodafoneInvoiceModifier.ini for " + myFileVersionInfo.ProductName);
+                    sb.AppendLine(@"; " + @"Author " + myFileVersionInfo.LegalCopyright);
+                    sb.AppendLine(@"");
                     sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
                     sb.AppendLine(@";");
                     sb.AppendLine(@"; Найдены новые не учтенные модели компенсации затрат сотрудников:");
