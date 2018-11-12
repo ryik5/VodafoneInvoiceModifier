@@ -882,17 +882,18 @@ namespace VodafoneInvoiceModifier
             string n = "", searchNumber;
             string[] substrings = new string[1];
 
-            //--
+             strNewModels = "";
 
-            StringBuilder sb = new StringBuilder(String.Empty);
-            //DateTime localDate = DateTime.Now;
+            /*
+StringBuilder sb = new StringBuilder(String.Empty);
+DateTime localDate = DateTime.Now;
+Test only
+if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
+    { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
+sb.AppendLine(@"");                       
+*/
 
-            strNewModels = "";
 
-            if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
-                { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
-                sb.AppendLine(@"");
-                       
 
             MobileContractPerson mcpCurrent = new MobileContractPerson();
             try
@@ -1095,8 +1096,7 @@ namespace VodafoneInvoiceModifier
 
             //Test only
             //File.WriteAllText(Application.StartupPath + @"\VodafoneCollector.txt", sb.ToString(), Encoding.GetEncoding(1251));
-
-            sb = null;
+            //sb = null;
             row = null;
             mcpCurrent = null;
             listTempContract.Clear();
