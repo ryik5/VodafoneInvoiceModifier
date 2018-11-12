@@ -589,13 +589,16 @@ namespace VodafoneInvoiceModifier
                     while ((s = Reader.ReadLine()) != null)
                     {
                         //Проверка ini файла на наличие строк с авторством
-
                         if (s.Contains(myFileVersionInfo.ProductName))
                         { b1 = "1"; }
                         else if (s.Contains(@"Author " + myFileVersionInfo.LegalCopyright))
                         { b2 = "1"; }
                         else if (s.Contains(@"pConnection"))
-                        { sConnection = Regex.Split(s, "pConnection=")[1].Trim(); }
+                        {
+                            string tempConnection = Regex.Split(s, "pConnection=")[1].Trim();
+                            if (tempConnection.Length > 15)
+                            { sConnection = tempConnection; }
+                        }
 
                         //Далее - обработка ini файла только с наличием авторства
                         for (int i = 0; i < pListParseStrings.Length; i++)
@@ -646,9 +649,7 @@ namespace VodafoneInvoiceModifier
             DateTime localDate = DateTime.Now;
 
             try
-            {
-                if (File.Exists(Application.StartupPath + @"\VodafoneInvoiceModifier.ini"))
-                { File.Delete(Application.StartupPath + @"\VodafoneInvoiceModifier.ini"); }
+            {                
                 sb.AppendLine(@"; This VodafoneInvoiceModifier.ini for " + myFileVersionInfo.ProductName);
                 sb.AppendLine(@"; " + @"Author " + myFileVersionInfo.LegalCopyright);
                 sb.AppendLine(@"");
@@ -656,12 +657,14 @@ namespace VodafoneInvoiceModifier
                 for (int i = 0; i < pListParseStrings.Length; i++)
                 { sb.AppendLine("p" + i + "=" + pListParseStrings[i]); }
 
-                sb.AppendLine(@"pConnection=" + sConnection);
+                if (sConnection.Length > 15)
+                { sb.AppendLine(@"pConnection=" + sConnection); }
 
                 sb.AppendLine(@"pStop=" + pStop);
                 sb.AppendLine(@"");
                 sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
                 sb.AppendLine(@"");
+
                 File.WriteAllText(Application.StartupPath + @"\VodafoneInvoiceModifier.ini", sb.ToString(), Encoding.GetEncoding(1251));
             }
             catch (Exception Expt)
@@ -726,7 +729,9 @@ namespace VodafoneInvoiceModifier
                         labelSummaryNumbers.Visible = true;
                         labelSummaryNumbers.Text = " " + i + " шт.";
                     }
-                    //Test module Start
+
+
+                    //----- Test module Start -----
                     StringBuilder sb = new StringBuilder(String.Empty);
                     try
                     {
@@ -743,7 +748,7 @@ namespace VodafoneInvoiceModifier
                         MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     finally { sb = null; }
-                    //Test module The End
+                    //Test t ----- module The End -----
 
                     ChosenFile = true;
                 }
@@ -890,8 +895,7 @@ namespace VodafoneInvoiceModifier
 
             MobileContractPerson mcpCurrent = new MobileContractPerson();
             try
-            {
-                
+            {                
                 foreach (string s in listTempContract.ToArray())
                 {
                     if (s.Contains(pListParseStrings[1]) || s.Contains(pStop))
@@ -954,7 +958,8 @@ namespace VodafoneInvoiceModifier
                             dtMobile.Rows.Add(row);
 
                             //запись дубля в список
-                            sb.AppendLine(mcpCurrent.mobNumberName + " - " + mcpCurrent.totalCost * 1.275 + "(with tax) - " + mcpCurrent.totalCost + "(without tax) - ");
+                            //Test only
+                           // sb.AppendLine(mcpCurrent.mobNumberName + " - " + mcpCurrent.totalCost * 1.275 + "(with tax) - " + mcpCurrent.totalCost + "(without tax) - ");
                         }
 
                         mcpCurrent = new MobileContractPerson();
@@ -978,28 +983,29 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.monthCost = Convert.ToDouble(n.Replace('.', ',')) * 0.7 * 1.275;
+                        mcpCurrent.monthCost = Convert.ToDouble(Regex.Replace(n,"[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 0.7 * 1.275;
                     }
-
+                    
                     else if (s.Contains(pListParseStrings[5]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.roming = Convert.ToDouble(n.Replace('.', ',')) * 1.275;
+                        mcpCurrent.roming = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
 
                     else if (s.Contains(pListParseStrings[6]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.discount = Convert.ToDouble(n.Replace('.', ','));
+                        mcpCurrent.discount = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                     }
 
                     else if (s.Contains(pListParseStrings[7]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.totalCost = Convert.ToDouble(n.Replace('.', ','));
+
+                        mcpCurrent.totalCost = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                         isCheckFinishedTitles = true;
                         isUsedCurrent = false;
                         
@@ -1009,42 +1015,42 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.romingData += Convert.ToDouble(n.Replace('.', ',')) * 1.275;
+                        mcpCurrent.romingData += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
 
                     else if (s.Contains(pListParseStrings[12]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(n.Replace('.', ',')) * 0.7 * 1.275;
+                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275*0.7;
                     }
 
                     else if (s.Contains(pListParseStrings[13]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.outToCity += Convert.ToDouble(n.Replace('.', ',')) * 0.7 * 1.275;
+                        mcpCurrent.outToCity += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * 0.7;
                     }
 
                     else if (s.Contains(pListParseStrings[14]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraService += Convert.ToDouble(n.Replace('.', ','));
+                        mcpCurrent.extraService += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                     }
 
                     else if (s.Contains(pListParseStrings[15]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.content += Convert.ToDouble(n.Replace('.', ',')) * 1.275;
+                        mcpCurrent.content += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
 
                     else if (s.Contains(pListParseStrings[23]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraServiceOrdered = Convert.ToDouble(n.Replace('.', ',')) * 0.7 * 1.275;
+                        mcpCurrent.extraServiceOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * 0.7;
                     }
 
                     else if (isCheckFinishedTitles)
@@ -1086,8 +1092,10 @@ namespace VodafoneInvoiceModifier
             }
             catch (Exception Expt) { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
-            File.WriteAllText(Application.StartupPath + @"\VodafoneCollector.txt", sb.ToString(), Encoding.GetEncoding(1251));
+            //Test only
+            //File.WriteAllText(Application.StartupPath + @"\VodafoneCollector.txt", sb.ToString(), Encoding.GetEncoding(1251));
 
+            sb = null;
             row = null;
             mcpCurrent = null;
             listTempContract.Clear();
@@ -1176,7 +1184,7 @@ namespace VodafoneInvoiceModifier
                         if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
                         { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
                         else
-                        { sheet.Columns[column.Ordinal + 1].NumberFormat = "0,00"; }
+                        { sheet.Columns[column.Ordinal + 1].NumberFormat = "0"+ System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator+"00"; }
                     }
                     sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
                     sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
@@ -1325,7 +1333,7 @@ namespace VodafoneInvoiceModifier
                         if (row[column + 1].GetType().ToString().ToLower().Contains("string"))
                         { sheet.Columns[column + 1].NumberFormat = "@"; }
                         else
-                        { sheet.Columns[column + 1].NumberFormat = "0,00"; }
+                        { sheet.Columns[column + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
                     }
                     sheet.Cells[rows, column + 1].Value = row[pIdxToAccount[column]];
                     sheet.Cells[rows, column + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
