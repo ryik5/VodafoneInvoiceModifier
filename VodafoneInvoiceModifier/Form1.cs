@@ -882,12 +882,11 @@ namespace VodafoneInvoiceModifier
             //DateTime localDate = DateTime.Now;
 
             strNewModels = "";
-                if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
+
+            if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
                 { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
                 sb.AppendLine(@"");
-
-
-
+                       
 
             MobileContractPerson mcpCurrent = new MobileContractPerson();
             try
@@ -955,7 +954,7 @@ namespace VodafoneInvoiceModifier
                             dtMobile.Rows.Add(row);
 
                             //запись дубля в список
-                            sb.AppendLine(mcpCurrent.mobNumberName+"  - "+mcpCurrent.totalCost * 1.275);
+                            sb.AppendLine(mcpCurrent.mobNumberName + " - " + mcpCurrent.totalCost * 1.275 + "(with tax) - " + mcpCurrent.totalCost + "(without tax) - ");
                         }
 
                         mcpCurrent = new MobileContractPerson();
