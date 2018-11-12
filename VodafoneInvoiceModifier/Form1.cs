@@ -882,14 +882,11 @@ namespace VodafoneInvoiceModifier
             string n = "", searchNumber;
             string[] substrings = new string[1];
 
-            //--
-
-            StringBuilder sb = new StringBuilder(String.Empty);
-            //DateTime localDate = DateTime.Now;
-
             strNewModels = "";
 
             /*
+            StringBuilder sb = new StringBuilder(String.Empty);
+            DateTime localDate = DateTime.Now;
             Test only
             if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
                 { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
