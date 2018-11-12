@@ -286,7 +286,7 @@ namespace VodafoneInvoiceModifier
             if (File.Exists(Application.StartupPath + @"\listTempContract.txt"))
             { File.Delete(Application.StartupPath + @"\listTempContract.txt"); }
 
-            await Task.Run(() => writeinitofile());
+            writeinitofile();
             Application.Exit();
         }
 
