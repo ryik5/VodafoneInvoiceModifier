@@ -281,15 +281,15 @@ namespace VodafoneInvoiceModifier
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         { ApplicationExit(); }
 
-        private void ApplicationExit()
+         private void ApplicationExit(object sender, EventArgs e) //Кнопка "Выход"
+        { ApplicationExit(); }
+
+       private void ApplicationExit()
         {
             writeinitofile();
             Application.Exit();
         }
-
-        private void ApplicationExit(object sender, EventArgs e) //Кнопка "Выход"
-        { ApplicationExit(); }
-
+        
         private void buttonClear_Click(object sender, EventArgs e)
         { textBox1.Clear(); }
 
@@ -299,6 +299,7 @@ namespace VodafoneInvoiceModifier
         private async void OpenBill()
         {
             filePathTxt = null;
+            sbError = new StringBuilder();
             StatusLabel1.BackColor = System.Drawing.SystemColors.Control;
 
             textBox1.Visible = false;
@@ -524,14 +525,12 @@ namespace VodafoneInvoiceModifier
             // textBox1.ScrollToCaret();
         }
 
-
         private void buttonReport1_Click(object sender, EventArgs e)
         { MakeExcelReport(ExportDataTableToExcelForAccount); }
 
         private void buttonReport2_Click(object sender, EventArgs e)
         { MakeExcelReport(ExportFullDataTableToExcel); }
-
-
+        
         private async void MakeExcelReport(Action action)
         {
             StatusLabel1.Text = "Обрабатываю полученные данные и формирую отчет...";
@@ -646,27 +645,32 @@ namespace VodafoneInvoiceModifier
             DateTime localDate = DateTime.Now;
 
             try
-            {                
+            {
                 sb.AppendLine(@"; This VodafoneInvoiceModifier.ini for " + myFileVersionInfo.ProductName);
                 sb.AppendLine(@"; " + @"Author " + myFileVersionInfo.LegalCopyright);
                 sb.AppendLine(@"");
 
                 for (int i = 0; i < pListParseStrings.Length; i++)
-                { sb.AppendLine("p" + i + "=" + pListParseStrings[i]); }
+                {
+                    if (pListParseStrings[i] != null && pListParseStrings[i].Length > 0)
+                        sb.AppendLine("p" + i + "=" + pListParseStrings[i]);
+                }
 
-                if (sConnection.Length > 15)
+                if (sConnection != null && sConnection.Length > 15)
                 { sb.AppendLine(@"pConnection=" + sConnection); }
 
-                sb.AppendLine(@"pStop=" + pStop);
+                if (pStop != null && pStop.Length > 0)
+                { sb.AppendLine(@"pStop=" + pStop); }
+
                 sb.AppendLine(@"");
                 sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
 
                 File.WriteAllText(Application.StartupPath + @"\VodafoneInvoiceModifier.ini", sb.ToString(), Encoding.GetEncoding(1251));
             }
             catch (Exception Expt)
-            { MessageBox.Show(Expt.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
-            finally
-            { sb = null; }
+            { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+
+            sb = null;
         }
 
         private bool ReadTxtAndWiteToMyTmp() //Чтение исходного файл, и первичный разбор счета (удаление ненужных данных)
@@ -1413,7 +1417,6 @@ namespace VodafoneInvoiceModifier
         {
             dataStart = labelDate.Text.Split('-')[0].Trim(); //'01.05.2018'
             dataEnd = labelDate.Text.Split('-')[1].Trim();  //'31.05.2018'
-            sbError = new StringBuilder();
             string dataStartSearch = dataStart.Split('.')[2] + "-" + dataStart.Split('.')[1] + "-" + dataStart.Split('.')[0]; //'2018-05-01'
             string dataEndSearch = dataEnd.Split('.')[2] + "-" + dataEnd.Split('.')[1] + "-" + dataEnd.Split('.')[0]; //'2018-05-31'
             contractNumberFound = 0;
@@ -1483,7 +1486,6 @@ namespace VodafoneInvoiceModifier
             catch (Exception expt) { MessageBox.Show(expt.ToString()); }
 
             sSqlQuery = null;
-            sConnection = null;
         }
 
         private string MakeCommonViewPhone(string sPrimaryPhone) //Normalize Phone to +380504197443
