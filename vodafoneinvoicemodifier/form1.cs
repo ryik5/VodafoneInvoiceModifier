@@ -283,10 +283,6 @@ namespace VodafoneInvoiceModifier
 
         private void ApplicationExit()
         {
-            //Delete Test data
-            if (File.Exists(Application.StartupPath + @"\listTempContract.txt"))
-            { File.Delete(Application.StartupPath + @"\listTempContract.txt"); }
-
             writeinitofile();
             Application.Exit();
         }
@@ -664,7 +660,6 @@ namespace VodafoneInvoiceModifier
                 sb.AppendLine(@"pStop=" + pStop);
                 sb.AppendLine(@"");
                 sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
-                sb.AppendLine(@"");
 
                 File.WriteAllText(Application.StartupPath + @"\VodafoneInvoiceModifier.ini", sb.ToString(), Encoding.GetEncoding(1251));
             }
@@ -738,18 +733,14 @@ namespace VodafoneInvoiceModifier
                     {
                         foreach (string str in listTempContract.ToArray())
                         { sb.AppendLine(str); }
-
-                        if (File.Exists(Application.StartupPath + @"\listTempContract.txt"))
-                        { File.Delete(Application.StartupPath + @"\listTempContract.txt"); }
-
+                        //Delete Test data
                         File.WriteAllText(Application.StartupPath + @"\listTempContract.txt", sb.ToString(), Encoding.GetEncoding(1251));
                     }
                     catch (Exception Expt)
-                    {
-                        MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                     finally { sb = null; }
                     //Test t ----- module The End -----
+
 
                     ChosenFile = true;
                 }
@@ -884,13 +875,8 @@ namespace VodafoneInvoiceModifier
 
             strNewModels = "";
 
-            /*
+            /*    // Test only
             StringBuilder sb = new StringBuilder(String.Empty);
-            DateTime localDate = DateTime.Now;
-            Test only
-            if (File.Exists(Application.StartupPath + @"\VodafoneCollector.txt"))
-                { File.Delete(Application.StartupPath + @"\VodafoneCollector.txt"); }
-            sb.AppendLine(@"");                       
             */
 
             MobileContractPerson mcpCurrent = new MobileContractPerson();
