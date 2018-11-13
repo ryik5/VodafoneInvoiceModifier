@@ -44,14 +44,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="VodafoneInvoiceModifier.exe" size="271360">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="VodafoneInvoiceModifier.exe" size="270848">
       <assemblyIdentity name="VodafoneInvoiceModifier" version="2.0.11.7" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>RgWlPYZzMK9q+4XclN6b+9B47SGjKk6AEl+7erQO15w=</dsig:DigestValue>
+        <dsig:DigestValue>lOfy3Jx0L6GBul5+Dlzrm3/9QeE+Qf36v5PjBMdd/2s=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
