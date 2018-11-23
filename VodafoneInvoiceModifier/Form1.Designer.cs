@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.buttonOpen = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -53,29 +52,23 @@
             this.textBoxP8 = new System.Windows.Forms.TextBox();
             this.textBoxP7 = new System.Windows.Forms.TextBox();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.buttonAbout = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.buttonExit = new System.Windows.Forms.Button();
-            this.buttonReport1 = new System.Windows.Forms.Button();
-            this.buttonReport2 = new System.Windows.Forms.Button();
-            this.buttonClear = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openBillItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeReportMarketingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.functionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearTextboxItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectListNumbersItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectListServicesItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeReportMarketingItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // buttonOpen
-            // 
-            this.buttonOpen.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.Control;
-            this.buttonOpen.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.buttonOpen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonOpen.Location = new System.Drawing.Point(10, 11);
-            this.buttonOpen.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonOpen.Name = "buttonOpen";
-            this.buttonOpen.Size = new System.Drawing.Size(44, 24);
-            this.buttonOpen.TabIndex = 0;
-            this.buttonOpen.Text = "Open";
-            this.toolTip1.SetToolTip(this.buttonOpen, "Открыть счет Vodafon в текстовом формате");
-            this.buttonOpen.UseVisualStyleBackColor = true;
-            this.buttonOpen.Click += new System.EventHandler(this.Open_Click);
             // 
             // openFileDialog1
             // 
@@ -87,12 +80,12 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.Font = new System.Drawing.Font("Courier New", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.textBox1.Location = new System.Drawing.Point(10, 46);
+            this.textBox1.Location = new System.Drawing.Point(2, 46);
             this.textBox1.Margin = new System.Windows.Forms.Padding(2);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(594, 273);
+            this.textBox1.Size = new System.Drawing.Size(604, 273);
             this.textBox1.TabIndex = 2;
             this.textBox1.WordWrap = false;
             // 
@@ -310,84 +303,111 @@
             this.notifyIcon1.Text = "Парсер счета Vodafone и их экспорт в Excel ©RYIK 2016-2018";
             this.notifyIcon1.Visible = true;
             // 
-            // buttonAbout
+            // menuStrip1
             // 
-            this.buttonAbout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonAbout.AutoSize = true;
-            this.buttonAbout.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.buttonAbout.BackColor = System.Drawing.SystemColors.Control;
-            this.buttonAbout.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.Control;
-            this.buttonAbout.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.buttonAbout.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonAbout.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.buttonAbout.Location = new System.Drawing.Point(705, 11);
-            this.buttonAbout.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonAbout.Name = "buttonAbout";
-            this.buttonAbout.Size = new System.Drawing.Size(87, 25);
-            this.buttonAbout.TabIndex = 21;
-            this.buttonAbout.Text = "О программе";
-            this.toolTip1.SetToolTip(this.buttonAbout, "Описание назначения программы");
-            this.buttonAbout.UseVisualStyleBackColor = true;
-            this.buttonAbout.Click += new System.EventHandler(this.AboutSoft);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileMenuItem,
+            this.functionToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(801, 24);
+            this.menuStrip1.TabIndex = 26;
+            this.menuStrip1.Text = "menuStrip1";
             // 
-            // buttonExit
+            // fileMenuItem
             // 
-            this.buttonExit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonExit.Location = new System.Drawing.Point(608, 11);
-            this.buttonExit.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonExit.Name = "buttonExit";
-            this.buttonExit.Size = new System.Drawing.Size(75, 25);
-            this.buttonExit.TabIndex = 22;
-            this.buttonExit.Text = "Выход";
-            this.toolTip1.SetToolTip(this.buttonExit, "Выйти из программы и сохранить парсеры текстового счета");
-            this.buttonExit.UseVisualStyleBackColor = true;
-            this.buttonExit.Click += new System.EventHandler(this.ApplicationExit);
+            this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openBillItem,
+            this.makeFullReportItem,
+            this.makeReportAccountantItem,
+            this.makeReportMarketingMenuItem});
+            this.fileMenuItem.Name = "fileMenuItem";
+            this.fileMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileMenuItem.Text = "File";
             // 
-            // buttonReport1
+            // openBillItem
             // 
-            this.buttonReport1.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.Control;
-            this.buttonReport1.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.buttonReport1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonReport1.Location = new System.Drawing.Point(57, 11);
-            this.buttonReport1.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
-            this.buttonReport1.Name = "buttonReport1";
-            this.buttonReport1.Size = new System.Drawing.Size(90, 24);
-            this.buttonReport1.TabIndex = 23;
-            this.buttonReport1.Text = "Отчет для бух.";
-            this.toolTip1.SetToolTip(this.buttonReport1, "Сгенерировать отчет в EXCEL для бухгалтерии");
-            this.buttonReport1.UseVisualStyleBackColor = true;
-            this.buttonReport1.Click += new System.EventHandler(this.buttonReport1_Click);
+            this.openBillItem.Name = "openBillItem";
+            this.openBillItem.Size = new System.Drawing.Size(208, 22);
+            this.openBillItem.Text = "Открыть текстовый счет";
+            this.openBillItem.Click += new System.EventHandler(this.openBillItem_Click);
             // 
-            // buttonReport2
+            // makeFullReportItem
             // 
-            this.buttonReport2.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.Control;
-            this.buttonReport2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.buttonReport2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonReport2.Location = new System.Drawing.Point(149, 11);
-            this.buttonReport2.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonReport2.Name = "buttonReport2";
-            this.buttonReport2.Size = new System.Drawing.Size(87, 24);
-            this.buttonReport2.TabIndex = 24;
-            this.buttonReport2.Text = "Отчет полный";
-            this.toolTip1.SetToolTip(this.buttonReport2, "Сгенерировать полный отчет в EXCEL");
-            this.buttonReport2.UseVisualStyleBackColor = true;
-            this.buttonReport2.Click += new System.EventHandler(this.buttonReport2_Click);
+            this.makeFullReportItem.Name = "makeFullReportItem";
+            this.makeFullReportItem.Size = new System.Drawing.Size(208, 22);
+            this.makeFullReportItem.Text = "Полный отчет";
+            this.makeFullReportItem.Click += new System.EventHandler(this.makeFullReportItem_Click);
             // 
-            // buttonClear
+            // makeReportAccountantItem
             // 
-            this.buttonClear.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.Control;
-            this.buttonClear.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.buttonClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonClear.Location = new System.Drawing.Point(238, 11);
-            this.buttonClear.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonClear.Name = "buttonClear";
-            this.buttonClear.Size = new System.Drawing.Size(44, 24);
-            this.buttonClear.TabIndex = 25;
-            this.buttonClear.Text = "Clear";
-            this.toolTip1.SetToolTip(this.buttonClear, "Убрать весь текст из окна просмотра");
-            this.buttonClear.UseVisualStyleBackColor = true;
-            this.buttonClear.Click += new System.EventHandler(this.buttonClear_Click);
+            this.makeReportAccountantItem.Name = "makeReportAccountantItem";
+            this.makeReportAccountantItem.Size = new System.Drawing.Size(208, 22);
+            this.makeReportAccountantItem.Text = "Отчет для бухгалтерии";
+            this.makeReportAccountantItem.Click += new System.EventHandler(this.makeReportAccountantToolItem_Click);
+            // 
+            // makeReportMarketingMenuItem
+            // 
+            this.makeReportMarketingMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectListNumbersItem,
+            this.selectListServicesItem,
+            this.makeReportMarketingItem});
+            this.makeReportMarketingMenuItem.Name = "makeReportMarketingMenuItem";
+            this.makeReportMarketingMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.makeReportMarketingMenuItem.Text = "Отчет для маркетинга";
+            this.makeReportMarketingMenuItem.Click += new System.EventHandler(this.makeReportMarketingItem_Click);
+            // 
+            // functionToolStripMenuItem
+            // 
+            this.functionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.clearTextboxItem,
+            this.aboutItem,
+            this.exitItem});
+            this.functionToolStripMenuItem.Name = "functionToolStripMenuItem";
+            this.functionToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
+            this.functionToolStripMenuItem.Text = "Function";
+            // 
+            // clearTextboxItem
+            // 
+            this.clearTextboxItem.Name = "clearTextboxItem";
+            this.clearTextboxItem.Size = new System.Drawing.Size(180, 22);
+            this.clearTextboxItem.Text = "ClearTextBox";
+            this.clearTextboxItem.Click += new System.EventHandler(this.clearTextBoxItem_Click);
+            // 
+            // aboutItem
+            // 
+            this.aboutItem.Name = "aboutItem";
+            this.aboutItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutItem.Text = "About";
+            this.aboutItem.Click += new System.EventHandler(this.AboutSoft);
+            // 
+            // exitItem
+            // 
+            this.exitItem.Name = "exitItem";
+            this.exitItem.Size = new System.Drawing.Size(180, 22);
+            this.exitItem.Text = "Exit";
+            this.exitItem.Click += new System.EventHandler(this.ApplicationExit);
+            // 
+            // selectListNumbersItem
+            // 
+            this.selectListNumbersItem.Name = "selectListNumbersItem";
+            this.selectListNumbersItem.Size = new System.Drawing.Size(192, 22);
+            this.selectListNumbersItem.Text = "SelectListNumbers";
+            this.selectListNumbersItem.Click += new System.EventHandler(this.selectListNumbersItem_Click);
+            // 
+            // selectListServicesItem
+            // 
+            this.selectListServicesItem.Name = "selectListServicesItem";
+            this.selectListServicesItem.Size = new System.Drawing.Size(192, 22);
+            this.selectListServicesItem.Text = "SelectListServices";
+            this.selectListServicesItem.Click += new System.EventHandler(this.selectListServicesItem_Click);
+            // 
+            // makeReportMarketingItem
+            // 
+            this.makeReportMarketingItem.Name = "makeReportMarketingItem";
+            this.makeReportMarketingItem.Size = new System.Drawing.Size(192, 22);
+            this.makeReportMarketingItem.Text = "MakeReportMarketing";
+            this.makeReportMarketingItem.Click += new System.EventHandler(this.makeReportMarketingItem_Click_1);
             // 
             // Form1
             // 
@@ -395,11 +415,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(801, 343);
-            this.Controls.Add(this.buttonClear);
-            this.Controls.Add(this.buttonReport2);
-            this.Controls.Add(this.buttonReport1);
-            this.Controls.Add(this.buttonExit);
-            this.Controls.Add(this.buttonAbout);
             this.Controls.Add(this.labelSummaryNumbers);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.labelBill);
@@ -409,8 +424,8 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.buttonOpen);
             this.Controls.Add(this.textBoxP3);
             this.Controls.Add(this.textBoxP1);
             this.Controls.Add(this.textBoxP4);
@@ -422,6 +437,7 @@
             this.Controls.Add(this.groupBox1);
             this.HelpButton = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "VodafoneInvoiceModifier ©RYIK 2016-2018";
@@ -429,14 +445,14 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button buttonOpen;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.StatusStrip statusStrip1;
@@ -457,14 +473,22 @@
         private System.Windows.Forms.TextBox textBoxP6;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.NotifyIcon notifyIcon1;
-        private System.Windows.Forms.Button buttonAbout;
         private System.Windows.Forms.TextBox textBoxP7;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.TextBox textBoxP8;
-        private System.Windows.Forms.Button buttonExit;
-        private System.Windows.Forms.Button buttonReport1;
-        private System.Windows.Forms.Button buttonReport2;
-        private System.Windows.Forms.Button buttonClear;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openBillItem;
+        private System.Windows.Forms.ToolStripMenuItem makeFullReportItem;
+        private System.Windows.Forms.ToolStripMenuItem makeReportAccountantItem;
+        private System.Windows.Forms.ToolStripMenuItem functionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearTextboxItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutItem;
+        private System.Windows.Forms.ToolStripMenuItem exitItem;
+        private System.Windows.Forms.ToolStripMenuItem makeReportMarketingMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectListNumbersItem;
+        private System.Windows.Forms.ToolStripMenuItem selectListServicesItem;
+        private System.Windows.Forms.ToolStripMenuItem makeReportMarketingItem;
     }
 }
 

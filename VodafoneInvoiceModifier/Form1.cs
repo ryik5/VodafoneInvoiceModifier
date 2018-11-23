@@ -13,7 +13,7 @@ namespace VodafoneInvoiceModifier
     public partial class Form1 : Form
     {
         private System.Diagnostics.FileVersionInfo myFileVersionInfo;
-        private System.Windows.Forms.ContextMenu contextMenu1;
+        private ContextMenu contextMenu1;
 
         private string pStop = @"ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
         private string about = "";
@@ -248,53 +248,43 @@ namespace VodafoneInvoiceModifier
             labelSummaryNumbers.Visible = false;
             readinifile();
 
-            buttonAbout.FlatAppearance.MouseOverBackColor = System.Drawing.Color.PaleGreen;
-            buttonOpen.FlatAppearance.MouseOverBackColor = System.Drawing.Color.PaleGreen;
-            buttonReport1.FlatAppearance.MouseOverBackColor = System.Drawing.Color.PaleGreen;
-            buttonReport2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.PaleGreen;
+            
+            makeReportAccountantItem.Enabled = false;
+            makeFullReportItem.Enabled = false;
 
+            openBillItem.ToolTipText = "Открыть счет Voodafon в текстовом формате";
+            makeFullReportItem.ToolTipText = "Подготовить полный отчет в Excel-файле.\nФайл будет сохранен в папке с программой";
+            makeReportAccountantItem.ToolTipText = "Подготовить отчет для бух. в Excel-файле.\nФайл будет сохранен в папке с программой";
+
+            clearTextboxItem.ToolTipText = "Убрать весь текст из окна просмотра";
+            aboutItem.ToolTipText = "О программе";
+            exitItem.ToolTipText = "Выйти из программы и сохранить настройки и парсеры счета";
+
+            /*buttonReport2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.PaleGreen;
             buttonExit.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SandyBrown;
-
-            buttonReport1.Enabled = false;
-            buttonReport2.Enabled = false;
-
+            */
             dtMobile.Columns.AddRange(dcMobile);
             dtTarif.Columns.AddRange(dcTarif);
         }
 
-        private void AboutSoft(object sender, EventArgs e) //Кнопка "О программе"
-        { AboutSoft(); }
 
-        private void AboutSoft()
+
+        public void ControlHoverChangeColorPale(Control control)
         {
-            String strVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
-            MessageBox.Show(
-                myFileVersionInfo.Comments + "\n\nВерсия: " + myFileVersionInfo.FileVersion + "\nBuild: " +
-                strVersion + "\n" + myFileVersionInfo.LegalCopyright,
-                "Информация о программе",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information,
-                MessageBoxDefaultButton.Button1);
+            control.BackColor = System.Drawing.Color.PaleGreen;
         }
 
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        { ApplicationExit(); }
-
-         private void ApplicationExit(object sender, EventArgs e) //Кнопка "Выход"
-        { ApplicationExit(); }
-
-       private void ApplicationExit()
+        public void ControlLeaveChangeColorSandy(Control control)
         {
-            writeinitofile();
-            Application.Exit();
+            control.BackColor = System.Drawing.Color.SandyBrown;
         }
-        
-        private void buttonClear_Click(object sender, EventArgs e)
-        { textBox1.Clear(); }
 
-        private void Open_Click(object sender, EventArgs e) //Кнопка "Open"
-        { OpenBill(); }
+        public void ControlLeaveChangeColorNormal(Control control)
+        {
+            control.BackColor = System.Drawing.SystemColors.Control;
+        }
+
+
 
         private async void OpenBill()
         {
@@ -305,9 +295,9 @@ namespace VodafoneInvoiceModifier
             textBox1.Visible = false;
             newModels = false;
             billReady = false;
-            buttonReport1.Enabled = billReady;
-            buttonReport2.Enabled = billReady;
-            buttonOpen.Enabled = billReady;
+            makeReportAccountantItem.Enabled = false;
+            makeFullReportItem.Enabled = false;
+            openBillItem.Enabled = false;
 
             infoStatusBar = "";
             //Чтение параметров парсинга с textbox`es
@@ -484,8 +474,8 @@ namespace VodafoneInvoiceModifier
 
 
                         billReady = true;
-                        buttonReport1.Enabled = billReady;
-                        buttonReport2.Enabled = billReady;
+                        makeReportAccountantItem.Enabled = billReady;
+                        makeFullReportItem.Enabled = billReady;
 
                         StatusLabel1.Text = "Обработка счета завершена!";
                     }
@@ -511,41 +501,35 @@ namespace VodafoneInvoiceModifier
                         StatusLabel1.Text = infoStatusBar;
                         StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
                     }
-                    buttonReport1.Enabled = true;
-                    buttonReport2.Enabled = true;
+                    makeReportAccountantItem.Enabled = true;
+                    makeFullReportItem.Enabled = true;
                 }
                 billReady = true;
             }
             else { StatusLabel1.Text = "Файл с детализацией не выбран!  "; }
 
-            buttonOpen.Enabled = true;
+            openBillItem.Enabled = true;
             textBox1.Visible = true;
             // перейти в конец текстового файла
             // textBox1.SelectionStart = textBox1.Text.Length;
             // textBox1.ScrollToCaret();
         }
-
-        private void buttonReport1_Click(object sender, EventArgs e)
-        { MakeExcelReport(ExportDataTableToExcelForAccount); }
-
-        private void buttonReport2_Click(object sender, EventArgs e)
-        { MakeExcelReport(ExportFullDataTableToExcel); }
         
         private async void MakeExcelReport(Action action)
         {
             StatusLabel1.Text = "Обрабатываю полученные данные и формирую отчет...";
 
             billReady = false;
-            buttonReport1.Enabled = billReady;
-            buttonReport2.Enabled = billReady;
-            buttonOpen.Enabled = billReady;
+            makeReportAccountantItem.Enabled = billReady;
+            makeFullReportItem.Enabled = billReady;
+            openBillItem.Enabled = billReady;
 
             await Task.Run(() => action());
 
             billReady = true;
-            buttonReport1.Enabled = billReady;
-            buttonReport2.Enabled = billReady;
-            buttonOpen.Enabled = billReady;
+            makeReportAccountantItem.Enabled = billReady;
+            makeFullReportItem.Enabled = billReady;
+            openBillItem.Enabled = billReady;
             StatusLabel1.Text = @"Формирование отчета завершено. Файл сохранен в папку:  " + Path.GetDirectoryName(filePathTxt);
 
             GC.Collect();
@@ -578,7 +562,7 @@ namespace VodafoneInvoiceModifier
             if (File.Exists(Application.StartupPath + @"\VodafoneInvoiceModifier.ini"))
             {
                 toolTip1.SetToolTip(this.groupBox1, "Использованы настройки программы");
-
+                
                 var Coder = Encoding.GetEncoding(1251);
                 using (StreamReader Reader = new StreamReader(Application.StartupPath + @"\VodafoneInvoiceModifier.ini", Coder))
                 {
@@ -1567,6 +1551,66 @@ namespace VodafoneInvoiceModifier
                 if (result == DialogResult.Yes)
                 { newModels = true; }
             }
+        }
+
+        private void AboutSoft()
+        {
+            String strVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            MessageBox.Show(
+                myFileVersionInfo.Comments + "\n\nВерсия: " + myFileVersionInfo.FileVersion + "\nBuild: " +
+                strVersion + "\n" + myFileVersionInfo.LegalCopyright,
+                "Информация о программе",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information,
+                MessageBoxDefaultButton.Button1);
+        }
+
+        private void ApplicationExit()
+        {
+            writeinitofile();
+            Application.Exit();
+        }
+
+        private void openBillItem_Click(object sender, EventArgs e)//Menu "Open"
+        { OpenBill(); }
+
+        private void makeFullReportItem_Click(object sender, EventArgs e)
+        { MakeExcelReport(ExportFullDataTableToExcel); }
+
+        private void makeReportAccountantToolItem_Click(object sender, EventArgs e)
+        { MakeExcelReport(ExportDataTableToExcelForAccount); }
+
+        private void clearTextBoxItem_Click(object sender, EventArgs e)
+        { textBox1.Clear(); }
+
+        private void AboutSoft(object sender, EventArgs e)
+        { AboutSoft(); }
+
+        private void ApplicationExit(object sender, EventArgs e)
+        { ApplicationExit(); }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        { ApplicationExit(); }
+
+        private void makeReportMarketingItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void makeReportMarketingItem_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectListNumbersItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectListServicesItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
