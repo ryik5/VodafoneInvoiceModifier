@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBoxLog = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.label1 = new System.Windows.Forms.Label();
@@ -59,13 +59,14 @@
             this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportMarketingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectListNumbersItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectListServicesItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.prepareBillItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeReportMarketingItem = new System.Windows.Forms.ToolStripMenuItem();
             this.functionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearTextboxItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.selectListNumbersItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.selectListServicesItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.makeReportMarketingItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -74,20 +75,20 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // textBox1
+            // textBoxLog
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.textBoxLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Font = new System.Drawing.Font("Courier New", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.textBox1.Location = new System.Drawing.Point(2, 46);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(604, 273);
-            this.textBox1.TabIndex = 2;
-            this.textBox1.WordWrap = false;
+            this.textBoxLog.Font = new System.Drawing.Font("Courier New", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBoxLog.Location = new System.Drawing.Point(2, 46);
+            this.textBoxLog.Margin = new System.Windows.Forms.Padding(2);
+            this.textBoxLog.Multiline = true;
+            this.textBoxLog.Name = "textBoxLog";
+            this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxLog.Size = new System.Drawing.Size(604, 273);
+            this.textBoxLog.TabIndex = 2;
+            this.textBoxLog.WordWrap = false;
             // 
             // statusStrip1
             // 
@@ -351,11 +352,39 @@
             this.makeReportMarketingMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.selectListNumbersItem,
             this.selectListServicesItem,
+            this.prepareBillItem,
             this.makeReportMarketingItem});
             this.makeReportMarketingMenuItem.Name = "makeReportMarketingMenuItem";
             this.makeReportMarketingMenuItem.Size = new System.Drawing.Size(208, 22);
             this.makeReportMarketingMenuItem.Text = "Отчет для маркетинга";
-            this.makeReportMarketingMenuItem.Click += new System.EventHandler(this.makeReportMarketingItem_Click);
+            // 
+            // selectListNumbersItem
+            // 
+            this.selectListNumbersItem.Name = "selectListNumbersItem";
+            this.selectListNumbersItem.Size = new System.Drawing.Size(257, 22);
+            this.selectListNumbersItem.Text = "Список анализируемых номеров";
+            this.selectListNumbersItem.Click += new System.EventHandler(this.selectListNumbersItem_Click);
+            // 
+            // selectListServicesItem
+            // 
+            this.selectListServicesItem.Name = "selectListServicesItem";
+            this.selectListServicesItem.Size = new System.Drawing.Size(257, 22);
+            this.selectListServicesItem.Text = "Список проверяемых сервисов";
+            this.selectListServicesItem.Click += new System.EventHandler(this.selectListServicesItem_Click);
+            // 
+            // prepareBillItem
+            // 
+            this.prepareBillItem.Name = "prepareBillItem";
+            this.prepareBillItem.Size = new System.Drawing.Size(257, 22);
+            this.prepareBillItem.Text = "Подготовить счет";
+            this.prepareBillItem.Click += new System.EventHandler(this.prepareBillItem_Click);
+            // 
+            // makeReportMarketingItem
+            // 
+            this.makeReportMarketingItem.Name = "makeReportMarketingItem";
+            this.makeReportMarketingItem.Size = new System.Drawing.Size(257, 22);
+            this.makeReportMarketingItem.Text = "Сформировать отчет";
+            this.makeReportMarketingItem.Click += new System.EventHandler(this.makeReportMarketingItem_Click);
             // 
             // functionToolStripMenuItem
             // 
@@ -370,44 +399,23 @@
             // clearTextboxItem
             // 
             this.clearTextboxItem.Name = "clearTextboxItem";
-            this.clearTextboxItem.Size = new System.Drawing.Size(180, 22);
+            this.clearTextboxItem.Size = new System.Drawing.Size(141, 22);
             this.clearTextboxItem.Text = "ClearTextBox";
             this.clearTextboxItem.Click += new System.EventHandler(this.clearTextBoxItem_Click);
             // 
             // aboutItem
             // 
             this.aboutItem.Name = "aboutItem";
-            this.aboutItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutItem.Size = new System.Drawing.Size(141, 22);
             this.aboutItem.Text = "About";
             this.aboutItem.Click += new System.EventHandler(this.AboutSoft);
             // 
             // exitItem
             // 
             this.exitItem.Name = "exitItem";
-            this.exitItem.Size = new System.Drawing.Size(180, 22);
+            this.exitItem.Size = new System.Drawing.Size(141, 22);
             this.exitItem.Text = "Exit";
             this.exitItem.Click += new System.EventHandler(this.ApplicationExit);
-            // 
-            // selectListNumbersItem
-            // 
-            this.selectListNumbersItem.Name = "selectListNumbersItem";
-            this.selectListNumbersItem.Size = new System.Drawing.Size(192, 22);
-            this.selectListNumbersItem.Text = "SelectListNumbers";
-            this.selectListNumbersItem.Click += new System.EventHandler(this.selectListNumbersItem_Click);
-            // 
-            // selectListServicesItem
-            // 
-            this.selectListServicesItem.Name = "selectListServicesItem";
-            this.selectListServicesItem.Size = new System.Drawing.Size(192, 22);
-            this.selectListServicesItem.Text = "SelectListServices";
-            this.selectListServicesItem.Click += new System.EventHandler(this.selectListServicesItem_Click);
-            // 
-            // makeReportMarketingItem
-            // 
-            this.makeReportMarketingItem.Name = "makeReportMarketingItem";
-            this.makeReportMarketingItem.Size = new System.Drawing.Size(192, 22);
-            this.makeReportMarketingItem.Text = "MakeReportMarketing";
-            this.makeReportMarketingItem.Click += new System.EventHandler(this.makeReportMarketingItem_Click_1);
             // 
             // Form1
             // 
@@ -425,7 +433,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.textBoxLog);
             this.Controls.Add(this.textBoxP3);
             this.Controls.Add(this.textBoxP1);
             this.Controls.Add(this.textBoxP4);
@@ -454,7 +462,7 @@
 
         #endregion
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textBoxLog;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel StatusLabel1;
         private System.Windows.Forms.Label label1;
@@ -489,6 +497,7 @@
         private System.Windows.Forms.ToolStripMenuItem selectListNumbersItem;
         private System.Windows.Forms.ToolStripMenuItem selectListServicesItem;
         private System.Windows.Forms.ToolStripMenuItem makeReportMarketingItem;
+        private System.Windows.Forms.ToolStripMenuItem prepareBillItem;
     }
 }
 
