@@ -59,6 +59,7 @@
             this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportMarketingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.repeateLastReportItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectListNumbersItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectListServicesItem = new System.Windows.Forms.ToolStripMenuItem();
             this.prepareBillItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -323,8 +324,8 @@
             this.makeReportAccountantItem,
             this.makeReportMarketingMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
-            this.fileMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileMenuItem.Text = "File";
+            this.fileMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.fileMenuItem.Text = "Файл";
             // 
             // openBillItem
             // 
@@ -350,6 +351,7 @@
             // makeReportMarketingMenuItem
             // 
             this.makeReportMarketingMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.repeateLastReportItem,
             this.selectListNumbersItem,
             this.selectListServicesItem,
             this.prepareBillItem,
@@ -357,6 +359,13 @@
             this.makeReportMarketingMenuItem.Name = "makeReportMarketingMenuItem";
             this.makeReportMarketingMenuItem.Size = new System.Drawing.Size(208, 22);
             this.makeReportMarketingMenuItem.Text = "Отчет для маркетинга";
+            // 
+            // repeateLastReportItem
+            // 
+            this.repeateLastReportItem.Name = "repeateLastReportItem";
+            this.repeateLastReportItem.Size = new System.Drawing.Size(257, 22);
+            this.repeateLastReportItem.Text = "Повторить последний отчет";
+            this.repeateLastReportItem.Click += new System.EventHandler(this.repeateLastReportItem_Click);
             // 
             // selectListNumbersItem
             // 
@@ -393,28 +402,28 @@
             this.aboutItem,
             this.exitItem});
             this.functionToolStripMenuItem.Name = "functionToolStripMenuItem";
-            this.functionToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
-            this.functionToolStripMenuItem.Text = "Function";
+            this.functionToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
+            this.functionToolStripMenuItem.Text = "Общее";
             // 
             // clearTextboxItem
             // 
             this.clearTextboxItem.Name = "clearTextboxItem";
-            this.clearTextboxItem.Size = new System.Drawing.Size(141, 22);
-            this.clearTextboxItem.Text = "ClearTextBox";
+            this.clearTextboxItem.Size = new System.Drawing.Size(180, 22);
+            this.clearTextboxItem.Text = "Очистить окно";
             this.clearTextboxItem.Click += new System.EventHandler(this.clearTextBoxItem_Click);
             // 
             // aboutItem
             // 
             this.aboutItem.Name = "aboutItem";
-            this.aboutItem.Size = new System.Drawing.Size(141, 22);
-            this.aboutItem.Text = "About";
+            this.aboutItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutItem.Text = "О программе";
             this.aboutItem.Click += new System.EventHandler(this.AboutSoft);
             // 
             // exitItem
             // 
             this.exitItem.Name = "exitItem";
-            this.exitItem.Size = new System.Drawing.Size(141, 22);
-            this.exitItem.Text = "Exit";
+            this.exitItem.Size = new System.Drawing.Size(180, 22);
+            this.exitItem.Text = "Выход";
             this.exitItem.Click += new System.EventHandler(this.ApplicationExit);
             // 
             // Form1
@@ -498,6 +507,7 @@
         private System.Windows.Forms.ToolStripMenuItem selectListServicesItem;
         private System.Windows.Forms.ToolStripMenuItem makeReportMarketingItem;
         private System.Windows.Forms.ToolStripMenuItem prepareBillItem;
+        private System.Windows.Forms.ToolStripMenuItem repeateLastReportItem;
     }
 }
 

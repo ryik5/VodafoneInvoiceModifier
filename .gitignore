@@ -14,6 +14,7 @@
 *.png
 *.ico
 *.xls*
+*.csv
 *.doc*
 *.ppt*
 *.sql
