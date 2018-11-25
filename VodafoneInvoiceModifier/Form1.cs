@@ -344,6 +344,7 @@ namespace VodafoneInvoiceModifier
             string strTemp = "";
             List<string> listWrongString = new List<string>();
             List<string> tempListString = LoadDataIntoList();
+            int limitWrongNumber = 300;
 
             //clear target 
             listNumbers = new List<string>();
@@ -362,9 +363,14 @@ namespace VodafoneInvoiceModifier
 
                 if (0 < listWrongString.Count)
                 {
-                    textBoxLog.AppendText("List of wrong strings in the selected list:\n");
+                    textBoxLog.AppendText("List of first 300 wrong rows in the selected list:\n");
+                    textBoxLog.AppendText("--------------------------------------------\n\n");
+                    int wrongRow = 0;
                     foreach (string s in listWrongString)
-                    { textBoxLog.AppendText(s + "\n"); }
+                    { textBoxLog.AppendText(s + "\n"); wrongRow++;
+                        if (wrongRow > limitWrongNumber) { break; }
+
+                    }
                     textBoxLog.AppendText("\n\n");
                 }
 
@@ -381,6 +387,7 @@ namespace VodafoneInvoiceModifier
                     }
 
                     textBoxLog.AppendText("List of numbers:\n");
+                    textBoxLog.AppendText("--------------------------------------------\n\n");
                     foreach (string s in listNumbers)
                     { textBoxLog.AppendText(s + "\n"); }
                 }
@@ -545,6 +552,14 @@ namespace VodafoneInvoiceModifier
             loadedBill = false;
             string numberMobile = "";
             string tempRow = "";
+            string serviceName = "";
+            string numberB = "";
+            string date = "";
+            string time = "";
+            string durationA = "";
+            string durationB = "";
+            string cost = "";
+
             List<string> listResultRows = new List<string>();
 
             pListParseStrings[1] = textBoxP1.Text;
@@ -587,20 +602,44 @@ namespace VodafoneInvoiceModifier
                 {
                     if (sRowBill.StartsWith(pListParseStrings[1]))
                     {
-                        numberMobile = sRowBill.Substring(41,13).Trim();
+                        if (sRowBill.Contains(@"Моб.номер"))
+                        { numberMobile = sRowBill.Substring(36).Trim(); }
+                        else if (sRowBill.Contains(@"Номер телефону"))
+                        { numberMobile = sRowBill.Substring(41).Trim(); }
+                        else
+                        { numberMobile = sRowBill.Substring(40).Trim(); }
                         tempRow = "";
-                    }else
+                    }
+                    else
                     {
                         foreach (string service in listServices)
                         {
-                            
+                            /*
+                            1-39	наименование услуги
+                            40-52	номер(целевой)
+                            53-63	дата
+                            66-74	время
+                            75-84	длительность
+                            85-95	учтенная длительность оператором (для биллинга)
+                            96-106	стоимость
+                            */
+                            try
+                            {
+                                serviceName = sRowBill.Substring(0, 38).Trim(); ;
+                                numberB = sRowBill.Substring(38, 13).Trim(); ;
+                                date = sRowBill.Substring(52, 10).Trim(); ;
+                                time = sRowBill.Substring(65, 8).Trim(); ;
+                                durationA = sRowBill.Substring(74, 9).Trim(); ;
+                                durationB = sRowBill.Substring(84, 9).Trim(); ;
+                                cost = sRowBill.Substring(95).Trim(); ;
+
+                                tempRow = numberMobile + "," + serviceName + "," + numberB + "," + date + "," + time + "," + durationA + "," + durationB + "," + cost;
+                                listResultRows.Add(tempRow);
+                                break;
+                            } catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString()); }
                         }
                     }
-
-                   
-
                 }
-
                 loadedBill = true;
             }
             else
@@ -608,11 +647,11 @@ namespace VodafoneInvoiceModifier
                 textBoxLog.AppendText("Нет в выборке ничего для указанных номеров!\n");
             }
             StringBuilder sb = new StringBuilder();
-            foreach (string s in loadedBillWithServicesFilter)
+            foreach (string s in listResultRows)
             {
                 sb.AppendLine(s);
             }
-            File.WriteAllText(Application.StartupPath + @"\listMarketingCollectRows.txt", sb.ToString(), Encoding.GetEncoding(1251));
+            File.WriteAllText(Application.StartupPath + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
             sb = null;
 
             
