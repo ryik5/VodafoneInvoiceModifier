@@ -233,7 +233,14 @@ namespace VodafoneInvoiceModifier
                                   new DataColumn("Номер телефона",typeof(string)),
                                   new DataColumn("ФИО",typeof(string)),
                                   new DataColumn("NAV",typeof(string)),
-                                  new DataColumn("Подразделение",typeof(string))        
+                                  new DataColumn("Подразделение",typeof(string)),
+                                  new DataColumn("Имя сервиса",typeof(string)),
+                                  new DataColumn("Номер В",typeof(string)),
+                                  new DataColumn("Дата",typeof(string)),
+                                  new DataColumn("Время",typeof(string)),
+                                  new DataColumn("Длительность А",typeof(string)),
+                                  new DataColumn("Длительность В",typeof(string)),
+                                  new DataColumn("Стоимость",typeof(string))
                               };
 
 
@@ -584,7 +591,15 @@ namespace VodafoneInvoiceModifier
                                   new DataColumn("ФИО",typeof(string)),
                                   new DataColumn("NAV",typeof(string)),
                                   new DataColumn("Подразделение",typeof(string)),
-                              };
+                                  new DataColumn("Имя сервиса",typeof(string)),
+                                  new DataColumn("Номер В",typeof(string)),
+                                  new DataColumn("Дата",typeof(string)),
+                                  new DataColumn("Время",typeof(string)),
+                                  new DataColumn("Длительность А",typeof(string)),
+                                  new DataColumn("Длительность В",typeof(string)),
+                                  new DataColumn("Стоимость",typeof(string))
+                                  };
+                                  
                                   dtFullBill.Columns.Add("CustLName", typeof(String));  
                                   dtFullBill.Columns.Add("CustFName", typeof(String));  
                                   dtFullBill.Columns.Add("Purchases", typeof(Double));
@@ -610,7 +625,7 @@ namespace VodafoneInvoiceModifier
                         { numberMobile = sRowBill.Substring(40).Trim(); }
                         tempRow = "";
                     }
-                    else
+                    else 
                     {
                         foreach (string service in listServices)
                         {
@@ -632,9 +647,11 @@ namespace VodafoneInvoiceModifier
                                 durationA = sRowBill.Substring(74, 9).Trim(); ;
                                 durationB = sRowBill.Substring(84, 9).Trim(); ;
                                 cost = sRowBill.Substring(95).Trim(); ;
-
-                                tempRow = numberMobile + "," + serviceName + "," + numberB + "," + date + "," + time + "," + durationA + "," + durationB + "," + cost;
-                                listResultRows.Add(tempRow);
+                                if (!time.Contains('.')) //except a common service with ". . ."
+                                {
+                                    tempRow = numberMobile + "," + serviceName + "," + numberB + "," + date + "," + time + "," + durationA + "," + durationB + "," + cost;
+                                    listResultRows.Add(tempRow);
+                                }
                                 break;
                             } catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString()); }
                         }
