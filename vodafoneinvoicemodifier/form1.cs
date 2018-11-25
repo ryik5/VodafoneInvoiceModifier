@@ -11,7 +11,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace VodafoneInvoiceModifier
 {
-    public partial class Form1 :Form
+    public partial class Form1 : Form
     {
         private System.Diagnostics.FileVersionInfo myFileVersionInfo;
         private ContextMenu contextMenu1;
@@ -488,7 +488,8 @@ namespace VodafoneInvoiceModifier
                             }
                         }
                     }
-                } catch (Exception expt) { MessageBox.Show("Error was happened on " + i + " row\n" + expt.ToString()); }
+                }
+                catch (Exception expt) { MessageBox.Show("Error was happened on " + i + " row\n" + expt.ToString()); }
                 if (i > listMaxLength - 10 || i == 0)
                 { MessageBox.Show("Error was happened on " + i + " row\n You've been chosen the long file!"); }
             }
@@ -545,7 +546,8 @@ namespace VodafoneInvoiceModifier
                                 }
                             }
                         }
-                    } catch (Exception expt) { MessageBox.Show("Error was happened on " + listValue.Count + " row\n" + expt.ToString()); }
+                    }
+                    catch (Exception expt) { MessageBox.Show("Error was happened on " + listValue.Count + " row\n" + expt.ToString()); }
                     if (listMaxLength - 2 < listValue.Count || listValue.Count == 0)
                     { MessageBox.Show("Error was happened on " + (listValue.Count) + " row\n You've been chosen the long file!"); }
                 }
@@ -673,7 +675,8 @@ namespace VodafoneInvoiceModifier
                                     listResultRows.Add(tempRow);
                                 }
                                 break;
-                            } catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString()); }
+                            }
+                            catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString()); }
                         }
                     }
                 }
@@ -703,9 +706,9 @@ namespace VodafoneInvoiceModifier
 
 
 
-        private async void makeReportMarketingItem_Click(object sender, EventArgs e)
+        private void makeReportMarketingItem_Click(object sender, EventArgs e)
         {
-            await Task.Run(() => MakeReport());
+            MakeExcelReport(MakeReport);
         }
 
         private void MakeReport()
@@ -713,6 +716,13 @@ namespace VodafoneInvoiceModifier
             ExportDatatableToExcel(dtFullBill, "_Marketing.xlsx");//Заполнение таблицы в Excel  данными
         }
 
+        private void repeateLastReportItem_Click(object sender, EventArgs e)
+        {
+            //TODO
+            //Repaete last selection action with last bill
+            //add to tooltip last files
+            //remember all settings to registry
+        }
 
         public void ControlHoverChangeColorPale(Control control)
         { control.BackColor = System.Drawing.Color.PaleGreen; }
@@ -1094,7 +1104,8 @@ namespace VodafoneInvoiceModifier
                 sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
 
                 File.WriteAllText(Application.StartupPath + @"\VodafoneInvoiceModifier.ini", sb.ToString(), Encoding.GetEncoding(1251));
-            } catch (Exception Expt)
+            }
+            catch (Exception Expt)
             { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
             sb = null;
@@ -1166,13 +1177,16 @@ namespace VodafoneInvoiceModifier
                         { sb.AppendLine(str); }
                         //Delete Test data
                         File.WriteAllText(Application.StartupPath + @"\listTempContract.txt", sb.ToString(), Encoding.GetEncoding(1251));
-                    } catch (Exception Expt)
-                    { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); } finally { sb = null; }
+                    }
+                    catch (Exception Expt)
+                    { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                    finally { sb = null; }
                     //Test t ----- module The End -----
 
 
                     ChosenFile = true;
-                } catch (Exception Expt)
+                }
+                catch (Exception Expt)
                 {
                     ChosenFile = false;
                     MessageBox.Show(Expt.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1501,7 +1515,8 @@ namespace VodafoneInvoiceModifier
                 row[23] = mcpCurrent.extraServiceOrdered;
 
                 dtMobile.Rows.Add(row);
-            } catch (Exception Expt) { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            }
+            catch (Exception Expt) { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
             //Test only
             //File.WriteAllText(Application.StartupPath + @"\VodafoneCollector.txt", sb.ToString(), Encoding.GetEncoding(1251));
@@ -1992,7 +2007,9 @@ namespace VodafoneInvoiceModifier
                     }
                 }
 
-            } catch (System.Data.SqlClient.SqlException expt) { MessageBox.Show(expt.ToString()); } catch (Exception expt) { MessageBox.Show(expt.ToString()); }
+            }
+            catch (System.Data.SqlClient.SqlException expt) { MessageBox.Show(expt.ToString()); }
+            catch (Exception expt) { MessageBox.Show(expt.ToString()); }
 
             sSqlQuery = null;
         }
@@ -2058,8 +2075,10 @@ namespace VodafoneInvoiceModifier
 
                     File.WriteAllText(Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt", sb.ToString(), Encoding.GetEncoding(1251));
                     File.AppendAllText(Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt", sbError.ToString(), Encoding.GetEncoding(1251));
-                } catch (Exception Expt)
-                { MessageBox.Show(Expt.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); } finally
+                }
+                catch (Exception Expt)
+                { MessageBox.Show(Expt.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                finally
                 { sb = null; }
                 infoStatusBar = "В базе найдены новые, не добавленные ранее, модели компенсации затрат сотрудников!";
 
@@ -2075,6 +2094,8 @@ namespace VodafoneInvoiceModifier
                 { newModels = true; }
             }
         }
+
+
     }
 
     class MobileContractPerson
