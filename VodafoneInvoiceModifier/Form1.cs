@@ -21,7 +21,7 @@ namespace VodafoneInvoiceModifier
         private string dataStart = ""; // дата начала периода счета
         private string dataEnd = "";  // дата конца периода счета
         private string sConnection = ""; //string connection to MS SQL DB
-        
+
         private string[] pListParseStrings = new string[]
         {
             // со счета
@@ -215,7 +215,6 @@ namespace VodafoneInvoiceModifier
         private string infoStatusBar = "";
         private bool newModels = false; //stop calculating data
         private string strNewModels = "";
-        private bool billReady = false;
 
         private string filePathTxt; //path to the selected bill
 
@@ -344,7 +343,7 @@ namespace VodafoneInvoiceModifier
         }
 
         //limit of numbers <500
-        
+
         private void selectListNumbers() //Prepare list of numbers for the marketing report - listNumbers
         {
             selectedNumbers = false;
@@ -374,7 +373,8 @@ namespace VodafoneInvoiceModifier
                     textBoxLog.AppendText("--------------------------------------------\n\n");
                     int wrongRow = 0;
                     foreach (string s in listWrongString)
-                    { textBoxLog.AppendText(s + "\n"); wrongRow++;
+                    {
+                        textBoxLog.AppendText(s + "\n"); wrongRow++;
                         if (wrongRow > limitWrongNumber) { break; }
 
                     }
@@ -415,7 +415,7 @@ namespace VodafoneInvoiceModifier
         }
 
         //limit of services <100
-        
+
         private void selectListServices() //Prepare list of services for the marketing report - listServices
         {
             selectedServices = false;
@@ -454,9 +454,9 @@ namespace VodafoneInvoiceModifier
         }
 
 
-       
 
-        
+
+
         private List<string> LoadDataIntoList() //max List length = 500 000 rows
         {
             int listMaxLength = 500000;
@@ -496,14 +496,14 @@ namespace VodafoneInvoiceModifier
         }
 
 
-        
+        private string filepathLoadedData = "";
         private List<string> LoadDataUsingParameters(List<string> listParameters, string startStringLoad, string endStringLoad) //max List length = 500 000 rows
         {
             int listMaxLength = 500000;
             List<string> listValue = new List<string>(listMaxLength);
             string s = "";
             string loadedString = "";
-            string filepathLoadedData = "";
+            filepathLoadedData = "";
             bool startLoadData = false;
             bool endLoadData = false;
             var Coder = Encoding.GetEncoding(1251);
@@ -546,7 +546,7 @@ namespace VodafoneInvoiceModifier
                             }
                         }
                     } catch (Exception expt) { MessageBox.Show("Error was happened on " + listValue.Count + " row\n" + expt.ToString()); }
-                    if (listMaxLength - 2 < listValue.Count  || listValue.Count == 0)
+                    if (listMaxLength - 2 < listValue.Count || listValue.Count == 0)
                     { MessageBox.Show("Error was happened on " + (listValue.Count) + " row\n You've been chosen the long file!"); }
                 }
             }
@@ -557,6 +557,7 @@ namespace VodafoneInvoiceModifier
         {
             textBoxLog.Clear();
             loadedBill = false;
+            string kontrakt = "";
             string numberMobile = "";
             string tempRow = "";
             string serviceName = "";
@@ -580,43 +581,18 @@ namespace VodafoneInvoiceModifier
             { filterBill.Add(s); }
 
             List<string> loadedBillWithServicesFilter = LoadDataUsingParameters(filterBill, parametrStart, parametrEnd);
-            filterBill=null;
+            filterBill = null;
 
             if (loadedBillWithServicesFilter.Count > 0)
             {
-                /*
-                        private DataColumn[] dcFullBill ={
-                                  new DataColumn("Контракт",typeof(string)),
-                                  new DataColumn("Номер телефона",typeof(string)),
-                                  new DataColumn("ФИО",typeof(string)),
-                                  new DataColumn("NAV",typeof(string)),
-                                  new DataColumn("Подразделение",typeof(string)),
-                                  new DataColumn("Имя сервиса",typeof(string)),
-                                  new DataColumn("Номер В",typeof(string)),
-                                  new DataColumn("Дата",typeof(string)),
-                                  new DataColumn("Время",typeof(string)),
-                                  new DataColumn("Длительность А",typeof(string)),
-                                  new DataColumn("Длительность В",typeof(string)),
-                                  new DataColumn("Стоимость",typeof(string))
-                                  };
-                                  
-                                  dtFullBill.Columns.Add("CustLName", typeof(String));  
-                                  dtFullBill.Columns.Add("CustFName", typeof(String));  
-                                  dtFullBill.Columns.Add("Purchases", typeof(Double));
-                                  
-                                  foreach(DataRow row in dtFullBill.Rows)
-                                  {
-                                      //need to set value to NewColumn column
-                                      row["CustLName"] = 0;   // or set it to some other value
-                                  }
-              
-                */
+                dtFullBill.Rows.Clear();
 
                 //todo parsing strings of the filtered bill
                 foreach (string sRowBill in loadedBillWithServicesFilter)
                 {
                     if (sRowBill.StartsWith(pListParseStrings[1]))
                     {
+                        kontrakt = sRowBill.Substring(10, 13).Trim();
                         if (sRowBill.Contains(@"Моб.номер"))
                         { numberMobile = sRowBill.Substring(36).Trim(); }
                         else if (sRowBill.Contains(@"Номер телефону"))
@@ -625,10 +601,11 @@ namespace VodafoneInvoiceModifier
                         { numberMobile = sRowBill.Substring(40).Trim(); }
                         tempRow = "";
                     }
-                    else 
+                    else
                     {
                         foreach (string service in listServices)
                         {
+                            //"service" parsing. start position of a cell
                             /*
                             1-39	наименование услуги
                             40-52	номер(целевой)
@@ -638,18 +615,61 @@ namespace VodafoneInvoiceModifier
                             85-95	учтенная длительность оператором (для биллинга)
                             96-106	стоимость
                             */
+
+                            /*
+                            private DataColumn[] dcFullBill ={
+                            new DataColumn("Контракт",typeof(string)),
+                            new DataColumn("Номер телефона",typeof(string)),
+                            new DataColumn("ФИО",typeof(string)),
+                            new DataColumn("NAV",typeof(string)),
+                            new DataColumn("Подразделение",typeof(string)),
+                            new DataColumn("Имя сервиса",typeof(string)),
+                            new DataColumn("Номер В",typeof(string)),
+                            new DataColumn("Дата",typeof(string)),
+                            new DataColumn("Время",typeof(string)),
+                            new DataColumn("Длительность А",typeof(string)),
+                            new DataColumn("Длительность В",typeof(string)),
+                            new DataColumn("Стоимость",typeof(string))
+                            };
+
+                            dtFullBill.Columns.Add("CustLName", typeof(String));  
+                            dtFullBill.Columns.Add("CustFName", typeof(String));  
+                            dtFullBill.Columns.Add("Purchases", typeof(Double));
+
+                            foreach(DataRow row in dtFullBill.Rows)
+                            {
+                                //need to set value to NewColumn column
+                                row["CustLName"] = 0;   // or set it to some other value
+                            }*/
+
                             try
                             {
-                                serviceName = sRowBill.Substring(0, 38).Trim(); ;
-                                numberB = sRowBill.Substring(38, 13).Trim(); ;
-                                date = sRowBill.Substring(52, 10).Trim(); ;
-                                time = sRowBill.Substring(65, 8).Trim(); ;
-                                durationA = sRowBill.Substring(74, 9).Trim(); ;
-                                durationB = sRowBill.Substring(84, 9).Trim(); ;
-                                cost = sRowBill.Substring(95).Trim(); ;
+                                serviceName = sRowBill.Substring(0, 38).Trim();
+                                numberB = sRowBill.Substring(38, 13).Trim();
+                                date = sRowBill.Substring(52, 10).Trim();
+                                time = sRowBill.Substring(65, 8).Trim();
+                                durationA = sRowBill.Substring(74, 9).Trim();
+                                durationB = sRowBill.Substring(84, 9).Trim();
+                                cost = sRowBill.Substring(95).Trim();
+
+                                DataRow row = dtFullBill.NewRow();
+                                row["Контракт"] = kontrakt;
+                                row["Номер телефона"] = numberMobile;
+                                row["ФИО"] = "";
+                                row["NAV"] = "";
+                                row["Подразделение"] = "";
+                                row["Имя сервиса"] = serviceName;
+                                row["Номер В"] = numberB;
+                                row["Дата"] = date;
+                                row["Время"] = time;
+                                row["Длительность А"] = durationA;
+                                row["Длительность В"] = durationB;
+                                row["Стоимость"] = cost;
+
                                 if (!time.Contains('.')) //except a common service with ". . ."
                                 {
                                     tempRow = numberMobile + "," + serviceName + "," + numberB + "," + date + "," + time + "," + durationA + "," + durationB + "," + cost;
+                                    dtFullBill.Rows.Add(row);
                                     listResultRows.Add(tempRow);
                                 }
                                 break;
@@ -663,6 +683,7 @@ namespace VodafoneInvoiceModifier
             {
                 textBoxLog.AppendText("Нет в выборке ничего для указанных номеров!\n");
             }
+
             StringBuilder sb = new StringBuilder();
             foreach (string s in listResultRows)
             {
@@ -671,7 +692,6 @@ namespace VodafoneInvoiceModifier
             File.WriteAllText(Application.StartupPath + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
             sb = null;
 
-            
             CheckConditionEnableMarketingReport();
         }
 
@@ -683,12 +703,15 @@ namespace VodafoneInvoiceModifier
 
 
 
-        private void makeReportMarketingItem_Click(object sender, EventArgs e)
+        private async void makeReportMarketingItem_Click(object sender, EventArgs e)
         {
-
-
+            await Task.Run(() => MakeReport());
         }
 
+        private void MakeReport()
+        {
+            ExportDatatableToExcel(dtFullBill, "_Marketing.xlsx");//Заполнение таблицы в Excel  данными
+        }
 
 
         public void ControlHoverChangeColorPale(Control control)
@@ -708,7 +731,6 @@ namespace VodafoneInvoiceModifier
 
             textBoxLog.Visible = false;
             newModels = false;
-            billReady = false;
             makeReportAccountantItem.Enabled = false;
             makeFullReportItem.Enabled = false;
             openBillItem.Enabled = false;
@@ -887,9 +909,8 @@ namespace VodafoneInvoiceModifier
                         /////////////////
 
 
-                        billReady = true;
-                        makeReportAccountantItem.Enabled = billReady;
-                        makeFullReportItem.Enabled = billReady;
+                        makeReportAccountantItem.Enabled = true;
+                        makeFullReportItem.Enabled = true;
 
                         StatusLabel1.Text = "Обработка счета завершена!";
                     }
@@ -918,7 +939,6 @@ namespace VodafoneInvoiceModifier
                     makeReportAccountantItem.Enabled = true;
                     makeFullReportItem.Enabled = true;
                 }
-                billReady = true;
             }
             else { StatusLabel1.Text = "Файл с детализацией не выбран!  "; }
 
@@ -933,17 +953,15 @@ namespace VodafoneInvoiceModifier
         {
             StatusLabel1.Text = "Обрабатываю полученные данные и формирую отчет...";
 
-            billReady = false;
-            makeReportAccountantItem.Enabled = billReady;
-            makeFullReportItem.Enabled = billReady;
-            openBillItem.Enabled = billReady;
+            makeReportAccountantItem.Enabled = false;
+            makeFullReportItem.Enabled = false;
+            openBillItem.Enabled = false;
 
             await Task.Run(() => action());
 
-            billReady = true;
-            makeReportAccountantItem.Enabled = billReady;
-            makeFullReportItem.Enabled = billReady;
-            openBillItem.Enabled = billReady;
+            makeReportAccountantItem.Enabled = true;
+            makeFullReportItem.Enabled = true;
+            openBillItem.Enabled = true;
             StatusLabel1.Text = @"Формирование отчета завершено. Файл сохранен в папку:  " + Path.GetDirectoryName(filePathTxt);
 
             GC.Collect();
@@ -1022,7 +1040,7 @@ namespace VodafoneInvoiceModifier
                     toolTip1.SetToolTip(this.groupBox1, "Парсинг модифицирован настройками из VodafoneInvoiceModifier.ini");
                 }
             }
-            
+
             textBoxP1.Text = pListParseStrings[1];
             textBoxP2.Text = pListParseStrings[2];
             textBoxP3.Text = pListParseStrings[3];
@@ -1034,7 +1052,7 @@ namespace VodafoneInvoiceModifier
             if (sConnection.Length < 15)
             {
                 infoStatusBar = "Строка подключения к базе Tfactura слишком короткая:\n" + sConnection;
-                MessageBox.Show(infoStatusBar+ "\nДобавьте в VodafoneInvoiceModifier.ini строку подключения к базе данных", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(infoStatusBar + "\nДобавьте в VodafoneInvoiceModifier.ini строку подключения к базе данных", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 StatusLabel1.Text = infoStatusBar;
 
                 StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
@@ -1518,6 +1536,94 @@ namespace VodafoneInvoiceModifier
             }
         }
         */
+
+        private void ExportDatatableToExcel(DataTable dt, string sufixExportFile) //Заполнение таблицы в Excel  данными
+        {
+            //@"_Marketing.xlsx"
+            int rows = 1;
+            int rowsInTable = dt.Rows.Count;
+            int columnsInTable = dt.Columns.Count; // p.Length;
+
+            string lastCell = GetColumnName(columnsInTable) + rowsInTable;
+
+            Excel.Application excel = new Excel.Application
+            {
+                Visible = false, //делаем объект не видимым
+                SheetsInNewWorkbook = 1//количество листов в книге
+            };
+
+            Excel.Workbooks workbooks = excel.Workbooks;
+            excel.Workbooks.Add(); //добавляем книгу
+            Excel.Workbook workbook = workbooks[1];
+            Excel.Sheets sheets = workbook.Worksheets;
+            Excel.Worksheet sheet = sheets.get_Item(1);
+            sheet.Name = Path.GetFileNameWithoutExtension(filepathLoadedData);
+
+            for (int k = 1; k < columnsInTable; k++)
+            {
+                sheet.Cells[k].WrapText = true;
+                sheet.Cells[1, k].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                sheet.Cells[1, k].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
+                sheet.Cells[1, k].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
+                sheet.Cells[1, k].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
+                sheet.Cells[1, k].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
+                sheet.Cells[1, k].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
+
+                sheet.Cells[1, k + 1].Value = dt.Columns[k].ColumnName;
+                //string columnName = dt.Columns[0].Caption;
+
+                sheet.Columns[k].Font.Size = 8;
+                sheet.Columns[k].Font.Name = "Tahoma";
+
+                //colourize of collumns
+                sheet.Cells[1, k].Interior.Color = System.Drawing.Color.Silver;
+            }
+
+            //input data and set type of cells - numbers /text
+            foreach (DataRow row in dt.Rows)
+            {
+                rows++;
+                foreach (DataColumn column in dt.Columns)
+                {
+                    if (rows == 2)
+                    {
+                        if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
+                        { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
+                        else
+                        { sheet.Columns[column.Ordinal + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
+                    }
+                    sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
+                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
+                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
+                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
+                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
+                    sheet.Columns[column.Ordinal + 1].AutoFit();
+                }
+            }
+
+            //Autofilter                
+            Excel.Range range = sheet.UsedRange;  //sheet.Cells.Range["A1", lastCell];
+            range.Select();
+            range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
+
+            workbook.SaveAs(
+                Path.GetDirectoryName(filepathLoadedData) + @"\" + Path.GetFileNameWithoutExtension(filepathLoadedData) + sufixExportFile,
+                Excel.XlFileFormat.xlOpenXMLWorkbook,
+                System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                Excel.XlSaveAsAccessMode.xlExclusive, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+
+            workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+            workbooks.Close();
+
+            lastCell = null;
+            releaseObject(range);
+            releaseObject(sheet);
+            releaseObject(sheets);
+            releaseObject(workbook);
+            releaseObject(workbooks);
+            excel.Quit();
+            releaseObject(excel);
+        }
 
         private void ExportFullDataTableToExcel() //Заполнение таблицы в Excel всеми данными
         {
