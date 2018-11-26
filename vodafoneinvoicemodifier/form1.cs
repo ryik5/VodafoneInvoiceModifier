@@ -594,14 +594,16 @@ namespace VodafoneInvoiceModifier
                 {
                     if (sRowBill.StartsWith(pListParseStrings[1]))
                     {
-                        kontrakt = sRowBill.Substring(10, 13).Trim();
-                        if (sRowBill.Contains(@"Моб.номер"))
-                        { numberMobile = sRowBill.Substring(36).Trim(); }
-                        else if (sRowBill.Contains(@"Номер телефону"))
-                        { numberMobile = sRowBill.Substring(41).Trim(); }
-                        else
-                        { numberMobile = sRowBill.Substring(40).Trim(); }
-                        tempRow = "";
+                        try
+                        {
+                            kontrakt = Regex.Split(sRowBill.Substring(sRowBill.IndexOf('№') + 1).Trim(), " ")[0].Trim();
+                            numberMobile = sRowBill.Substring(sRowBill.IndexOf(':') + 1).Trim();
+                            tempRow = "";
+                        }
+                        catch { MessageBox.Show("Проверьте правильность выбора детализации разговоров!\n"+
+                            "Возможно поменялся формат.\n"+
+                            "Правильный формат:\n"+
+                            "Контракт № 000000000  _номер_: 380000000000"); }
                     }
                     else
                     {
