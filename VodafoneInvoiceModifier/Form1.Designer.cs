@@ -59,6 +59,7 @@
             this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportMarketingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.useSavedDataItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectListNumbersItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectListServicesItem = new System.Windows.Forms.ToolStripMenuItem();
             this.prepareBillItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -350,6 +351,7 @@
             // makeReportMarketingMenuItem
             // 
             this.makeReportMarketingMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.useSavedDataItem,
             this.selectListNumbersItem,
             this.selectListServicesItem,
             this.prepareBillItem,
@@ -357,6 +359,13 @@
             this.makeReportMarketingMenuItem.Name = "makeReportMarketingMenuItem";
             this.makeReportMarketingMenuItem.Size = new System.Drawing.Size(208, 22);
             this.makeReportMarketingMenuItem.Text = "Отчет для маркетинга";
+            // 
+            // useSavedDataItem
+            // 
+            this.useSavedDataItem.Name = "useSavedDataItem";
+            this.useSavedDataItem.Size = new System.Drawing.Size(257, 22);
+            this.useSavedDataItem.Text = "UseSavedData";
+            this.useSavedDataItem.Click += new System.EventHandler(this.useSavedDataItem_Click);
             // 
             // selectListNumbersItem
             // 
@@ -399,21 +408,21 @@
             // clearTextboxItem
             // 
             this.clearTextboxItem.Name = "clearTextboxItem";
-            this.clearTextboxItem.Size = new System.Drawing.Size(141, 22);
+            this.clearTextboxItem.Size = new System.Drawing.Size(180, 22);
             this.clearTextboxItem.Text = "ClearTextBox";
             this.clearTextboxItem.Click += new System.EventHandler(this.clearTextBoxItem_Click);
             // 
             // aboutItem
             // 
             this.aboutItem.Name = "aboutItem";
-            this.aboutItem.Size = new System.Drawing.Size(141, 22);
+            this.aboutItem.Size = new System.Drawing.Size(180, 22);
             this.aboutItem.Text = "About";
             this.aboutItem.Click += new System.EventHandler(this.AboutSoft);
             // 
             // exitItem
             // 
             this.exitItem.Name = "exitItem";
-            this.exitItem.Size = new System.Drawing.Size(141, 22);
+            this.exitItem.Size = new System.Drawing.Size(180, 22);
             this.exitItem.Text = "Exit";
             this.exitItem.Click += new System.EventHandler(this.ApplicationExit);
             // 
@@ -498,6 +507,7 @@
         private System.Windows.Forms.ToolStripMenuItem selectListServicesItem;
         private System.Windows.Forms.ToolStripMenuItem makeReportMarketingItem;
         private System.Windows.Forms.ToolStripMenuItem prepareBillItem;
+        private System.Windows.Forms.ToolStripMenuItem useSavedDataItem;
     }
 }
 
