@@ -360,7 +360,6 @@ namespace VodafoneInvoiceModifier
         { MakeExcelReport(MakeReport); }
 
 
-
         //limit of numbers <500
         private void selectListNumbers() //Prepare list of numbers for the marketing report - listNumbers
         {
@@ -1162,6 +1161,10 @@ namespace VodafoneInvoiceModifier
                 if (sConnectionUserPasswords != null && sConnectionUserPasswords.Length > 1)
                 { sb.AppendLine(@"pConnectionUserPasswords=" + sConnectionUserPasswords); }
                 else { sb.AppendLine(@"pConnectionUserPasswords="); }
+
+                if (sConnection != null && sConnection.Length > 15)
+                { sb.AppendLine(@"pConnection=" + sConnection); }
+                else { sb.AppendLine(@"pConnection="); }
 
                 if (parametrStart != null && parametrStart.Length > 0)
                 { sb.AppendLine(@"parametrStart=" + parametrStart); }
