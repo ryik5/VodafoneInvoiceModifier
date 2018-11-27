@@ -23,6 +23,9 @@ namespace VodafoneInvoiceModifier
         private string dataStart = ""; // дата начала периода счета
         private string dataEnd = "";  // дата конца периода счета
         private string sConnection = ""; //string connection to MS SQL DB
+        private string sConnectionServer = ""; //string connection to MS SQL DB
+        private string sConnectionUserName = ""; //string connection to MS SQL DB
+        private string sConnectionUserPasswords = ""; //string connection to MS SQL DB
 
         private string[] pListParseStrings = new string[]
         {
@@ -1036,7 +1039,11 @@ namespace VodafoneInvoiceModifier
 
         private void readinifile() //Чтение парсеров из ini файла
         {
-            string s;
+            string s = "";
+            string tempConnectionServer = "";
+            string tempConnectionUserName = "";
+            string tempConnectionUserPasswords = "";
+
             bool b1 = false, b2 = false;
             toolTip1.SetToolTip(this.groupBox1, "Использованы настройки программы");
 
@@ -1055,11 +1062,23 @@ namespace VodafoneInvoiceModifier
 
                         if (b1 && b2)
                         {
-                            if (s.StartsWith(@"pConnection"))
+                            if (s.StartsWith("pConnectionServer="))
                             {
-                                string tempConnection = Regex.Split(s, "pConnection=")[1].Trim();
-                                if (tempConnection.Length > 15)
-                                { sConnection = tempConnection; }
+                                tempConnectionServer = Regex.Split(s, "pConnectionServer=")[1].Trim();
+                                if (tempConnectionServer.Length > 1)
+                                { sConnectionServer = tempConnectionServer; }
+                            }
+                            else if (s.StartsWith("pConnectionUserName="))
+                            {
+                                tempConnectionUserName = Regex.Split(s, "pConnectionUserName=")[1].Trim();
+                                if (tempConnectionUserName.Length > 1)
+                                { sConnectionUserName = tempConnectionUserName; }
+                            }
+                            else if (s.StartsWith("pConnectionUserPasswords="))
+                            {
+                                tempConnectionUserPasswords = Regex.Split(s, "pConnectionUserPasswords=")[1].Trim();
+                                if (tempConnectionUserPasswords.Length > 1)
+                                { sConnectionUserPasswords = tempConnectionUserPasswords; }
                             }
                             else if (s.StartsWith("parametrStart="))
                             { parametrStart = Regex.Split(s, "parametrStart=")[1].Trim(); }
@@ -1087,6 +1106,13 @@ namespace VodafoneInvoiceModifier
                 }
             }
 
+            if (sConnectionServer.Length > 1)
+            {
+                sConnection = "Data Source=" + sConnectionServer +
+                "; Initial Catalog=EBP;Type System Version=SQL Server 2005;Persist Security Info =True;User ID=" +
+                sConnectionUserName + "; Password=" + sConnectionUserPasswords + "; Connect Timeout=180";
+            }
+
             textBoxP1.Text = pListParseStrings[1];
             textBoxP2.Text = pListParseStrings[2];
             textBoxP3.Text = pListParseStrings[3];
@@ -1097,7 +1123,7 @@ namespace VodafoneInvoiceModifier
             textBoxP8.Text = pStop;
             if (sConnection.Length < 15)
             {
-                infoStatusBar = "Строка подключения к базе Tfactura слишком короткая:\n" + sConnection;
+                infoStatusBar = "Строка подключения к базе Tfactura  слишком короткая:\npConnection=" + sConnection;
                 MessageBox.Show(infoStatusBar + "\nДобавьте в " + pathToIni + " строку подключения к базе данных", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 StatusLabel1.Text = infoStatusBar;
 
@@ -1125,9 +1151,17 @@ namespace VodafoneInvoiceModifier
                     else { sb.AppendLine("p" + i + "="); }
                 }
 
-                if (sConnection != null && sConnection.Length > 15)
-                { sb.AppendLine(@"pConnection=" + sConnection); }
-                else { sb.AppendLine(@"pConnection="); }
+                if (sConnectionServer != null && sConnectionServer.Length > 1)
+                { sb.AppendLine(@"pConnectionServer=" + sConnectionServer); }
+                else { sb.AppendLine(@"pConnectionServer="); }
+
+                if (sConnectionUserName != null && sConnectionUserName.Length > 1)
+                { sb.AppendLine(@"pConnectionUserName=" + sConnectionUserName); }
+                else { sb.AppendLine(@"pConnectionUserName="); }
+
+                if (sConnectionUserPasswords != null && sConnectionUserPasswords.Length > 1)
+                { sb.AppendLine(@"pConnectionUserPasswords=" + sConnectionUserPasswords); }
+                else { sb.AppendLine(@"pConnectionUserPasswords="); }
 
                 if (parametrStart != null && parametrStart.Length > 0)
                 { sb.AppendLine(@"parametrStart=" + parametrStart); }
