@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
 [assembly: AssemblyTitle("VodafoneInvoiceModifier")]
-[assembly: AssemblyDescription("Генератор отчетов для бухгалтерии")]
+[assembly: AssemblyDescription("Генератор отчетов по мобильной связи")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("©Yuri Ryabchenko")]
 [assembly: AssemblyProduct("VodafoneInvoiceModifier")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // Можно задать все значения или принять номера сборки и редакции по умолчанию 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.11.7")]
-[assembly: AssemblyFileVersion("2.0.9.5")]
+[assembly: AssemblyVersion("2.1.11.7")]
+[assembly: AssemblyFileVersion("2.1.9.5")]

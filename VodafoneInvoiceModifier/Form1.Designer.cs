@@ -56,7 +56,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openBillItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportMarketingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.useSavedDataItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,7 +63,7 @@
             this.selectListServicesItem = new System.Windows.Forms.ToolStripMenuItem();
             this.prepareBillItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportMarketingItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.functionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearTextboxItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -308,8 +307,7 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileMenuItem,
-            this.functionToolStripMenuItem});
+            this.fileMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(801, 24);
@@ -320,31 +318,27 @@
             // 
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openBillItem,
-            this.makeFullReportItem,
+            this.makeReportMarketingMenuItem,
             this.makeReportAccountantItem,
-            this.makeReportMarketingMenuItem});
+            this.makeFullReportItem,
+            this.clearTextboxItem,
+            this.aboutItem,
+            this.exitItem});
             this.fileMenuItem.Name = "fileMenuItem";
-            this.fileMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileMenuItem.Text = "File";
+            this.fileMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.fileMenuItem.Text = "Файл";
             // 
             // openBillItem
             // 
             this.openBillItem.Name = "openBillItem";
-            this.openBillItem.Size = new System.Drawing.Size(208, 22);
-            this.openBillItem.Text = "Открыть текстовый счет";
+            this.openBillItem.Size = new System.Drawing.Size(199, 22);
+            this.openBillItem.Text = "Выбрать счет";
             this.openBillItem.Click += new System.EventHandler(this.openBillItem_Click);
-            // 
-            // makeFullReportItem
-            // 
-            this.makeFullReportItem.Name = "makeFullReportItem";
-            this.makeFullReportItem.Size = new System.Drawing.Size(208, 22);
-            this.makeFullReportItem.Text = "Полный отчет";
-            this.makeFullReportItem.Click += new System.EventHandler(this.makeFullReportItem_Click);
             // 
             // makeReportAccountantItem
             // 
             this.makeReportAccountantItem.Name = "makeReportAccountantItem";
-            this.makeReportAccountantItem.Size = new System.Drawing.Size(208, 22);
+            this.makeReportAccountantItem.Size = new System.Drawing.Size(199, 22);
             this.makeReportAccountantItem.Text = "Отчет для бухгалтерии";
             this.makeReportAccountantItem.Click += new System.EventHandler(this.makeReportAccountantToolItem_Click);
             // 
@@ -357,14 +351,14 @@
             this.prepareBillItem,
             this.makeReportMarketingItem});
             this.makeReportMarketingMenuItem.Name = "makeReportMarketingMenuItem";
-            this.makeReportMarketingMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.makeReportMarketingMenuItem.Size = new System.Drawing.Size(199, 22);
             this.makeReportMarketingMenuItem.Text = "Отчет для маркетинга";
             // 
             // useSavedDataItem
             // 
             this.useSavedDataItem.Name = "useSavedDataItem";
             this.useSavedDataItem.Size = new System.Drawing.Size(257, 22);
-            this.useSavedDataItem.Text = "UseSavedData";
+            this.useSavedDataItem.Text = "Предыдущая сесия";
             this.useSavedDataItem.Click += new System.EventHandler(this.useSavedDataItem_Click);
             // 
             // selectListNumbersItem
@@ -395,35 +389,32 @@
             this.makeReportMarketingItem.Text = "Сформировать отчет";
             this.makeReportMarketingItem.Click += new System.EventHandler(this.makeReportMarketingItem_Click);
             // 
-            // functionToolStripMenuItem
+            // makeFullReportItem
             // 
-            this.functionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.clearTextboxItem,
-            this.aboutItem,
-            this.exitItem});
-            this.functionToolStripMenuItem.Name = "functionToolStripMenuItem";
-            this.functionToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
-            this.functionToolStripMenuItem.Text = "Function";
+            this.makeFullReportItem.Name = "makeFullReportItem";
+            this.makeFullReportItem.Size = new System.Drawing.Size(199, 22);
+            this.makeFullReportItem.Text = "Полный отчет";
+            this.makeFullReportItem.Click += new System.EventHandler(this.makeFullReportItem_Click);
             // 
             // clearTextboxItem
             // 
             this.clearTextboxItem.Name = "clearTextboxItem";
-            this.clearTextboxItem.Size = new System.Drawing.Size(180, 22);
-            this.clearTextboxItem.Text = "ClearTextBox";
+            this.clearTextboxItem.Size = new System.Drawing.Size(199, 22);
+            this.clearTextboxItem.Text = "Очистить окно вывода";
             this.clearTextboxItem.Click += new System.EventHandler(this.clearTextBoxItem_Click);
             // 
             // aboutItem
             // 
             this.aboutItem.Name = "aboutItem";
-            this.aboutItem.Size = new System.Drawing.Size(180, 22);
-            this.aboutItem.Text = "About";
+            this.aboutItem.Size = new System.Drawing.Size(199, 22);
+            this.aboutItem.Text = "О программе";
             this.aboutItem.Click += new System.EventHandler(this.AboutSoft);
             // 
             // exitItem
             // 
             this.exitItem.Name = "exitItem";
-            this.exitItem.Size = new System.Drawing.Size(180, 22);
-            this.exitItem.Text = "Exit";
+            this.exitItem.Size = new System.Drawing.Size(199, 22);
+            this.exitItem.Text = "Выход";
             this.exitItem.Click += new System.EventHandler(this.ApplicationExit);
             // 
             // Form1
@@ -498,7 +489,6 @@
         private System.Windows.Forms.ToolStripMenuItem openBillItem;
         private System.Windows.Forms.ToolStripMenuItem makeFullReportItem;
         private System.Windows.Forms.ToolStripMenuItem makeReportAccountantItem;
-        private System.Windows.Forms.ToolStripMenuItem functionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearTextboxItem;
         private System.Windows.Forms.ToolStripMenuItem aboutItem;
         private System.Windows.Forms.ToolStripMenuItem exitItem;

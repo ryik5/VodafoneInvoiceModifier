@@ -16,7 +16,7 @@ namespace VodafoneInvoiceModifier
         private System.Diagnostics.FileVersionInfo myFileVersionInfo;
         private ContextMenu contextMenu1;
         private string myRegKey = @"SOFTWARE\RYIK\VodafoneInvoiceModifier";
-
+        string pathToIni = Application.StartupPath + @"\VodafoneInvoiceModifier.ini"; //path to ini of tools
 
         private string pStop = @"ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
         private string about = "";
@@ -245,7 +245,8 @@ namespace VodafoneInvoiceModifier
                               };
         private List<string> lstSavedServices = new List<string>();
         private List<string> lstSavedNumbers = new List<string>();
-        private string strSavedPathToInvoice = "";
+        private string filepathLoadedData = "";  //current path to invoice
+        private string strSavedPathToInvoice = "";  //previous session path to invoice
         private bool foundSavedData = false;
 
 
@@ -259,7 +260,7 @@ namespace VodafoneInvoiceModifier
             StatusLabel1.Text = myFileVersionInfo.ProductName + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
             StatusLabel1.Alignment = ToolStripItemAlignment.Right;
 
-            notifyIcon1.Text = myFileVersionInfo.Comments + " " + myFileVersionInfo.LegalCopyright;
+            notifyIcon1.Text = myFileVersionInfo.ProductName + " " + myFileVersionInfo.LegalCopyright;
             notifyIcon1.BalloonTipText = about;
 
             contextMenu1 = new ContextMenu();  //Context Menu on notify Icon
@@ -277,7 +278,6 @@ namespace VodafoneInvoiceModifier
             labelSummaryNumbers.Visible = false;
             readinifile();
 
-
             makeReportAccountantItem.Enabled = false;
             makeFullReportItem.Enabled = false;
             makeReportMarketingItem.Enabled = false;
@@ -287,6 +287,7 @@ namespace VodafoneInvoiceModifier
             openBillItem.ToolTipText = "Открыть счет Voodafon в текстовом формате.\nMax количество строк - 500 000";
             makeFullReportItem.ToolTipText = "Подготовить полный отчет в Excel-файле.\nФайл будет сохранен в папке с программой";
             makeReportAccountantItem.ToolTipText = "Подготовить отчет для бух. в Excel-файле.\nФайл будет сохранен в папке с программой";
+            useSavedDataItem.ToolTipText = "Использовать сохраненный список файлов и сервисов из предыдущей сессии";
 
             clearTextboxItem.ToolTipText = "Убрать весь текст из окна просмотра";
             aboutItem.ToolTipText = "О программе";
@@ -305,7 +306,7 @@ namespace VodafoneInvoiceModifier
 
         private void AboutSoft()
         {
-            String strVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string strVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             MessageBox.Show(
                 myFileVersionInfo.Comments + "\n\nВерсия: " + myFileVersionInfo.FileVersion + "\nBuild: " +
@@ -343,15 +344,21 @@ namespace VodafoneInvoiceModifier
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         { ApplicationExit(); }
 
-
-
         private void selectListNumbersItem_Click(object sender, EventArgs e)
-        {
-            selectListNumbers();
-        }
+        { selectListNumbers(); }
+
+        private void selectListServicesItem_Click(object sender, EventArgs e)
+        { selectListServices(); }
+
+        private void prepareBillItem_Click(object sender, EventArgs e)
+        { LoadBillInMemory(); }
+
+        private void makeReportMarketingItem_Click(object sender, EventArgs e)
+        { MakeExcelReport(MakeReport); }
+
+
 
         //limit of numbers <500
-
         private void selectListNumbers() //Prepare list of numbers for the marketing report - listNumbers
         {
             selectedNumbers = false;
@@ -416,15 +423,10 @@ namespace VodafoneInvoiceModifier
                 tempListString = null;
             }
             CheckConditionEnableMarketingReport();
-        }
 
-        private void selectListServicesItem_Click(object sender, EventArgs e)
-        {
-            selectListServices();
         }
 
         //limit of services <100
-
         private void selectListServices() //Prepare list of services for the marketing report - listServices
         {
             selectedServices = false;
@@ -439,8 +441,8 @@ namespace VodafoneInvoiceModifier
                 foreach (string s in listServices)
                 { textBoxLog.AppendText(s + "\n"); }
                 selectedServices = true;
-                
-                ListServicesRegistrySave();                
+
+                ListServicesRegistrySave();
             }
             else
             {
@@ -494,16 +496,15 @@ namespace VodafoneInvoiceModifier
                                 i++;
                             }
                         }
-                    }                    
-                } 
+                    }
+                }
                 catch (Exception expt) { MessageBox.Show("Error was happened on " + i + " row\n" + expt.ToString()); }
                 if (i > listMaxLength - 10 || i == 0)
                 { MessageBox.Show("Error was happened on " + i + " row\n You've been chosen the long file!"); }
             }
             return listValue;
         }
-        
-        private string filepathLoadedData = "";
+
         private List<string> LoadDataUsingParameters(List<string> listParameters, string startStringLoad, string endStringLoad) //max List length = 500 000 rows
         {
             int listMaxLength = 500000;
@@ -511,10 +512,10 @@ namespace VodafoneInvoiceModifier
             string s = "";
             string loadedString = "";
             bool newInvoice = true;
-            if(strSavedPathToInvoice.Length>0)
+            if (strSavedPathToInvoice.Length > 0)
             {
                 DialogResult result = MessageBox.Show(
-                      "Использовать предыдущий выбор файла?\n"+ strSavedPathToInvoice,
+                      "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
                       "Внимание!",
                       MessageBoxButtons.YesNo,
                       MessageBoxIcon.Exclamation,
@@ -522,7 +523,6 @@ namespace VodafoneInvoiceModifier
                 if (result == DialogResult.Yes)
                 { newInvoice = false; }
             }
-
 
             filepathLoadedData = "";
             bool startLoadData = false;
@@ -574,7 +574,7 @@ namespace VodafoneInvoiceModifier
                             }
                         }
                         PathToLastInvoiceRegistrySave();
-                    } 
+                    }
                     catch (Exception expt) { MessageBox.Show("Error was happened on " + listValue.Count + " row\n" + expt.ToString()); }
                     if (listMaxLength - 2 < listValue.Count || listValue.Count == 0)
                     { MessageBox.Show("Error was happened on " + (listValue.Count) + " row\n You've been chosen the long file!"); }
@@ -627,7 +627,8 @@ namespace VodafoneInvoiceModifier
                             kontrakt = Regex.Split(sRowBill.Substring(sRowBill.IndexOf('№') + 1).Trim(), " ")[0].Trim();
                             numberMobile = sRowBill.Substring(sRowBill.IndexOf(':') + 1).Trim();
                             tempRow = "";
-                        } catch
+                        }
+                        catch
                         {
                             MessageBox.Show("Проверьте правильность выбора детализации разговоров!\n" +
                         "Возможно поменялся формат.\n" +
@@ -707,7 +708,8 @@ namespace VodafoneInvoiceModifier
                                     listResultRows.Add(tempRow);
                                 }
                                 break;
-                            } catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString()); }
+                            }
+                            catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString()); }
                         }
                     }
                 }
@@ -723,34 +725,17 @@ namespace VodafoneInvoiceModifier
             {
                 sb.AppendLine(s);
             }
-            File.WriteAllText(Application.StartupPath + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
-            sb = null;
+            File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
 
             CheckConditionEnableMarketingReport();
+            StatusLabel1.Text = "Файл сохранен в папку: " + Path.GetDirectoryName(filepathLoadedData);
+
+            sb = null;
         }
-
-
-        private void prepareBillItem_Click(object sender, EventArgs e)
-        {
-            LoadBillInMemory();
-        }
-
-
-
-        private void makeReportMarketingItem_Click(object sender, EventArgs e)
-        { MakeExcelReport(MakeReport); }
 
         private void MakeReport()
         {
             ExportDatatableToExcel(dtFullBill, "_Marketing.xlsx");//Заполнение таблицы в Excel  данными
-        }
-
-        private void repeateLastReportItem_Click(object sender, EventArgs e)
-        {
-            //TODO
-            //Repaete last selection action with last bill
-            //add to tooltip last files
-            //remember all settings to registry
         }
 
         private void useSavedDataItem_Click(object sender, EventArgs e)
@@ -765,7 +750,7 @@ namespace VodafoneInvoiceModifier
             { prepareBillItem.Enabled = true; }
         }
 
-
+        /*
         public void ControlHoverChangeColorPale(Control control)
         { control.BackColor = System.Drawing.Color.PaleGreen; }
 
@@ -773,7 +758,7 @@ namespace VodafoneInvoiceModifier
         { control.BackColor = System.Drawing.Color.SandyBrown; }
 
         public void ControlLeaveChangeColorNormal(Control control)
-        { control.BackColor = System.Drawing.SystemColors.Control; }
+        { control.BackColor = System.Drawing.SystemColors.Control; }*/
 
         private async void OpenBill()
         {
@@ -991,6 +976,15 @@ namespace VodafoneInvoiceModifier
                     makeReportAccountantItem.Enabled = true;
                     makeFullReportItem.Enabled = true;
                 }
+
+                filepathLoadedData = filePathTxt;
+
+                if (lstSavedNumbers.Count > 0)
+                { listNumbers = lstSavedNumbers; }
+                if (lstSavedServices.Count > 0)
+                { listServices = lstSavedServices; }
+                if (lstSavedNumbers.Count > 0 && lstSavedServices.Count > 0)
+                { prepareBillItem.Enabled = true; }
             }
             else { StatusLabel1.Text = "Файл с детализацией не выбран!  "; }
 
@@ -1046,10 +1040,10 @@ namespace VodafoneInvoiceModifier
             bool b1 = false, b2 = false;
             toolTip1.SetToolTip(this.groupBox1, "Использованы настройки программы");
 
-            if (File.Exists(Application.StartupPath + @"\VodafoneInvoiceModifier.ini"))
+            if (File.Exists(pathToIni))
             {
                 var Coder = Encoding.GetEncoding(1251);
-                using (StreamReader Reader = new StreamReader(Application.StartupPath + @"\VodafoneInvoiceModifier.ini", Coder))
+                using (StreamReader Reader = new StreamReader(pathToIni, Coder))
                 {
                     while ((s = Reader.ReadLine()) != null)
                     {
@@ -1104,7 +1098,7 @@ namespace VodafoneInvoiceModifier
             if (sConnection.Length < 15)
             {
                 infoStatusBar = "Строка подключения к базе Tfactura слишком короткая:\n" + sConnection;
-                MessageBox.Show(infoStatusBar + "\nДобавьте в VodafoneInvoiceModifier.ini строку подключения к базе данных", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(infoStatusBar + "\nДобавьте в " + pathToIni + " строку подключения к базе данных", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 StatusLabel1.Text = infoStatusBar;
 
                 StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
@@ -1127,26 +1121,31 @@ namespace VodafoneInvoiceModifier
                 for (int i = 0; i < pListParseStrings.Length; i++)
                 {
                     if (pListParseStrings[i] != null && pListParseStrings[i].Length > 0)
-                        sb.AppendLine("p" + i + "=" + pListParseStrings[i]);
+                    { sb.AppendLine("p" + i + "=" + pListParseStrings[i]); }
+                    else { sb.AppendLine("p" + i + "="); }
                 }
 
                 if (sConnection != null && sConnection.Length > 15)
                 { sb.AppendLine(@"pConnection=" + sConnection); }
-
-                if (pStop != null && pStop.Length > 0)
-                { sb.AppendLine(@"pStop=" + pStop); }
+                else { sb.AppendLine(@"pConnection="); }
 
                 if (parametrStart != null && parametrStart.Length > 0)
                 { sb.AppendLine(@"parametrStart=" + parametrStart); }
+                else { sb.AppendLine(@"parametrStart="); }
 
                 if (parametrEnd != null && parametrEnd.Length > 0)
                 { sb.AppendLine(@"parametrEnd=" + parametrEnd); }
+                else { sb.AppendLine(@"parametrEnd="); }
+
+                if (pStop != null && pStop.Length > 0)
+                { sb.AppendLine(@"pStop=" + pStop); }
+                else { sb.AppendLine(@"pStop="); }
 
                 sb.AppendLine(@"");
                 sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
 
-                File.WriteAllText(Application.StartupPath + @"\VodafoneInvoiceModifier.ini", sb.ToString(), Encoding.GetEncoding(1251));
-            } 
+                File.WriteAllText(pathToIni, sb.ToString(), Encoding.GetEncoding(1251));
+            }
             catch (Exception Expt)
             { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
@@ -1217,17 +1216,17 @@ namespace VodafoneInvoiceModifier
                     {
                         foreach (string str in listTempContract.ToArray())
                         { sb.AppendLine(str); }
-                        //Delete Test data
-                        File.WriteAllText(Application.StartupPath + @"\listTempContract.txt", sb.ToString(), Encoding.GetEncoding(1251));
-                    } 
+
+                        File.WriteAllText(Path.GetDirectoryName(filePathTxt) + @"\listTempContract.txt", sb.ToString(), Encoding.GetEncoding(1251));
+                    }
                     catch (Exception Expt)
-                    { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); } 
+                    { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                     finally { sb = null; }
                     //Test t ----- module The End -----
 
 
                     ChosenFile = true;
-                } 
+                }
                 catch (Exception Expt)
                 {
                     ChosenFile = false;
@@ -1557,7 +1556,7 @@ namespace VodafoneInvoiceModifier
                 row[23] = mcpCurrent.extraServiceOrdered;
 
                 dtMobile.Rows.Add(row);
-            } 
+            }
             catch (Exception Expt) { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
             //Test only
@@ -1596,7 +1595,6 @@ namespace VodafoneInvoiceModifier
 
         private void ExportDatatableToExcel(DataTable dt, string sufixExportFile) //Заполнение таблицы в Excel  данными
         {
-            //@"_Marketing.xlsx"
             int rows = 1;
             int rowsInTable = dt.Rows.Count;
             int columnsInTable = dt.Columns.Count; // p.Length;
@@ -2049,7 +2047,7 @@ namespace VodafoneInvoiceModifier
                     }
                 }
 
-            } 
+            }
             catch (System.Data.SqlClient.SqlException expt) { MessageBox.Show(expt.ToString()); }
             catch (Exception expt) { MessageBox.Show(expt.ToString()); }
 
@@ -2086,6 +2084,7 @@ namespace VodafoneInvoiceModifier
 
         private void CheckNewTarif()
         {
+            string pathToNewModels = Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt";
             listTarifData.ExceptWith(new HashSet<string>(arrayTarif));
             if (listTarifData.Count > 0)
             {
@@ -2096,8 +2095,8 @@ namespace VodafoneInvoiceModifier
                 strNewModels = "";
                 try
                 {
-                    if (File.Exists(Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt"))
-                    { File.Delete(Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt"); }
+                    if (File.Exists(pathToNewModels))
+                    { File.Delete(pathToNewModels); }
                     sb.AppendLine(@"; This VodafoneInvoiceModifier.ini for " + myFileVersionInfo.ProductName);
                     sb.AppendLine(@"; " + @"Author " + myFileVersionInfo.LegalCopyright);
                     sb.AppendLine(@"");
@@ -2115,11 +2114,11 @@ namespace VodafoneInvoiceModifier
                     }
                     sb.AppendLine(@"");
 
-                    File.WriteAllText(Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt", sb.ToString(), Encoding.GetEncoding(1251));
-                    File.AppendAllText(Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt", sbError.ToString(), Encoding.GetEncoding(1251));
-                } 
+                    File.WriteAllText(pathToNewModels, sb.ToString(), Encoding.GetEncoding(1251));
+                    File.AppendAllText(pathToNewModels, sbError.ToString(), Encoding.GetEncoding(1251));
+                }
                 catch (Exception Expt)
-                { MessageBox.Show(Expt.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); } 
+                { MessageBox.Show(Expt.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                 finally
                 { sb = null; }
                 infoStatusBar = "В базе найдены новые, не добавленные ранее, модели компенсации затрат сотрудников!";
@@ -2142,7 +2141,7 @@ namespace VodafoneInvoiceModifier
             lstSavedServices = new List<string>();
             lstSavedNumbers = new List<string>();
             string[] getValue;
-            
+
             try
             {
                 using (Microsoft.Win32.RegistryKey EvUserKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
@@ -2150,7 +2149,7 @@ namespace VodafoneInvoiceModifier
                       Microsoft.Win32.RegistryKeyPermissionCheck.ReadSubTree,
                       System.Security.AccessControl.RegistryRights.ReadKey))
                 {
-                    getValue =(string[]) EvUserKey.GetValue("ListServices");
+                    getValue = (string[])EvUserKey.GetValue("ListServices");
 
                     try
                     {
@@ -2159,7 +2158,8 @@ namespace VodafoneInvoiceModifier
                             lstSavedServices.Add(line);
                         }
                         foundSavedData = true;
-                    } catch { }
+                    }
+                    catch { }
 
                     getValue = (string[])EvUserKey.GetValue("ListNumbers");
 
@@ -2170,11 +2170,13 @@ namespace VodafoneInvoiceModifier
                             lstSavedNumbers.Add(line);
                         }
                         foundSavedData = true;
-                    } catch { }
+                    }
+                    catch { }
 
                     strSavedPathToInvoice = (string)EvUserKey.GetValue("PathToLastInvoice");
                 }
-            } catch(Exception exct) { MessageBox.Show(exct.ToString()); }
+            }
+            catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
         }
 
         public void ListServicesRegistrySave() //Save Parameters into Registry and variables
@@ -2186,10 +2188,11 @@ namespace VodafoneInvoiceModifier
                     using (Microsoft.Win32.RegistryKey EvUserKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(myRegKey))
                     {
                         EvUserKey.SetValue("ListServices", listServices.ToArray(),
-                            Microsoft.Win32.RegistryValueKind.MultiString); 
+                            Microsoft.Win32.RegistryValueKind.MultiString);
                     }
                     foundSavedData = true;
-                } catch { MessageBox.Show("Ошибки с доступом для записи списка сервисов в реестр. Данные сохранены не корректно."); }
+                }
+                catch { MessageBox.Show("Ошибки с доступом для записи списка сервисов в реестр. Данные сохранены не корректно."); }
             }
         }
 
@@ -2203,10 +2206,11 @@ namespace VodafoneInvoiceModifier
                         Microsoft.Win32.RegistryValueKind.MultiString);
                 }
                 foundSavedData = true;
-            } catch { MessageBox.Show("Ошибки с доступом для записи списка номеров в реестр. Данные сохранены не корректно."); }
+            }
+            catch { MessageBox.Show("Ошибки с доступом для записи списка номеров в реестр. Данные сохранены не корректно."); }
         }
 
-        
+
         public void PathToLastInvoiceRegistrySave() //Save Parameters into Registry and variables
         {
             if (filepathLoadedData != null && filepathLoadedData.Length > 0)
@@ -2219,11 +2223,10 @@ namespace VodafoneInvoiceModifier
                             Microsoft.Win32.RegistryValueKind.String);
                     }
                     foundSavedData = true;
-                } catch { MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно."); }
+                }
+                catch { MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно."); }
             }
         }
-
-
     }
 
     class MobileContractPerson
@@ -2314,16 +2317,5 @@ namespace VodafoneInvoiceModifier
                    "isUnblocked"
                    ;
         }
-    }
-
-    class ServiceStringContract
-    {
-        public string serviceName = "";
-        public string targetNameOrNumber = "";
-        public string date = "";
-        public string time = "";
-        public int duration = 0;
-        public int durationProvider = 0;
-        public double cost = 0;
     }
 }
