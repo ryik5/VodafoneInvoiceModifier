@@ -1974,6 +1974,7 @@ namespace VodafoneInvoiceModifier
             releaseObject(excel);
             nameColumnSorted = null;
             pIdxToAccount = null;
+            MessageBox.Show("Отчет готов и сохранен:\n"+ Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx");
         }
 
         private void releaseObject(object obj)

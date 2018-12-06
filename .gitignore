@@ -8,8 +8,13 @@
 *.sln.docstates
 *.txt
 *.vbs
+*.js
+*.wsh
 *.reg
 *.jpg
+*.jpeg
+*.gif
+*.tif
 *.bmp
 *.png
 *.ico
@@ -31,6 +36,9 @@
 *.ps1
 *.msg
 *.lst
+*.cmd
+*.bat
+
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)
