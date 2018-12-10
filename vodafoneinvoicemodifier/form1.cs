@@ -246,6 +246,8 @@ namespace VodafoneInvoiceModifier
                                   new DataColumn("Длительность В",typeof(string)),
                                   new DataColumn("Стоимость",typeof(string))
                               };
+        private DataTable dtMarket = new DataTable("MarketReport");
+
         private List<string> listSavedServices = new List<string>();
         private List<string> listSavedNumbers = new List<string>();
         private string filepathLoadedData = "";  //current path to invoice
@@ -302,6 +304,7 @@ namespace VodafoneInvoiceModifier
             dtMobile.Columns.AddRange(dcMobile);
             dtTarif.Columns.AddRange(dcTarif);
             dtFullBill.Columns.AddRange(dcFullBill);
+            dtMarket=dtFullBill.Clone();
             ListsRegistryDataCheck();
             useSavedDataItem.Enabled = foundSavedData;
         }
@@ -359,7 +362,7 @@ namespace VodafoneInvoiceModifier
         }
 
         private void makeReportMarketingItem_Click(object sender, EventArgs e)
-        { MakeExcelReport(MakeReport); }
+        { MakeExcelReport(MakeMarketReport); }
         
         //limit of numbers <500
         private void selectListNumbers() //Prepare list of numbers for the marketing report - listNumbers
@@ -648,8 +651,7 @@ namespace VodafoneInvoiceModifier
                             else { numberMobile = "+" + tempRow; } //set format number like '+380...'
 
                             tempRow = "";
-                        }
-                        catch
+                        } catch
                         {
                             MessageBox.Show("Проверьте правильность выбора детализации разговоров!\n" +
                         "Возможно поменялся формат.\n" +
@@ -708,7 +710,8 @@ namespace VodafoneInvoiceModifier
                                 durationB = sRowBill.Substring(84, 9).Trim();
                                 cost = sRowBill.Substring(95).Trim();
 
-                                DataRow row = dtFullBill.NewRow();
+                                DataRow row = dtFullBill.NewRow(); //Full Table
+
                                 row["Контракт"] = kontrakt;
                                 row["Номер телефона"] = numberMobile;
                                 row["ФИО"] = "";
@@ -722,15 +725,37 @@ namespace VodafoneInvoiceModifier
                                 row["Длительность В"] = durationB;
                                 row["Стоимость"] = cost;
 
+                                DataRow rowMarket = dtMarket.NewRow(); //for Market
+                                rowMarket["Контракт"] = kontrakt;
+                                rowMarket["Номер телефона"] = numberMobile;
+                                rowMarket["ФИО"] = "";
+                                rowMarket["NAV"] = "";
+                                rowMarket["Подразделение"] = "";
+                                rowMarket["Имя сервиса"] = serviceName;
+                                rowMarket["Номер В"] = numberB;
+                                rowMarket["Дата"] = date;
+                                rowMarket["Время"] = time;
+                                rowMarket["Длительность А"] = durationA;
+                                rowMarket["Длительность В"] = durationB;
+                                rowMarket["Стоимость"] = cost;
+
                                 if (!time.Contains('.')) //except a common service with ". . ."
                                 {
                                     tempRow = numberMobile + "," + serviceName + "," + numberB + "," + date + "," + time + "," + durationA + "," + durationB + "," + cost;
                                     dtFullBill.Rows.Add(row);
+
                                     listResultRows.Add(tempRow);
+                                    foreach (string sNumber in listNumbers)
+                                    {
+                                        if (tempRow.StartsWith(sNumber))
+                                        {
+                                            dtMarket.Rows.Add(rowMarket);
+                                        }
+                                    }
+
                                 }
                                 break;
-                            }
-                            catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString()); }
+                            } catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString()); }
                         }
                     }
                 }
@@ -749,7 +774,9 @@ namespace VodafoneInvoiceModifier
                     foreach (string sNumber in listNumbers)
                     {
                         if (sResult.StartsWith(sNumber))
-                        { sb.AppendLine(sResult); }
+                        {
+                            sb.AppendLine(sResult);
+                        }
                     }
                    
                 }
@@ -762,9 +789,9 @@ namespace VodafoneInvoiceModifier
             fileMenuItem.Enabled = true;
         }
 
-        private void MakeReport()
+        private void MakeMarketReport()
         {
-            ExportDatatableToExcel(dtFullBill, "_Marketing.xlsx");//Заполнение таблицы в Excel  данными
+            ExportDatatableToExcel(dtMarket, "_Marketing.xlsx");//Заполнение таблицы в Excel  данными
         }
 
         private void useSavedDataItem_Click(object sender, EventArgs e)
