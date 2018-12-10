@@ -56,13 +56,13 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openBillItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportMarketingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.useSavedDataItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectListNumbersItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectListServicesItem = new System.Windows.Forms.ToolStripMenuItem();
             this.prepareBillItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportMarketingItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearTextboxItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -335,13 +335,6 @@
             this.openBillItem.Text = "Выбрать счет";
             this.openBillItem.Click += new System.EventHandler(this.openBillItem_Click);
             // 
-            // makeReportAccountantItem
-            // 
-            this.makeReportAccountantItem.Name = "makeReportAccountantItem";
-            this.makeReportAccountantItem.Size = new System.Drawing.Size(199, 22);
-            this.makeReportAccountantItem.Text = "Отчет для бухгалтерии";
-            this.makeReportAccountantItem.Click += new System.EventHandler(this.makeReportAccountantToolItem_Click);
-            // 
             // makeReportMarketingMenuItem
             // 
             this.makeReportMarketingMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -379,15 +372,22 @@
             // 
             this.prepareBillItem.Name = "prepareBillItem";
             this.prepareBillItem.Size = new System.Drawing.Size(257, 22);
-            this.prepareBillItem.Text = "Подготовить счет";
+            this.prepareBillItem.Text = "Сформировать отчет (в CSV)";
             this.prepareBillItem.Click += new System.EventHandler(this.prepareBillItem_Click);
             // 
             // makeReportMarketingItem
             // 
             this.makeReportMarketingItem.Name = "makeReportMarketingItem";
             this.makeReportMarketingItem.Size = new System.Drawing.Size(257, 22);
-            this.makeReportMarketingItem.Text = "Сформировать отчет";
+            this.makeReportMarketingItem.Text = "Сформировать Excel отчет";
             this.makeReportMarketingItem.Click += new System.EventHandler(this.makeReportMarketingItem_Click);
+            // 
+            // makeReportAccountantItem
+            // 
+            this.makeReportAccountantItem.Name = "makeReportAccountantItem";
+            this.makeReportAccountantItem.Size = new System.Drawing.Size(199, 22);
+            this.makeReportAccountantItem.Text = "Отчет для бухгалтерии";
+            this.makeReportAccountantItem.Click += new System.EventHandler(this.makeReportAccountantToolItem_Click);
             // 
             // makeFullReportItem
             // 
