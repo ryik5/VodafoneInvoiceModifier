@@ -595,11 +595,12 @@ namespace VodafoneInvoiceModifier
             return listValue;
         }
 
-        private void LoadBillInMemory()
+        private async void LoadBillInMemory()
         {
             textBoxLog.Clear();
             fileMenuItem.Enabled = false;
             loadedBill = false;
+            await Task.Run(() => GetDataWithModel());
             string kontrakt = "";
             string numberMobile = "";
             string tempRow = "";
@@ -635,6 +636,7 @@ namespace VodafoneInvoiceModifier
             if (loadedBillWithServicesFilter.Count > 0)
             {
                 dtFullBill.Rows.Clear();
+                StringBuilder sb = new StringBuilder();
 
                 //todo parsing strings of the filtered bill
                 foreach (string sRowBill in loadedBillWithServicesFilter)
@@ -750,6 +752,8 @@ namespace VodafoneInvoiceModifier
                                         if (tempRow.StartsWith(sNumber))
                                         {
                                             dtMarket.Rows.Add(rowMarket);
+                                            sb.AppendLine(tempRow);
+
                                         }
                                     }
 
@@ -760,29 +764,26 @@ namespace VodafoneInvoiceModifier
                     }
                 }
                 loadedBill = true;
+                File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
+                sb = null;
             }
             else
             {
                 textBoxLog.AppendText("Нет в выборке ничего для указанных номеров!\n");
             }
 
-            if (loadedBill)
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach (string sResult in listResultRows)
-                {
-                    foreach (string sNumber in listNumbers)
-                    {
-                        if (sResult.StartsWith(sNumber))
-                        {
-                            sb.AppendLine(sResult);
-                        }
-                    }
-                   
-                }
-                File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
-                sb = null;
-            }
+            //TODO
+            //fill table from that table
+
+            /*
+                                                DataRow row = dtTarif.NewRow();
+                                    row["Номер телефона"] = MakeCommonViewPhone(record["phone_no"].ToString());
+                                    row["ФИО"] = record["emp_name"].ToString().Trim();
+                                    row["NAV"] = record["NAV"].ToString().Trim();
+            
+            */
+
+
             CheckConditionEnableMarketingReport();
             StatusLabel1.Text = "Файл сохранен в папку: " + Path.GetDirectoryName(filepathLoadedData);
 
