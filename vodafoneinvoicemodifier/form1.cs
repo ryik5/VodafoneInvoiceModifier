@@ -246,8 +246,8 @@ namespace VodafoneInvoiceModifier
                                   new DataColumn("Длительность В",typeof(string)),
                                   new DataColumn("Стоимость",typeof(string))
                               };
-        private List<string> lstSavedServices = new List<string>();
-        private List<string> lstSavedNumbers = new List<string>();
+        private List<string> listSavedServices = new List<string>();
+        private List<string> listSavedNumbers = new List<string>();
         private string filepathLoadedData = "";  //current path to invoice
         private string strSavedPathToInvoice = "";  //previous session path to invoice
         private bool foundSavedData = false;
@@ -354,23 +354,25 @@ namespace VodafoneInvoiceModifier
         { selectListServices(); }
 
         private void prepareBillItem_Click(object sender, EventArgs e)
-        { LoadBillInMemory(); }
+        {
+            LoadBillInMemory();
+        }
 
         private void makeReportMarketingItem_Click(object sender, EventArgs e)
         { MakeExcelReport(MakeReport); }
-
-
+        
         //limit of numbers <500
         private void selectListNumbers() //Prepare list of numbers for the marketing report - listNumbers
         {
             selectedNumbers = false;
+            makeReportMarketingItem.Enabled = false;
             string strTemp = "";
             List<string> listWrongString = new List<string>();
             List<string> tempListString = LoadDataIntoList();
             int limitWrongNumber = 300;
 
             //clear target 
-            listNumbers = new List<string>();
+            listNumbers.Clear();
             textBoxLog.Clear();
 
             if (tempListString.Count > 0)
@@ -432,10 +434,11 @@ namespace VodafoneInvoiceModifier
         private void selectListServices() //Prepare list of services for the marketing report - listServices
         {
             selectedServices = false;
-            listServices = LoadDataIntoList();
-
-            //clear target 
+            makeReportMarketingItem.Enabled = false;
             textBoxLog.Clear();
+
+            listServices.Clear();
+            listServices = LoadDataIntoList();
 
             if (0 < listServices.Count && listServices.Count < 100)
             {
@@ -473,15 +476,14 @@ namespace VodafoneInvoiceModifier
             int listMaxLength = 500000;
             List<string> listValue = new List<string>(listMaxLength);
             string s = "";
-            string filepathLoadedData = "";
             int i = 0; // it is not empty's rows in the selected file
 
             openFileDialog1.FileName = @"";
             openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
             openFileDialog1.ShowDialog();
-            filepathLoadedData = openFileDialog1.FileName;
+           string  filepathLoadedData = openFileDialog1.FileName;
             if (filepathLoadedData == null || filepathLoadedData.Length < 1)
-            { MessageBox.Show("Did not select File!"); }
+            { MessageBox.Show("Не выбран файл."); }
             else
             {
                 try
@@ -500,7 +502,7 @@ namespace VodafoneInvoiceModifier
                         }
                     }
                 }
-                catch (Exception expt) { MessageBox.Show("Error was happened on " + i + " row\n" + expt.ToString()); }
+                catch (Exception expt) { MessageBox.Show("Ошибка произошла на " + i + " строке:\n\n" + expt.ToString()); }
                 if (i > listMaxLength - 10 || i == 0)
                 { MessageBox.Show("Error was happened on " + i + " row\n You've been chosen the long file!"); }
             }
@@ -509,85 +511,91 @@ namespace VodafoneInvoiceModifier
 
         private List<string> LoadDataUsingParameters(List<string> listParameters, string startStringLoad, string endStringLoad) //max List length = 500 000 rows
         {
+
             int listMaxLength = 500000;
             List<string> listValue = new List<string>(listMaxLength);
             string s = "";
             string loadedString = "";
             bool newInvoice = true;
-            if (strSavedPathToInvoice.Length > 0)
+            try
             {
-                DialogResult result = MessageBox.Show(
-                      "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
-                      "Внимание!",
-                      MessageBoxButtons.YesNo,
-                      MessageBoxIcon.Exclamation,
-                      MessageBoxDefaultButton.Button1);
-                if (result == DialogResult.Yes)
-                { newInvoice = false; }
-            }
-
-            filepathLoadedData = "";
-            bool startLoadData = false;
-            bool endLoadData = false;
-            var Coder = Encoding.GetEncoding(1251);
-
-            if (listParameters.Count > 0)
-            {
-                if (newInvoice)
+                if (strSavedPathToInvoice.Length > 1)
                 {
-                    openFileDialog1.FileName = @"";
-                    openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
-                    openFileDialog1.ShowDialog();
-                    filepathLoadedData = openFileDialog1.FileName;
-                }
-                else
-                {
-                    filepathLoadedData = strSavedPathToInvoice;
-                }
-                if (filepathLoadedData == null || filepathLoadedData.Length < 1)
-                { MessageBox.Show("Did not select File!"); }
-                else
-                {
-                    StatusLabel1.Text = "Обрабатываю файл:  " + filepathLoadedData;
-                    try
+                    DialogResult result = MessageBox.Show(
+                          "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
+                          "Внимание!",
+                          MessageBoxButtons.YesNo,
+                          MessageBoxIcon.Exclamation,
+                          MessageBoxDefaultButton.Button1);
+                    if (result == DialogResult.Yes)
                     {
-                        using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
+                        newInvoice = false;
+                    }
+                }
+
+                filepathLoadedData = "";
+                bool startLoadData = false;
+                bool endLoadData = false;
+                var Coder = Encoding.GetEncoding(1251);
+
+                if (listParameters.Count > 0)
+                {
+                    if (newInvoice)
+                    {
+                        openFileDialog1.FileName = @"";
+                        openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
+                        openFileDialog1.ShowDialog();
+                        filepathLoadedData = openFileDialog1.FileName;
+                    }
+                    else
+                    {
+                        filepathLoadedData = strSavedPathToInvoice;
+                    }
+                    if (filepathLoadedData == null || filepathLoadedData.Length < 1)
+                    { MessageBox.Show("Did not select File!"); }
+                    else
+                    {
+                        StatusLabel1.Text = "Обрабатываю файл:  " + filepathLoadedData;
+                        try
                         {
-                            while ((s = Reader.ReadLine()) != null && !endLoadData && listValue.Count < listMaxLength)
+                            using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
                             {
-                                loadedString = s.Trim();
-
-                                if (loadedString.StartsWith(startStringLoad))
-                                { startLoadData = true; }
-                                else if (loadedString.StartsWith(endStringLoad))
-                                { endLoadData = true; }
-
-                                if (startLoadData)
+                                while ((s = Reader.ReadLine()) != null && !endLoadData && listValue.Count < listMaxLength)
                                 {
-                                    foreach (string parameterString in listParameters)
+                                    loadedString = s.Trim();
+
+                                    if (loadedString.StartsWith(startStringLoad))
+                                    { startLoadData = true; }
+                                    else if (loadedString.StartsWith(endStringLoad))
+                                    { endLoadData = true; }
+
+                                    if (startLoadData)
                                     {
-                                        if (loadedString.StartsWith(parameterString))
+                                        foreach (string parameterString in listParameters)
                                         {
-                                            listValue.Add(loadedString);
-                                            break;
+                                            if (loadedString.StartsWith(parameterString))
+                                            {
+                                                listValue.Add(loadedString);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                        PathToLastInvoiceRegistrySave();
+                            PathToLastInvoiceRegistrySave();
+                        } catch (Exception expt) { MessageBox.Show("Error was happened on " + listValue.Count + " row\n" + expt.ToString()); }
+                        if (listMaxLength - 2 < listValue.Count || listValue.Count == 0)
+                        { MessageBox.Show("Error was happened on " + (listValue.Count) + " row\n You've been chosen the long file!"); }
                     }
-                    catch (Exception expt) { MessageBox.Show("Error was happened on " + listValue.Count + " row\n" + expt.ToString()); }
-                    if (listMaxLength - 2 < listValue.Count || listValue.Count == 0)
-                    { MessageBox.Show("Error was happened on " + (listValue.Count) + " row\n You've been chosen the long file!"); }
                 }
-            }
+            } catch (Exception expt) { MessageBox.Show(expt.ToString()); }
             return listValue;
         }
 
         private void LoadBillInMemory()
         {
             textBoxLog.Clear();
+            fileMenuItem.Enabled = false;
             loadedBill = false;
             string kontrakt = "";
             string numberMobile = "";
@@ -609,9 +617,15 @@ namespace VodafoneInvoiceModifier
             filterBill.Add(pListParseStrings[1]);
             filterBill.Add(pListParseStrings[2]);
 
-            foreach (string s in listServices)
-            { filterBill.Add(s); }
+            if(listServices.Count==0)
+            { listServices = listSavedServices; }
+            if (listNumbers.Count == 0)
+            { listNumbers = listSavedNumbers; }
 
+
+            foreach (string service in listServices)
+            { filterBill.Add(service);}
+            
             List<string> loadedBillWithServicesFilter = LoadDataUsingParameters(filterBill, parametrStart, parametrEnd);
             filterBill = null;
 
@@ -627,7 +641,12 @@ namespace VodafoneInvoiceModifier
                         try
                         {
                             kontrakt = Regex.Split(sRowBill.Substring(sRowBill.IndexOf('№') + 1).Trim(), " ")[0].Trim();
-                            numberMobile = sRowBill.Substring(sRowBill.IndexOf(':') + 1).Trim();
+                            tempRow = sRowBill.Substring(sRowBill.IndexOf(':') + 1).Trim();
+
+                            if (tempRow.StartsWith("+"))
+                            { numberMobile = tempRow; }
+                            else { numberMobile = "+" + tempRow; } //set format number like '+380...'
+
                             tempRow = "";
                         }
                         catch
@@ -722,17 +741,25 @@ namespace VodafoneInvoiceModifier
                 textBoxLog.AppendText("Нет в выборке ничего для указанных номеров!\n");
             }
 
-            StringBuilder sb = new StringBuilder();
-            foreach (string s in listResultRows)
+            if (loadedBill)
             {
-                sb.AppendLine(s);
+                StringBuilder sb = new StringBuilder();
+                foreach (string sResult in listResultRows)
+                {
+                    foreach (string sNumber in listNumbers)
+                    {
+                        if (sResult.StartsWith(sNumber))
+                        { sb.AppendLine(sResult); }
+                    }
+                   
+                }
+                File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
+                sb = null;
             }
-            File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
-
             CheckConditionEnableMarketingReport();
             StatusLabel1.Text = "Файл сохранен в папку: " + Path.GetDirectoryName(filepathLoadedData);
 
-            sb = null;
+            fileMenuItem.Enabled = true;
         }
 
         private void MakeReport()
@@ -742,13 +769,17 @@ namespace VodafoneInvoiceModifier
 
         private void useSavedDataItem_Click(object sender, EventArgs e)
         {
-            if (strSavedPathToInvoice.Length > 1)
+            if (strSavedPathToInvoice != null && strSavedPathToInvoice.Length > 1)
             { filepathLoadedData = strSavedPathToInvoice; }
-            if (lstSavedNumbers.Count > 0)
-            { listNumbers = lstSavedNumbers; }
-            if (lstSavedServices.Count > 0)
-            { listServices = lstSavedServices; }
-            if (lstSavedNumbers.Count > 0 && lstSavedServices.Count > 0)
+            else { strSavedPathToInvoice = ""; }
+
+            if (listSavedNumbers.Count > 0)
+            { listNumbers = listSavedNumbers; }
+
+            if (listSavedServices.Count > 0)
+            { listServices = listSavedServices; }
+
+            if (listSavedNumbers.Count > 0 && listSavedServices.Count > 0)
             { prepareBillItem.Enabled = true; }
         }
 
@@ -981,11 +1012,11 @@ namespace VodafoneInvoiceModifier
 
                 filepathLoadedData = filePathTxt;
 
-                if (lstSavedNumbers.Count > 0)
-                { listNumbers = lstSavedNumbers; }
-                if (lstSavedServices.Count > 0)
-                { listServices = lstSavedServices; }
-                if (lstSavedNumbers.Count > 0 && lstSavedServices.Count > 0)
+                if (listSavedNumbers.Count > 0)
+                { listNumbers = listSavedNumbers; }
+                if (listSavedServices.Count > 0)
+                { listServices = listSavedServices; }
+                if (listSavedNumbers.Count > 0 && listSavedServices.Count > 0)
                 { prepareBillItem.Enabled = true; }
             }
             else { StatusLabel1.Text = "Файл с детализацией не выбран!  "; }
@@ -1247,7 +1278,8 @@ namespace VodafoneInvoiceModifier
                     }
 
 
-                    //----- Test module Start -----
+                    //----- Test module The Start. Dump onto a  local disk -----
+                    /*
                     StringBuilder sb = new StringBuilder(String.Empty);
                     try
                     {
@@ -1259,7 +1291,8 @@ namespace VodafoneInvoiceModifier
                     catch (Exception Expt)
                     { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                     finally { sb = null; }
-                    //Test t ----- module The End -----
+                    */
+                    //Test module The End -----
 
 
                     ChosenFile = true;
@@ -2176,8 +2209,8 @@ namespace VodafoneInvoiceModifier
 
         public void ListsRegistryDataCheck() //Read previously Saved Parameters from Registry
         {
-            lstSavedServices = new List<string>();
-            lstSavedNumbers = new List<string>();
+            listSavedServices = new List<string>();
+            listSavedNumbers = new List<string>();
             string[] getValue;
 
             try
@@ -2193,11 +2226,11 @@ namespace VodafoneInvoiceModifier
                     {
                         foreach (string line in getValue)
                         {
-                            lstSavedServices.Add(line);
+                            listSavedServices.Add(line);
                         }
                         foundSavedData = true;
-                    }
-                    catch { }
+
+                    } catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
 
                     getValue = (string[])EvUserKey.GetValue("ListNumbers");
 
@@ -2205,16 +2238,48 @@ namespace VodafoneInvoiceModifier
                     {
                         foreach (string line in getValue)
                         {
-                            lstSavedNumbers.Add(line);
+                            listSavedNumbers.Add(line);
                         }
                         foundSavedData = true;
-                    }
-                    catch { }
 
-                    strSavedPathToInvoice = (string)EvUserKey.GetValue("PathToLastInvoice");
+                    } catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
+
+                    try
+                    {
+                        strSavedPathToInvoice = (string)EvUserKey.GetValue("PathToLastInvoice");
+
+                        if (strSavedPathToInvoice.Trim().Length > 3)
+                        { prepareBillItem.Enabled = true; }
+
+                    } catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
+
+                    try
+                    {
+                        textBoxLog.AppendText("Настроенные данные для сбора данных для маркетинга:\n");
+                        textBoxLog.AppendText("===================================================\n\n");
+
+                        if (listSavedServices.Count > 0)
+                        {
+                            selectedServices = true;
+                            textBoxLog.AppendText("Загруженный список сервисов:\n");
+                            foreach (string service in listSavedServices)
+                            { textBoxLog.AppendText(service + "\n"); }
+                            textBoxLog.AppendText("===================================================\n\n");
+                        }
+
+                        if (listSavedNumbers.Count > 0)
+                        {
+                            selectedNumbers = true;
+                            textBoxLog.AppendText("Загруженный список номеров:\n");
+                            foreach (string number in listSavedNumbers)
+                            { textBoxLog.AppendText(number + "\n"); }
+                            textBoxLog.AppendText("===================================================\n");
+                        }
+                        textBoxLog.AppendText("===================================================\n\n");
+
+                    } catch { }
                 }
-            }
-            catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
+            } catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
         }
 
         public void ListServicesRegistrySave() //Save Parameters into Registry and variables
