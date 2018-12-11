@@ -358,20 +358,6 @@ namespace VodafoneInvoiceModifier
         private void selectListNumbersItem_Click(object sender, EventArgs e)
         { selectListNumbers(); }
 
-        private void selectListServicesItem_Click(object sender, EventArgs e)
-        { selectListServices(); }
-
-        private async void prepareBillItem_Click(object sender, EventArgs e)
-        {
-            await Task.Run(() => LoadBillIntoMemory());
-        }
-
-        private void makeReportMarketingItem_Click(object sender, EventArgs e)
-        { MakeExcelReport(ExportMarketReport); }
-
-        private void ExportMarketReport()
-        { ExportDatatableToExcel(dtMarket, "_Marketing.xlsx"); }     //Заполнение таблицы в Excel  данными
-
         //limit of numbers <500
         private void selectListNumbers() //Prepare list of numbers for the marketing report - listNumbers
         {
@@ -442,6 +428,9 @@ namespace VodafoneInvoiceModifier
             CheckConditionEnableMarketingReport();
         }
 
+        private void selectListServicesItem_Click(object sender, EventArgs e)
+        { selectListServices(); }
+        
         //limit of services <100
         private void selectListServices() //Prepare list of services for the marketing report - listServices
         {
@@ -470,159 +459,8 @@ namespace VodafoneInvoiceModifier
             CheckConditionEnableMarketingReport();
         }
 
-        private void CheckConditionEnableMarketingReport() //enableing Marketing report if load data is correct
-        {
-            if (selectedServices && selectedNumbers && loadedBill)
-            {
-                _ToolStripMenuItemEnabled(prepareBillItem, true);
-                _ToolStripMenuItemEnabled(makeReportMarketingItem, true);
-            }
-            else if (selectedServices && selectedNumbers)
-            {
-                _ToolStripMenuItemEnabled(prepareBillItem, true);
-            }
-        }
-
-        private List<string> LoadDataIntoList() //max List length = 500 000 rows
-        {
-            int listMaxLength = 500000;
-            List<string> listValue = new List<string>(listMaxLength);
-            string s = "";
-            int i = 0; // it is not empty's rows in the selected file
-
-            openFileDialog1.FileName = @"";
-            openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
-            openFileDialog1.ShowDialog();
-            string filepathLoadedData = openFileDialog1.FileName;
-            if (filepathLoadedData == null || filepathLoadedData.Length < 1)
-            { MessageBox.Show("Не выбран файл."); }
-            else
-            {
-                try
-                {
-                    var Coder = Encoding.GetEncoding(1251);
-                    using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
-                    {
-                        StatusLabel1.Text = "Обрабатываю файл:  " + filepathLoadedData;
-                        while ((s = Reader.ReadLine()) != null && i < listMaxLength)
-                        {
-                            if (s.Trim().Length > 0)
-                            {
-                                listValue.Add(s.Trim());
-                                i++;
-                            }
-                        }
-                    }
-                }
-                catch (Exception expt) { MessageBox.Show("Ошибка произошла на " + i + " строке:\n\n" + expt.ToString()); }
-                if (i > listMaxLength - 10 || i == 0)
-                { MessageBox.Show("Error was happened on " + i + " row\n You've been chosen the long file!"); }
-            }
-            return listValue;
-        }
-
-        private List<string> LoadDataUsingParameters(List<string> listParameters, string startStringLoad, string endStringLoad) //max List length = 500 000 rows
-        {
-            checkRahunok = false;
-            checkNomerRahunku = false;
-            checkPeriod = false;
-
-            int listMaxLength = 500000;
-            List<string> listRows = new List<string>(listMaxLength);
-            string s = "";
-            string loadedString = "";
-            bool newInvoice = true;
-            try
-            {
-                if (strSavedPathToInvoice.Length > 1)
-                {
-                    DialogResult result = MessageBox.Show(
-                          "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
-                          "Внимание!",
-                          MessageBoxButtons.YesNo,
-                          MessageBoxIcon.Exclamation,
-                          MessageBoxDefaultButton.Button1);
-                    if (result == DialogResult.Yes)
-                    {
-                        newInvoice = false;
-                    }
-                }
-
-                filepathLoadedData = "";
-                bool startLoadData = false;
-                bool endLoadData = false;
-                var Coder = Encoding.GetEncoding(1251);
-
-                if (listParameters.Count > 0)
-                {
-                    if (newInvoice)
-                    {
-                        openFileDialog1.FileName = @"";
-                        openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
-                        openFileDialog1.ShowDialog();
-                        filepathLoadedData = openFileDialog1.FileName;
-                    }
-                    else
-                    {
-                        filepathLoadedData = strSavedPathToInvoice;
-                    }
-                    if (filepathLoadedData == null || filepathLoadedData.Length < 1)
-                    { MessageBox.Show("Did not select File!"); }
-                    else
-                    {
-                        StatusLabel1.Text = "Обрабатываю файл:  " + filepathLoadedData;
-                        try
-                        {
-                            using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
-                            {
-                                while ((s = Reader.ReadLine()) != null && !endLoadData && listRows.Count < listMaxLength)
-                                {
-                                    loadedString = s.Trim();
-
-                                    //Set label Date
-                                    if (s.Contains("Особовий рахунок")) { checkRahunok = true; }
-                                    if (s.Contains("Номер рахунку")) { checkNomerRahunku = true; }
-                                    if (s.Contains("Розрахунковий період"))
-                                    {
-                                        string[] substrings = Regex.Split(s, ": ");
-                                        periodInvoice = substrings[substrings.Length - 1].Trim();
-                                        checkPeriod = true;
-                                    }
-
-                                    if (loadedString.StartsWith(startStringLoad))
-                                    { startLoadData = true; }
-                                    else if (loadedString.StartsWith(endStringLoad))
-                                    { endLoadData = true; }
-
-                                    if (startLoadData)
-                                    {
-                                        foreach (string parameterString in listParameters)
-                                        {
-                                            if (loadedString.StartsWith(parameterString))
-                                            {
-                                                listRows.Add(loadedString);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (checkPeriod && checkRahunok && checkNomerRahunku)
-                            {
-                                _ControlSetItsText(labelDate, periodInvoice);
-                            }
-                            ParameterLastInvoiceRegistrySave();
-                        }
-                        catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row\n" + expt.ToString()); }
-                        if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
-                        { MessageBox.Show("Error was happened on " + (listRows.Count) + " row\n You've been chosen the long file!"); }
-                    }
-                }
-            }
-            catch (Exception expt) { MessageBox.Show(expt.ToString()); }
-            return listRows;
-        }
+        private async void prepareBillItem_Click(object sender, EventArgs e)
+        { await Task.Run(() => LoadBillIntoMemory()); }
 
         private void LoadBillIntoMemory()
         {
@@ -855,7 +693,165 @@ namespace VodafoneInvoiceModifier
             _ToolStripMenuItemEnabled(fileMenuItem, true);
         }
 
+        private void makeReportMarketingItem_Click(object sender, EventArgs e)
+        { MakeExcelReport(ExportMarketReport); }
+
+        private void ExportMarketReport()
+        { ExportDatatableToExcel(dtMarket, "_Marketing.xlsx"); }     //Заполнение таблицы в Excel  данными
         
+        private void CheckConditionEnableMarketingReport() //enableing Marketing report if load data is correct
+        {
+            if (selectedServices && selectedNumbers && loadedBill)
+            {
+                _ToolStripMenuItemEnabled(prepareBillItem, true);
+                _ToolStripMenuItemEnabled(makeReportMarketingItem, true);
+            }
+            else if (selectedServices && selectedNumbers)
+            {
+                _ToolStripMenuItemEnabled(prepareBillItem, true);
+            }
+        }
+
+        private List<string> LoadDataIntoList() //max received List's length = 500 000 rows
+        {
+            int listMaxLength = 500000;
+            List<string> listValue = new List<string>(listMaxLength);
+            string s = "";
+            int i = 0; // it is not empty's rows in the selected file
+
+            openFileDialog1.FileName = @"";
+            openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
+            openFileDialog1.ShowDialog();
+            string filepathLoadedData = openFileDialog1.FileName;
+            if (filepathLoadedData == null || filepathLoadedData.Length < 1)
+            { MessageBox.Show("Не выбран файл."); }
+            else
+            {
+                try
+                {
+                    var Coder = Encoding.GetEncoding(1251);
+                    using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
+                    {
+                        StatusLabel1.Text = "Обрабатываю файл:  " + filepathLoadedData;
+                        while ((s = Reader.ReadLine()) != null && i < listMaxLength)
+                        {
+                            if (s.Trim().Length > 0)
+                            {
+                                listValue.Add(s.Trim());
+                                i++;
+                            }
+                        }
+                    }
+                }
+                catch (Exception expt) { MessageBox.Show("Ошибка произошла на " + i + " строке:\n\n" + expt.ToString()); }
+                if (i > listMaxLength - 10 || i == 0)
+                { MessageBox.Show("Error was happened on " + i + " row\n You've been chosen the long file!"); }
+            }
+            return listValue;
+        }
+
+        private List<string> LoadDataUsingParameters(List<string> listParameters, string startStringLoad, string endStringLoad) //max List length = 500 000 rows
+        {
+            checkRahunok = false;
+            checkNomerRahunku = false;
+            checkPeriod = false;
+
+            int listMaxLength = 500000;
+            List<string> listRows = new List<string>(listMaxLength);
+            string s = "";
+            string loadedString = "";
+            bool newInvoice = true;
+            try
+            {
+                if (strSavedPathToInvoice.Length > 1)
+                {
+                    DialogResult result = MessageBox.Show(
+                          "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
+                          "Внимание!",
+                          MessageBoxButtons.YesNo,
+                          MessageBoxIcon.Exclamation,
+                          MessageBoxDefaultButton.Button1);
+                    if (result == DialogResult.Yes)
+                    {
+                        newInvoice = false;
+                    }
+                }
+
+                filepathLoadedData = "";
+                bool startLoadData = false;
+                bool endLoadData = false;
+                var Coder = Encoding.GetEncoding(1251);
+
+                if (listParameters.Count > 0)
+                {
+                    if (newInvoice)
+                    {
+                        openFileDialog1.FileName = @"";
+                        openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
+                        openFileDialog1.ShowDialog();
+                        filepathLoadedData = openFileDialog1.FileName;
+                    }
+                    else
+                    {
+                        filepathLoadedData = strSavedPathToInvoice;
+                    }
+                    if (filepathLoadedData == null || filepathLoadedData.Length < 1)
+                    { MessageBox.Show("Did not select File!"); }
+                    else
+                    {
+                        StatusLabel1.Text = "Обрабатываю файл:  " + filepathLoadedData;
+                        try
+                        {
+                            using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
+                            {
+                                while ((s = Reader.ReadLine()) != null && !endLoadData && listRows.Count < listMaxLength)
+                                {
+                                    loadedString = s.Trim();
+
+                                    //Set label Date
+                                    if (s.Contains("Особовий рахунок")) { checkRahunok = true; }
+                                    if (s.Contains("Номер рахунку")) { checkNomerRahunku = true; }
+                                    if (s.Contains("Розрахунковий період"))
+                                    {
+                                        string[] substrings = Regex.Split(s, ": ");
+                                        periodInvoice = substrings[substrings.Length - 1].Trim();
+                                        checkPeriod = true;
+                                    }
+
+                                    if (loadedString.StartsWith(startStringLoad))
+                                    { startLoadData = true; }
+                                    else if (loadedString.StartsWith(endStringLoad))
+                                    { endLoadData = true; }
+
+                                    if (startLoadData)
+                                    {
+                                        foreach (string parameterString in listParameters)
+                                        {
+                                            if (loadedString.StartsWith(parameterString))
+                                            {
+                                                listRows.Add(loadedString);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (checkPeriod && checkRahunok && checkNomerRahunku)
+                            {
+                                _ControlSetItsText(labelDate, periodInvoice);
+                            }
+                            ParameterLastInvoiceRegistrySave();
+                        }
+                        catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row\n" + expt.ToString()); }
+                        if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
+                        { MessageBox.Show("Error was happened on " + (listRows.Count) + " row\n You've been chosen the long file!"); }
+                    }
+                }
+            }
+            catch (Exception expt) { MessageBox.Show(expt.ToString()); }
+            return listRows;
+        }
 
         private void useSavedDataItem_Click(object sender, EventArgs e)
         {
