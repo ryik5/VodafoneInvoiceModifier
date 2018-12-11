@@ -550,32 +550,6 @@ namespace VodafoneInvoiceModifier
                             96-106	стоимость
                             */
 
-                            /*
-                            private DataColumn[] dcFullBill ={
-                            new DataColumn("Контракт",typeof(string)),
-                            new DataColumn("Номер телефона",typeof(string)),
-                            new DataColumn("ФИО",typeof(string)),
-                            new DataColumn("NAV",typeof(string)),
-                            new DataColumn("Подразделение",typeof(string)),
-                            new DataColumn("Имя сервиса",typeof(string)),
-                            new DataColumn("Номер В",typeof(string)),
-                            new DataColumn("Дата",typeof(string)),
-                            new DataColumn("Время",typeof(string)),
-                            new DataColumn("Длительность А",typeof(string)),
-                            new DataColumn("Длительность В",typeof(string)),
-                            new DataColumn("Стоимость",typeof(string))
-                            };
-
-                            dtFullBill.Columns.Add("CustLName", typeof(String));  
-                            dtFullBill.Columns.Add("CustFName", typeof(String));  
-                            dtFullBill.Columns.Add("Purchases", typeof(Double));
-
-                            foreach(DataRow row in dtFullBill.Rows)
-                            {
-                                //need to set value to NewColumn column
-                                row["CustLName"] = 0;   // or set it to some other value
-                            }*/
-
                             try
                             {
                                 serviceName = sRowBill.Substring(0, 38).Trim();
@@ -657,34 +631,6 @@ namespace VodafoneInvoiceModifier
             }
             else
             { _TextboxAppendText(textBoxLog, "Нет в выборке ничего для указанных номеров!\n"); }
-
-            /*
-            foreach (DataRow dataRowTarif in dtTarif.Rows)
-            {
-                foreach (DataRow dataRowMarket in dtMarket.Rows)
-                {
-                    if(dataRowTarif["Номер телефона"].ToString().Contains(dataRowMarket["Номер телефона"].ToString()))
-                    {
-                        dataRowMarket["ФИО"] = dataRowTarif["ФИО"].ToString();
-                        dataRowMarket["NAV"] = dataRowTarif["NAV"].ToString();
-                        dataRowMarket["Подразделение"] = dataRowTarif["Подразделение"].ToString();
-                        
-                        
-                        //   MessageBox.Show(dataRowMarket["Номер телефона"].ToString()+"\n"+dataRowMarket["Подразделение"].ToString());
-                    }
-                }
-            }*/
-
-            //TODO
-            //fill table from that table
-
-            /*
-                                  DataRow row = dtTarif.NewRow();
-                                    row["Номер телефона"] = MakeCommonViewPhone(record["phone_no"].ToString());
-                                    row["ФИО"] = record["emp_name"].ToString().Trim();
-                                    row["NAV"] = record["NAV"].ToString().Trim();
-            
-            */
 
 
             CheckConditionEnableMarketingReport();
