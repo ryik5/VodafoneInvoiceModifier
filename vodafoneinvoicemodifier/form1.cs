@@ -485,8 +485,6 @@ namespace VodafoneInvoiceModifier
             string durationB = "";
             string cost = "";
 
-            //  List<string> listResultRows = new List<string>();
-
             pListParseStrings[1] = _ControlReturnItsText(textBoxP1);
             pListParseStrings[2] = _ControlReturnItsText(textBoxP2);
 
@@ -550,32 +548,6 @@ namespace VodafoneInvoiceModifier
                             96-106	стоимость
                             */
 
-                            /*
-                            private DataColumn[] dcFullBill ={
-                            new DataColumn("Контракт",typeof(string)),
-                            new DataColumn("Номер телефона",typeof(string)),
-                            new DataColumn("ФИО",typeof(string)),
-                            new DataColumn("NAV",typeof(string)),
-                            new DataColumn("Подразделение",typeof(string)),
-                            new DataColumn("Имя сервиса",typeof(string)),
-                            new DataColumn("Номер В",typeof(string)),
-                            new DataColumn("Дата",typeof(string)),
-                            new DataColumn("Время",typeof(string)),
-                            new DataColumn("Длительность А",typeof(string)),
-                            new DataColumn("Длительность В",typeof(string)),
-                            new DataColumn("Стоимость",typeof(string))
-                            };
-
-                            dtFullBill.Columns.Add("CustLName", typeof(String));  
-                            dtFullBill.Columns.Add("CustFName", typeof(String));  
-                            dtFullBill.Columns.Add("Purchases", typeof(Double));
-
-                            foreach(DataRow row in dtFullBill.Rows)
-                            {
-                                //need to set value to NewColumn column
-                                row["CustLName"] = 0;   // or set it to some other value
-                            }*/
-
                             try
                             {
                                 serviceName = sRowBill.Substring(0, 38).Trim();
@@ -611,7 +583,6 @@ namespace VodafoneInvoiceModifier
 
                                 if (!time.Contains('.')) //except a common service with ". . ."
                                 {
-
                                     foreach (DataRow rowTarif in dtTarif.Rows)
                                     {
                                         if (rowTarif["Номер телефона"].ToString().Contains(numberMobile))
@@ -633,8 +604,6 @@ namespace VodafoneInvoiceModifier
                                     tempRow = numberMobile + "\t" + fio + "\t" + nav + "\t" + department + "\t" + serviceName + "\t" + numberB + "\t" + date + "\t" + time + "\t" + durationA + "\t" + durationB + "\t" + cost;
                                     dtFullBill.Rows.Add(row);
 
-                                    //  listResultRows.Add(tempRow);
-
                                     foreach (string sNumber in listNumbers)
                                     {
                                         if (tempRow.StartsWith(sNumber))
@@ -643,7 +612,6 @@ namespace VodafoneInvoiceModifier
                                             sb.AppendLine(tempRow);
                                         }
                                     }
-
                                 }
                                 break;
                             }
@@ -657,36 +625,7 @@ namespace VodafoneInvoiceModifier
             }
             else
             { _TextboxAppendText(textBoxLog, "Нет в выборке ничего для указанных номеров!\n"); }
-
-            /*
-            foreach (DataRow dataRowTarif in dtTarif.Rows)
-            {
-                foreach (DataRow dataRowMarket in dtMarket.Rows)
-                {
-                    if(dataRowTarif["Номер телефона"].ToString().Contains(dataRowMarket["Номер телефона"].ToString()))
-                    {
-                        dataRowMarket["ФИО"] = dataRowTarif["ФИО"].ToString();
-                        dataRowMarket["NAV"] = dataRowTarif["NAV"].ToString();
-                        dataRowMarket["Подразделение"] = dataRowTarif["Подразделение"].ToString();
-                        
-                        
-                        //   MessageBox.Show(dataRowMarket["Номер телефона"].ToString()+"\n"+dataRowMarket["Подразделение"].ToString());
-                    }
-                }
-            }*/
-
-            //TODO
-            //fill table from that table
-
-            /*
-                                  DataRow row = dtTarif.NewRow();
-                                    row["Номер телефона"] = MakeCommonViewPhone(record["phone_no"].ToString());
-                                    row["ФИО"] = record["emp_name"].ToString().Trim();
-                                    row["NAV"] = record["NAV"].ToString().Trim();
             
-            */
-
-
             CheckConditionEnableMarketingReport();
             _ToolStripStatusLabelSetItsText(StatusLabel1, "Файл сохранен в папку: " + Path.GetDirectoryName(filepathLoadedData));
 
@@ -719,10 +658,7 @@ namespace VodafoneInvoiceModifier
             string s = "";
             int i = 0; // it is not empty's rows in the selected file
 
-            openFileDialog1.FileName = @"";
-            openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
-            openFileDialog1.ShowDialog();
-            string filepathLoadedData = openFileDialog1.FileName;
+            string filepathLoadedData = _OpenFileDialogReturnPath(openFileDialog1);            
             if (filepathLoadedData == null || filepathLoadedData.Length < 1)
             { MessageBox.Show("Не выбран файл."); }
             else
@@ -755,6 +691,7 @@ namespace VodafoneInvoiceModifier
             checkRahunok = false;
             checkNomerRahunku = false;
             checkPeriod = false;
+            int countParameters = listParameters.Count;
 
             int listMaxLength = 500000;
             List<string> listRows = new List<string>(listMaxLength);
@@ -781,20 +718,17 @@ namespace VodafoneInvoiceModifier
                 bool startLoadData = false;
                 bool endLoadData = false;
                 var Coder = Encoding.GetEncoding(1251);
-
-                if (listParameters.Count > 0)
+                if (countParameters > 0)
                 {
-                    if (newInvoice)
+                    if (newInvoice==true)
                     {
-                        openFileDialog1.FileName = @"";
-                        openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
-                        openFileDialog1.ShowDialog();
-                        filepathLoadedData = openFileDialog1.FileName;
+                        filepathLoadedData = _OpenFileDialogReturnPath(openFileDialog1);
                     }
                     else
                     {
                         filepathLoadedData = strSavedPathToInvoice;
                     }
+
                     if (filepathLoadedData == null || filepathLoadedData.Length < 1)
                     { MessageBox.Show("Did not select File!"); }
                     else
@@ -1313,10 +1247,9 @@ namespace VodafoneInvoiceModifier
         {
             bool ChosenFile = false;
             listTempContract.Clear();
-            openFileDialog1.FileName = @"";
-            openFileDialog1.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
-            openFileDialog1.ShowDialog();
-            filePathTxt = openFileDialog1.FileName;
+
+            filePathTxt = _OpenFileDialogReturnPath(openFileDialog1);
+
             if (filePathTxt == null || filePathTxt.Length < 1) { return false; }
             else
             {
@@ -1779,11 +1712,6 @@ namespace VodafoneInvoiceModifier
                 sheet.Cells[k].WrapText = true;
                 sheet.Cells[1, k].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                 sheet.Cells[1, k].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
-                sheet.Cells[1, k].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                sheet.Cells[1, k].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-                sheet.Cells[1, k].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                sheet.Cells[1, k].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-
                 sheet.Cells[1, k + 1].Value = dt.Columns[k].ColumnName;
                 //string columnName = dt.Columns[0].Caption;
 
@@ -1800,7 +1728,7 @@ namespace VodafoneInvoiceModifier
                 rows++;
                 foreach (DataColumn column in dt.Columns)
                 {
-                    if (rows == 2)
+                    if (rows > 1)
                     {
                         if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
                         { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
@@ -1808,17 +1736,27 @@ namespace VodafoneInvoiceModifier
                         { sheet.Columns[column.Ordinal + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
                     }
                     sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
-                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-                    sheet.Columns[column.Ordinal + 1].AutoFit();
+                  //  sheet.Columns[column.Ordinal + 1].AutoFit();
                 }
             }
 
             //Autofilter                
             Excel.Range range = sheet.UsedRange;  //sheet.Cells.Range["A1", lastCell];
+
+            //ширина колонок - авто
+            range.Cells.EntireColumn.AutoFit();
+
+            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideHorizontal].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideVertical].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideVertical].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+
             range.Select();
+
             range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
 
             workbook.SaveAs(
@@ -2299,6 +2237,27 @@ namespace VodafoneInvoiceModifier
 
 
         //Access to Control from other threads
+        private string _OpenFileDialogReturnPath(OpenFileDialog ofd) //Return its name 
+        {
+            string filePath = "";
+            if (InvokeRequired)
+                Invoke(new MethodInvoker(delegate
+                {
+                    ofd.FileName = @"";
+                    ofd.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
+                    ofd.ShowDialog();
+                    filePath = ofd.FileName;
+                }));
+            else
+            {
+                ofd.FileName = @"";
+                ofd.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
+                ofd.ShowDialog();
+                filePath = ofd.FileName;
+            }
+            return filePath;
+        }
+
         private string _ControlReturnItsText(Control controlText) //Return its name 
         {
             string tBox = "";
