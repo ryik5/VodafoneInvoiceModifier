@@ -34,6 +34,7 @@
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.labelAccount = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -94,7 +95,8 @@
             // 
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.StatusLabel1});
+            this.StatusLabel1,
+            this.ProgressBar1});
             this.statusStrip1.Location = new System.Drawing.Point(0, 321);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
@@ -107,6 +109,12 @@
             this.StatusLabel1.Name = "StatusLabel1";
             this.StatusLabel1.Size = new System.Drawing.Size(73, 17);
             this.StatusLabel1.Text = "StatusLabel1";
+            this.StatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // ProgressBar1
+            // 
+            this.ProgressBar1.Name = "ProgressBar1";
+            this.ProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
             // label1
             // 
@@ -498,6 +506,7 @@
         private System.Windows.Forms.ToolStripMenuItem makeReportMarketingItem;
         private System.Windows.Forms.ToolStripMenuItem prepareBillItem;
         private System.Windows.Forms.ToolStripMenuItem useSavedDataItem;
+        private System.Windows.Forms.ToolStripProgressBar ProgressBar1;
     }
 }
 

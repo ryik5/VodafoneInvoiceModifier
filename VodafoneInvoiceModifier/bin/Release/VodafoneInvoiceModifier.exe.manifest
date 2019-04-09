@@ -4,7 +4,7 @@
   <description asmv2:iconFile="RYIK.ico" asmv2:publisher="RYIK" co.v1:suiteName="VodafoneInvoiceModifier" asmv2:product="VodafoneInvoiceModifier" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="VodafoneInvoiceModifier" version="2.1.11.7" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="VodafoneInvoiceModifier" version="2.1.19.5" language="neutral" processorArchitecture="msil" />
     <commandLine file="VodafoneInvoiceModifier.exe" parameters="" />
   </entryPoint>
   <co.v1:useManifestForTrust xmlns="urn:schemas-microsoft-com:asm.v1" />
@@ -44,14 +44,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="VodafoneInvoiceModifier.exe" size="291328">
-      <assemblyIdentity name="VodafoneInvoiceModifier" version="2.1.11.7" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="VodafoneInvoiceModifier.exe" size="291840">
+      <assemblyIdentity name="VodafoneInvoiceModifier" version="2.1.19.5" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>R27BKycXvZqz1NmFwx38VqYaCov4ftCCdYiH3pHQUYQ=</dsig:DigestValue>
+        <dsig:DigestValue>WctTcqgi2Svzo6Dn4pYbjdFs0wS3E44jy5EWppr67IU=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
