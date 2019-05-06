@@ -239,7 +239,7 @@ namespace VodafoneInvoiceModifier
 
         double discountDouble = 1;
         double beforeDiscountDouble = 1;
-         string discount = null;
+        string discount = null;
         string beforeDiscount = null;
         private double discountValue = 0.70; //скидка в текущем счете (1-discountValue/100) - 30% 
 
@@ -1322,14 +1322,14 @@ namespace VodafoneInvoiceModifier
                 try
                 {
                     var Coder = Encoding.GetEncoding(1251);
-                     discount = null;
-                     beforeDiscount = null;
+                    discount = null;
+                    beforeDiscount = null;
                     string test = null;
                     using (StreamReader Reader = new StreamReader(filePathTxt, Coder))
                     {
                         string s; int i = 0;
                         bool mystatusbegin = false;
-                        int lenghtData=0;
+                        int lenghtData = 0;
                         _ToolStripStatusLabelSetItsText(StatusLabel1, "Обрабатываю файл:  " + filePathTxt);
                         while ((s = Reader.ReadLine()) != null)
                         {
@@ -1350,7 +1350,7 @@ namespace VodafoneInvoiceModifier
                             else if (s.Contains(pDiscount))
                             {
                                 lenghtData = (s.Split(':')[1].Trim()).Split(' ').Length;
-                                discount = (s.Split(':')[1].Trim()).Split(' ')[lenghtData-1];
+                                discount = (s.Split(':')[1].Trim()).Split(' ')[lenghtData - 1];
                             }
                             else if (s.Contains(pFull))
                             {
@@ -1364,7 +1364,7 @@ namespace VodafoneInvoiceModifier
                                 labelPeriod.Visible = true;
                                 labelPeriod.Text = periodInvoice;
                             }
-                            
+
                             if (s.Contains(pListParseStrings[1]))
                             {
                                 mystatusbegin = true;
@@ -1380,16 +1380,19 @@ namespace VodafoneInvoiceModifier
                         labelContracts.Visible = true;
                         labelContracts.Text = " " + i + " шт.";
 
-                         discountDouble = 1;
-                         beforeDiscountDouble = 1;
-                        if (double.TryParse(discount, out discountDouble)&& double.TryParse(beforeDiscount, out beforeDiscountDouble)) //calculate current discount in the biil
+
+                        // вычисление скидки предоставленной Вудафон на данный счет(зависит от ИТОГОВОЙ суммы счета)
+                        discountDouble = 1;
+                        beforeDiscountDouble = 1;
+                        if (double.TryParse(discount, out discountDouble) && double.TryParse(beforeDiscount, out beforeDiscountDouble)) //calculate current discount in the biil
                         {
-                            discountValue =1 -(Math.Abs(Math.Round((discountDouble / beforeDiscountDouble), 2, MidpointRounding.AwayFromZero) * 100))/100;
-                            labelDiscount.Text = ((1-discountValue)*100).ToString();
+                            discountValue = 1 - (Math.Abs(Math.Round((discountDouble / beforeDiscountDouble), 2, MidpointRounding.AwayFromZero) * 100)) / 100;
+                            labelDiscount.Text = ((1 - discountValue) * 100).ToString();
                             labelDiscount.Visible = true;
                         }
                         //todo
-                       // add switch with discount caltulating
+                        // add switch with discount caltulating
+
                     }
 
 
@@ -1408,7 +1411,7 @@ namespace VodafoneInvoiceModifier
                     finally { sb = null; }
                     */
                     //Test module The End -----
-                    
+
                     ChosenFile = true;
                 }
                 catch (Exception Expt)
@@ -2475,13 +2478,13 @@ namespace VodafoneInvoiceModifier
                 control.Text = text;
         }
 
-      /*  private void _ToolStripMenuItemVisibleEnabled(ToolStripMenuItem control, bool visible) //Set its name 
-        {
-            if (InvokeRequired)
-                Invoke(new MethodInvoker(delegate { control.Visible = visible; }));
-            else
-                control.Visible = visible;
-        }*/
+        /*  private void _ToolStripMenuItemVisibleEnabled(ToolStripMenuItem control, bool visible) //Set its name 
+          {
+              if (InvokeRequired)
+                  Invoke(new MethodInvoker(delegate { control.Visible = visible; }));
+              else
+                  control.Visible = visible;
+          }*/
 
         private void _ToolStripMenuItemEnabled(ToolStripMenuItem control, bool enabled) //Set its name 
         {
