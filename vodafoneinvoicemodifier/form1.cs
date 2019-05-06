@@ -19,6 +19,9 @@ namespace VodafoneInvoiceModifier
         string pathToIni = Application.StartupPath + @"\VodafoneInvoiceModifier.ini"; //path to ini of tools
 
         private string pStop = @"ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
+        private string pDiscount = @"ЗНИЖКА**";
+        private string pFull = @"ЩОМІСЯЧНА ВАРТІСТЬ ПАКЕТА ТА ПОСЛУГИ, НАДАНІ ЗА МЕЖАМИ ПАКЕТА";
+
         private string about = "";
         private string dataStart = ""; // дата начала периода счета
         private string dataEnd = "";  // дата конца периода счета
@@ -205,21 +208,21 @@ namespace VodafoneInvoiceModifier
         private HashSet<string> listTarifData = new HashSet<string>(); //will write models in modelToPayment()
 
         private string[] arrayTarif = new string[] {
-            "L100% корпорация",                 //0
-            "L100% сотрудник",                  //1
-            "L100%,R80%",                       //2
-            "L50,R0%",                          //3
-            "L80,R0%",                          //4
-            "L100,R0%",                         //5
-            "L160,R0%",                         //6
-            "L250,R0%",                         //7
-            "L50%,R0%",                         //8
-            "L50%,R80%",                        //9
-            "L50%,R100%",                       //10
-            "L90%,R100%",                       //11
-            "Lpack100%,R0%,Paid0%",             //12
-            "Lмоб200,R0%,Paid0%",               //13
-            "L200,R0%"                          //14
+            @"L100% корпорация",                 //0
+            @"L100% сотрудник",                  //1
+            @"L100%,R80%",                       //2
+            @"L50,R0%",                          //3
+            @"L80,R0%",                          //4
+            @"L100,R0%",                         //5
+            @"L160,R0%",                         //6
+            @"L250,R0%",                         //7
+            @"L50%,R0%",                         //8
+            @"L50%,R80%",                        //9
+            @"L50%,R100%",                       //10
+            @"L90%,R100%",                       //11
+            @"Lpack100%,R0%,Paid0%",             //12
+            @"Lмоб200,R0%,Paid0%",               //13
+            @"L200,R0%"                          //14
         };
 
         private string infoStatusBar = "";
@@ -233,6 +236,13 @@ namespace VodafoneInvoiceModifier
 
         private string parametrStart = "Контракт";
         private string parametrEnd = "ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
+
+        double discountDouble = 1;
+        double beforeDiscountDouble = 1;
+         string discount = null;
+        string beforeDiscount = null;
+        private double discountValue = 0.70; //скидка в текущем счете (1-discountValue/100) - 30% 
+
         private bool loadedBill = false;
         private bool selectedServices = false;
         private bool selectedNumbers = false;
@@ -283,9 +293,9 @@ namespace VodafoneInvoiceModifier
             groupBox1.BackColor = System.Drawing.Color.Ivory;
 
             labelAccount.Visible = false;
-            labelDate.Visible = false;
+            labelPeriod.Visible = false;
             labelBill.Visible = false;
-            labelSummaryNumbers.Visible = false;
+            labelContracts.Visible = false;
             readinifile();
 
             makeReportAccountantItem.Enabled = false;
@@ -298,7 +308,7 @@ namespace VodafoneInvoiceModifier
             makeFullReportItem.ToolTipText = "Подготовить полный отчет в Excel-файле.\nФайл будет сохранен в папке с программой";
             makeReportAccountantItem.ToolTipText = "Подготовить отчет для бух. в Excel-файле.\nФайл будет сохранен в папке с программой";
             useSavedDataItem.ToolTipText = "Использовать сохраненный список файлов и сервисов из предыдущей сессии";
-
+            labelDiscount.Text = "";
             clearTextboxItem.ToolTipText = "Убрать весь текст из окна просмотра";
             aboutItem.ToolTipText = "О программе";
             exitItem.ToolTipText = "Выйти из программы и сохранить настройки и парсеры счета";
@@ -410,8 +420,8 @@ namespace VodafoneInvoiceModifier
                     {
                         selectedNumbers = true;
                         ListNumbersRegistrySave();
-                        _ControlSetItsText(labelSummaryNumbers, listNumbers.Count.ToString() + " шт.");
-                        _ControlVisibleEnabled(labelSummaryNumbers, true);
+                        _ControlSetItsText(labelContracts, listNumbers.Count.ToString() + " шт.");
+                        _ControlVisibleEnabled(labelContracts, true);
                     }
 
                     textBoxLog.AppendText("List of numbers:\n");
@@ -469,7 +479,7 @@ namespace VodafoneInvoiceModifier
             _ProgressBar1Start();
             _TextboxClear(textBoxLog);
             _ToolStripMenuItemEnabled(fileMenuItem, false);
-            _ControlVisibleEnabled(labelDate, true);
+            _ControlVisibleEnabled(labelPeriod, true);
 
             loadedBill = false;
 
@@ -817,7 +827,7 @@ namespace VodafoneInvoiceModifier
 
                             if (checkPeriod && checkRahunok && checkNomerRahunku)
                             {
-                                _ControlSetItsText(labelDate, periodInvoice);
+                                _ControlSetItsText(labelPeriod, periodInvoice);
                             }
                             ParameterLastInvoiceRegistrySave();
                         }
@@ -1183,6 +1193,10 @@ namespace VodafoneInvoiceModifier
                             { parametrEnd = Regex.Split(s, "parametrEnd=")[1].Trim(); }
                             else if (s.StartsWith("pStop="))
                             { pStop = Regex.Split(s, "pStop=")[1].Trim(); }
+                            else if (s.StartsWith("pDiscount=")) //Срока с величиной скидки
+                            { pDiscount = Regex.Split(s, "pDiscount=")[1].Trim(); }
+                            else if (s.StartsWith("pFull=")) ///Строка с суммой счета до скидки
+                            { pFull = Regex.Split(s, "pFull=")[1].Trim(); }
 
                             //Далее - обработка ini файла только с наличием авторства
                             for (int i = 0; i < pListParseStrings.Length; i++)
@@ -1243,36 +1257,44 @@ namespace VodafoneInvoiceModifier
 
                 for (int i = 0; i < pListParseStrings.Length; i++)
                 {
-                    if (pListParseStrings[i] != null && pListParseStrings[i].Length > 0)
+                    if (pListParseStrings[i]?.Length > 0)
                     { sb.AppendLine("p" + i + "=" + pListParseStrings[i]); }
                     else { sb.AppendLine("p" + i + "="); }
                 }
 
-                if (sConnectionServer != null && sConnectionServer.Length > 1)
+                if (sConnectionServer?.Length > 1)
                 { sb.AppendLine(@"pConnectionServer=" + sConnectionServer); }
                 else { sb.AppendLine(@"pConnectionServer="); }
 
-                if (sConnectionUserName != null && sConnectionUserName.Length > 1)
+                if (sConnectionUserName?.Length > 1)
                 { sb.AppendLine(@"pConnectionUserName=" + sConnectionUserName); }
                 else { sb.AppendLine(@"pConnectionUserName="); }
 
-                if (sConnectionUserPasswords != null && sConnectionUserPasswords.Length > 1)
+                if (sConnectionUserPasswords?.Length > 1)
                 { sb.AppendLine(@"pConnectionUserPasswords=" + sConnectionUserPasswords); }
                 else { sb.AppendLine(@"pConnectionUserPasswords="); }
 
-                if (sConnection != null && sConnection.Length > 15)
+                if (sConnection?.Length > 15)
                 { sb.AppendLine(@"pConnection=" + sConnection); }
                 else { sb.AppendLine(@"pConnection="); }
 
-                if (parametrStart != null && parametrStart.Length > 0)
+                if (parametrStart?.Length > 0)
                 { sb.AppendLine(@"parametrStart=" + parametrStart); }
                 else { sb.AppendLine(@"parametrStart="); }
 
-                if (parametrEnd != null && parametrEnd.Length > 0)
+                if (pDiscount?.Length > 0)
+                { sb.AppendLine(@"pDiscount=" + pDiscount); }
+                else { sb.AppendLine(@"pDiscount="); }
+
+                if (pFull?.Length > 0)
+                { sb.AppendLine(@"pFull=" + pFull); }
+                else { sb.AppendLine(@"pFull="); }
+
+                if (parametrEnd?.Length > 0)
                 { sb.AppendLine(@"parametrEnd=" + parametrEnd); }
                 else { sb.AppendLine(@"parametrEnd="); }
 
-                if (pStop != null && pStop.Length > 0)
+                if (pStop?.Length > 0)
                 { sb.AppendLine(@"pStop=" + pStop); }
                 else { sb.AppendLine(@"pStop="); }
 
@@ -1300,10 +1322,14 @@ namespace VodafoneInvoiceModifier
                 try
                 {
                     var Coder = Encoding.GetEncoding(1251);
+                     discount = null;
+                     beforeDiscount = null;
+                    string test = null;
                     using (StreamReader Reader = new StreamReader(filePathTxt, Coder))
                     {
                         string s; int i = 0;
                         bool mystatusbegin = false;
+                        int lenghtData=0;
                         _ToolStripStatusLabelSetItsText(StatusLabel1, "Обрабатываю файл:  " + filePathTxt);
                         while ((s = Reader.ReadLine()) != null)
                         {
@@ -1320,14 +1346,25 @@ namespace VodafoneInvoiceModifier
                                 labelBill.Visible = true;
                                 labelBill.Text = substrings[substrings.Length - 3].Trim();
                             }
+
+                            else if (s.Contains(pDiscount))
+                            {
+                                lenghtData = (s.Split(':')[1].Trim()).Split(' ').Length;
+                                discount = (s.Split(':')[1].Trim()).Split(' ')[lenghtData-1];
+                            }
+                            else if (s.Contains(pFull))
+                            {
+                                lenghtData = (s.Split(':')[1].Trim()).Split(' ').Length;
+                                beforeDiscount = (s.Split(':')[1].Trim()).Split(' ')[lenghtData - 1];
+                            }
                             else if (s.Contains("Розрахунковий період"))
                             {
                                 string[] substrings = Regex.Split(s, ": ");
                                 periodInvoice = substrings[substrings.Length - 1].Trim();
-                                labelDate.Visible = true;
-                                labelDate.Text = periodInvoice;
+                                labelPeriod.Visible = true;
+                                labelPeriod.Text = periodInvoice;
                             }
-
+                            
                             if (s.Contains(pListParseStrings[1]))
                             {
                                 mystatusbegin = true;
@@ -1340,8 +1377,19 @@ namespace VodafoneInvoiceModifier
                                 { listTempContract.Add(s.Trim()); break; }
                             }
                         }
-                        labelSummaryNumbers.Visible = true;
-                        labelSummaryNumbers.Text = " " + i + " шт.";
+                        labelContracts.Visible = true;
+                        labelContracts.Text = " " + i + " шт.";
+
+                         discountDouble = 1;
+                         beforeDiscountDouble = 1;
+                        if (double.TryParse(discount, out discountDouble)&& double.TryParse(beforeDiscount, out beforeDiscountDouble)) //calculate current discount in the biil
+                        {
+                            discountValue =1 -(Math.Abs(Math.Round((discountDouble / beforeDiscountDouble), 2, MidpointRounding.AwayFromZero) * 100))/100;
+                            labelDiscount.Text = ((1-discountValue)*100).ToString();
+                            labelDiscount.Visible = true;
+                        }
+                        //todo
+                       // add switch with discount caltulating
                     }
 
 
@@ -1360,8 +1408,7 @@ namespace VodafoneInvoiceModifier
                     finally { sb = null; }
                     */
                     //Test module The End -----
-
-
+                    
                     ChosenFile = true;
                 }
                 catch (Exception Expt)
@@ -1487,8 +1534,8 @@ namespace VodafoneInvoiceModifier
             bool isUsedCurrent = false;
             bool isCheckFinishedTitles = false;
 
-            dataStart = labelDate.Text.Split('-')[0].Trim(); // дата начала периода счета
-            dataEnd = labelDate.Text.Split('-')[1].Trim();  // дата конца периода счета
+            dataStart = labelPeriod.Text.Split('-')[0].Trim(); // дата начала периода счета
+            dataEnd = labelPeriod.Text.Split('-')[1].Trim();  // дата конца периода счета
             _ToolStripStatusLabelSetItsText(StatusLabel1, "Обрабатываю полученные данные...");
             string n = "", searchNumber;
             string[] substrings = new string[1];
@@ -1528,8 +1575,9 @@ namespace VodafoneInvoiceModifier
                                 }
                             }
                             mcpCurrent.payOwner = modelToPayment(mcpCurrent);
+
                             mcpCurrent.isUsed = isUsedCurrent;
-                            if (mcpCurrent.totalCostWithTax > 0.01)
+                            if (mcpCurrent.totalCostWithTax > 0)
                             { mcpCurrent.isUnblocked = true; }
 
                             row = dtMobile.NewRow();
@@ -1589,7 +1637,7 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.monthCost = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 0.7 * 1.275;
+                        mcpCurrent.monthCost = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * discountValue * 1.275;
                     }
 
                     else if (s.Contains(pListParseStrings[5]))
@@ -1626,14 +1674,14 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * 0.7;
+                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * discountValue;
                     }
 
                     else if (s.Contains(pListParseStrings[13]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.outToCity += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * 0.7;
+                        mcpCurrent.outToCity += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * discountValue;
                     }
 
                     else if (s.Contains(pListParseStrings[14]))
@@ -1654,9 +1702,16 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraServiceOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * 0.7;
+                        mcpCurrent.extraServiceOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * discountValue;
                     }
-
+                    else if (s.Equals(pDiscount))
+                    {
+                        discount = s.Split(':')[1].Trim();
+                    }
+                    else if (s.Equals(pFull))
+                    {
+                        beforeDiscount = s.Split(':')[1].Trim();
+                    }
                     else if (isCheckFinishedTitles)
                     { isUsedCurrent = true; }
                 }
@@ -2069,17 +2124,37 @@ namespace VodafoneInvoiceModifier
             for (int k = 0; k < columnsInTable; k++)
             {
                 sheet.Cells[k + 1].WrapText = true;
-                sheet.Cells[k + 1].NumberFormat = "@";
-                sheet.Cells[1, k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-                sheet.Cells[1, k + 1].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
-                sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-                sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
+                sheet.Cells[k + 1].Interior.Color = System.Drawing.Color.Silver;
+                sheet.Cells[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                sheet.Cells[k + 1].VerticalAlignment = Excel.XlVAlign.xlVAlignCenter;
                 sheet.Cells[1, k + 1].Value = pToAccount[k];
-                sheet.Cells[1, k + 1].Interior.Color = System.Drawing.Color.Silver;
                 sheet.Columns[k + 1].Font.Size = 8;
                 sheet.Columns[k + 1].Font.Name = "Tahoma";
+
+                switch (k)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 8:
+                    case 9:
+                    case 10:
+                        {
+                            sheet.Columns[k + 1].NumberFormat = "@";
+                            break;
+                        }
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 11:
+                        {
+                            sheet.Columns[k + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00";
+                            sheet.Columns[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                            break;
+                        }
+                }
             }
 
             //colourize of collumns
@@ -2092,19 +2167,7 @@ namespace VodafoneInvoiceModifier
                 rows++;
                 for (int column = 0; column < columnsInTable; column++)
                 {
-                  /*  if (rows == 2)
-                    {
-                        if (row[column + 1].GetType().ToString().ToLower().Contains("string"))
-                        { sheet.Columns[column + 1].NumberFormat = "@"; }
-                        else
-                        { sheet.Columns[column + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
-                    }*/
                     sheet.Cells[rows, column + 1].Value = row[pIdxToAccount[column]];
-                 //   sheet.Cells[rows, column + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                //    sheet.Cells[rows, column + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-                 //   sheet.Cells[rows, column + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                //    sheet.Cells[rows, column + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-                   // sheet.Columns[column + 1].AutoFit();
                 }
             }
 
@@ -2127,6 +2190,8 @@ namespace VodafoneInvoiceModifier
             //Autofilter
             range = sheet.UsedRange; //sheet.Cells.Range["A1", GetColumnName(columnsInTable) + rowsInTable];
             range.Select();
+
+            //Форматирование колонок (стиль линий обводки)
             range.Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
             range.Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
             range.Borders[Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Excel.XlLineStyle.xlContinuous;
@@ -2153,8 +2218,6 @@ namespace VodafoneInvoiceModifier
             releaseObject(workbooks);
             excel.Quit();
             releaseObject(excel);
-            nameColumnSorted = null;
-            pIdxToAccount = null;
             MessageBox.Show("Отчет готов и сохранен:\n" + Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx");
         }
 
@@ -2200,8 +2263,8 @@ namespace VodafoneInvoiceModifier
 
         private void GetDataWithModel()  // получение данных из базы ТФактура
         {
-            dataStart = _ControlReturnItsText(labelDate).Split('-')[0].Trim(); //'01.05.2018'
-            dataEnd = _ControlReturnItsText(labelDate).Split('-')[1].Trim();  //'31.05.2018'
+            dataStart = _ControlReturnItsText(labelPeriod).Split('-')[0].Trim(); //'01.05.2018'
+            dataEnd = _ControlReturnItsText(labelPeriod).Split('-')[1].Trim();  //'31.05.2018'
             string dataStartSearch = dataStart.Split('.')[2] + "-" + dataStart.Split('.')[1] + "-" + dataStart.Split('.')[0]; //'2018-05-01'
             string dataEndSearch = dataEnd.Split('.')[2] + "-" + dataEnd.Split('.')[1] + "-" + dataEnd.Split('.')[0]; //'2018-05-31'
             contractNumberFound = 0;
@@ -2483,8 +2546,8 @@ namespace VodafoneInvoiceModifier
                         {
                             listSavedNumbers.Add(line.Trim());
                         }
-                        _ControlSetItsText(labelSummaryNumbers, listSavedNumbers.Count.ToString() + " шт.");
-                        _ControlVisibleEnabled(labelSummaryNumbers, true);
+                        _ControlSetItsText(labelContracts, listSavedNumbers.Count.ToString() + " шт.");
+                        _ControlVisibleEnabled(labelContracts, true);
                         foundSavedData = true;
 
                     }
@@ -2501,8 +2564,8 @@ namespace VodafoneInvoiceModifier
 
                         if (period.Length > 6)
                         {
-                            _ControlSetItsText(labelDate, period);
-                            _ControlVisibleEnabled(labelDate, true);
+                            _ControlSetItsText(labelPeriod, period);
+                            _ControlVisibleEnabled(labelPeriod, true);
                         }
                     }
                     catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
@@ -2578,7 +2641,7 @@ namespace VodafoneInvoiceModifier
                     if (filepathLoadedData != null && filepathLoadedData.Length > 0)
                     { EvUserKey.SetValue("PathToLastInvoice", filepathLoadedData, Microsoft.Win32.RegistryValueKind.String); }
 
-                    if (_ControlReturnItsText(labelDate).Length > 0)
+                    if (_ControlReturnItsText(labelPeriod).Length > 0)
                     { EvUserKey.SetValue("PeriodLastInvoice", periodInvoice, Microsoft.Win32.RegistryValueKind.String); }
                 }
                 foundSavedData = true;
