@@ -35,14 +35,14 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.ProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
-            this.label1 = new System.Windows.Forms.Label();
+            this.labelAccountName = new System.Windows.Forms.Label();
             this.labelAccount = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.labelDate = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
+            this.labelPeriodName = new System.Windows.Forms.Label();
+            this.labelPeriod = new System.Windows.Forms.Label();
+            this.labelBillName = new System.Windows.Forms.Label();
             this.labelBill = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.labelSummaryNumbers = new System.Windows.Forms.Label();
+            this.labelContractsName = new System.Windows.Forms.Label();
+            this.labelContracts = new System.Windows.Forms.Label();
             this.textBoxP1 = new System.Windows.Forms.TextBox();
             this.textBoxP2 = new System.Windows.Forms.TextBox();
             this.textBoxP3 = new System.Windows.Forms.TextBox();
@@ -68,6 +68,8 @@
             this.clearTextboxItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.labelDiscount = new System.Windows.Forms.Label();
+            this.labelDiscountName = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -116,16 +118,16 @@
             this.ProgressBar1.Name = "ProgressBar1";
             this.ProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
-            // label1
+            // labelAccountName
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(285, 11);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(55, 13);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Лиц. счет";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.labelAccountName.AutoSize = true;
+            this.labelAccountName.Location = new System.Drawing.Point(285, 11);
+            this.labelAccountName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelAccountName.Name = "labelAccountName";
+            this.labelAccountName.Size = new System.Drawing.Size(55, 13);
+            this.labelAccountName.TabIndex = 5;
+            this.labelAccountName.Text = "Лиц. счет";
+            this.labelAccountName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // labelAccount
             // 
@@ -139,40 +141,40 @@
             this.labelAccount.Text = "л.с.";
             this.labelAccount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // label3
+            // labelPeriodName
             // 
-            this.label3.AutoSize = true;
-            this.label3.BackColor = System.Drawing.Color.Transparent;
-            this.label3.Location = new System.Drawing.Point(424, 30);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(48, 13);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "Период:";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.labelPeriodName.AutoSize = true;
+            this.labelPeriodName.BackColor = System.Drawing.Color.Transparent;
+            this.labelPeriodName.Location = new System.Drawing.Point(424, 30);
+            this.labelPeriodName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelPeriodName.Name = "labelPeriodName";
+            this.labelPeriodName.Size = new System.Drawing.Size(48, 13);
+            this.labelPeriodName.TabIndex = 7;
+            this.labelPeriodName.Text = "Период:";
+            this.labelPeriodName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // labelDate
+            // labelPeriod
             // 
-            this.labelDate.AutoSize = true;
-            this.labelDate.BackColor = System.Drawing.Color.Transparent;
-            this.labelDate.Location = new System.Drawing.Point(467, 30);
-            this.labelDate.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.labelDate.Name = "labelDate";
-            this.labelDate.Size = new System.Drawing.Size(33, 13);
-            this.labelDate.TabIndex = 8;
-            this.labelDate.Text = "Дата";
-            this.labelDate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.labelPeriod.AutoSize = true;
+            this.labelPeriod.BackColor = System.Drawing.Color.Transparent;
+            this.labelPeriod.Location = new System.Drawing.Point(467, 30);
+            this.labelPeriod.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelPeriod.Name = "labelPeriod";
+            this.labelPeriod.Size = new System.Drawing.Size(33, 13);
+            this.labelPeriod.TabIndex = 8;
+            this.labelPeriod.Text = "Дата";
+            this.labelPeriod.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // label5
+            // labelBillName
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(286, 30);
-            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(49, 13);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "№ счета";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.labelBillName.AutoSize = true;
+            this.labelBillName.Location = new System.Drawing.Point(286, 30);
+            this.labelBillName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelBillName.Name = "labelBillName";
+            this.labelBillName.Size = new System.Drawing.Size(49, 13);
+            this.labelBillName.TabIndex = 9;
+            this.labelBillName.Text = "№ счета";
+            this.labelBillName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // labelBill
             // 
@@ -186,29 +188,29 @@
             this.labelBill.Text = "счет";
             this.labelBill.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // label7
+            // labelContractsName
             // 
-            this.label7.AutoSize = true;
-            this.label7.BackColor = System.Drawing.Color.Transparent;
-            this.label7.Location = new System.Drawing.Point(423, 11);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(69, 13);
-            this.label7.TabIndex = 11;
-            this.label7.Text = "Контрактов:";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.labelContractsName.AutoSize = true;
+            this.labelContractsName.BackColor = System.Drawing.Color.Transparent;
+            this.labelContractsName.Location = new System.Drawing.Point(423, 11);
+            this.labelContractsName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelContractsName.Name = "labelContractsName";
+            this.labelContractsName.Size = new System.Drawing.Size(69, 13);
+            this.labelContractsName.TabIndex = 11;
+            this.labelContractsName.Text = "Контрактов:";
+            this.labelContractsName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // labelSummaryNumbers
+            // labelContracts
             // 
-            this.labelSummaryNumbers.AutoSize = true;
-            this.labelSummaryNumbers.BackColor = System.Drawing.Color.Transparent;
-            this.labelSummaryNumbers.Location = new System.Drawing.Point(489, 11);
-            this.labelSummaryNumbers.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.labelSummaryNumbers.Name = "labelSummaryNumbers";
-            this.labelSummaryNumbers.Size = new System.Drawing.Size(65, 13);
-            this.labelSummaryNumbers.TabIndex = 12;
-            this.labelSummaryNumbers.Text = "контрактов";
-            this.labelSummaryNumbers.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.labelContracts.AutoSize = true;
+            this.labelContracts.BackColor = System.Drawing.Color.Transparent;
+            this.labelContracts.Location = new System.Drawing.Point(489, 11);
+            this.labelContracts.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelContracts.Name = "labelContracts";
+            this.labelContracts.Size = new System.Drawing.Size(65, 13);
+            this.labelContracts.TabIndex = 12;
+            this.labelContracts.Text = "контрактов";
+            this.labelContracts.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // textBoxP1
             // 
@@ -425,20 +427,46 @@
             this.exitItem.Text = "Выход";
             this.exitItem.Click += new System.EventHandler(this.ApplicationExit);
             // 
+            // labelDiscount
+            // 
+            this.labelDiscount.AutoSize = true;
+            this.labelDiscount.BackColor = System.Drawing.Color.Transparent;
+            this.labelDiscount.Location = new System.Drawing.Point(715, 11);
+            this.labelDiscount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelDiscount.Name = "labelDiscount";
+            this.labelDiscount.Size = new System.Drawing.Size(44, 13);
+            this.labelDiscount.TabIndex = 28;
+            this.labelDiscount.Text = "Скидка";
+            this.labelDiscount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // labelDiscountName
+            // 
+            this.labelDiscountName.AutoSize = true;
+            this.labelDiscountName.BackColor = System.Drawing.Color.Transparent;
+            this.labelDiscountName.Location = new System.Drawing.Point(614, 11);
+            this.labelDiscountName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelDiscountName.Name = "labelDiscountName";
+            this.labelDiscountName.Size = new System.Drawing.Size(101, 13);
+            this.labelDiscountName.TabIndex = 27;
+            this.labelDiscountName.Text = "Скидка в счете, %:";
+            this.labelDiscountName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // Form1
             // 
             this.AccessibleDescription = "Парсер счетов МТС в текстовом формате и экспорт результата в Excel";
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(801, 343);
-            this.Controls.Add(this.labelSummaryNumbers);
-            this.Controls.Add(this.label7);
+            this.Controls.Add(this.labelDiscount);
+            this.Controls.Add(this.labelDiscountName);
+            this.Controls.Add(this.labelContracts);
+            this.Controls.Add(this.labelContractsName);
             this.Controls.Add(this.labelBill);
-            this.Controls.Add(this.labelDate);
+            this.Controls.Add(this.labelPeriod);
             this.Controls.Add(this.labelAccount);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.labelBillName);
+            this.Controls.Add(this.labelPeriodName);
+            this.Controls.Add(this.labelAccountName);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.textBoxLog);
@@ -473,14 +501,14 @@
         private System.Windows.Forms.TextBox textBoxLog;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel StatusLabel1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label labelAccountName;
         private System.Windows.Forms.Label labelAccount;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label labelDate;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label labelPeriodName;
+        private System.Windows.Forms.Label labelPeriod;
+        private System.Windows.Forms.Label labelBillName;
         private System.Windows.Forms.Label labelBill;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label labelSummaryNumbers;
+        private System.Windows.Forms.Label labelContractsName;
+        private System.Windows.Forms.Label labelContracts;
         private System.Windows.Forms.TextBox textBoxP1;
         private System.Windows.Forms.TextBox textBoxP2;
         private System.Windows.Forms.TextBox textBoxP3;
@@ -507,6 +535,8 @@
         private System.Windows.Forms.ToolStripMenuItem prepareBillItem;
         private System.Windows.Forms.ToolStripMenuItem useSavedDataItem;
         private System.Windows.Forms.ToolStripProgressBar ProgressBar1;
+        private System.Windows.Forms.Label labelDiscount;
+        private System.Windows.Forms.Label labelDiscountName;
     }
 }
 
