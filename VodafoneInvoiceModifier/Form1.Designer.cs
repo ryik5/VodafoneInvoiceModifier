@@ -70,6 +70,7 @@
             this.exitItem = new System.Windows.Forms.ToolStripMenuItem();
             this.labelDiscount = new System.Windows.Forms.Label();
             this.labelDiscountName = new System.Windows.Forms.Label();
+            this.labelFile = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -446,10 +447,21 @@
             this.labelDiscountName.Location = new System.Drawing.Point(614, 11);
             this.labelDiscountName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDiscountName.Name = "labelDiscountName";
-            this.labelDiscountName.Size = new System.Drawing.Size(101, 13);
+            this.labelDiscountName.Size = new System.Drawing.Size(87, 13);
             this.labelDiscountName.TabIndex = 27;
-            this.labelDiscountName.Text = "Скидка в счете, %:";
+            this.labelDiscountName.Text = "Скидка в счете:";
             this.labelDiscountName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // labelFile
+            // 
+            this.labelFile.AutoSize = true;
+            this.labelFile.BackColor = System.Drawing.Color.Transparent;
+            this.labelFile.Location = new System.Drawing.Point(11, 30);
+            this.labelFile.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelFile.Name = "labelFile";
+            this.labelFile.Size = new System.Drawing.Size(0, 13);
+            this.labelFile.TabIndex = 29;
+            this.labelFile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // Form1
             // 
@@ -457,6 +469,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(801, 343);
+            this.Controls.Add(this.labelFile);
             this.Controls.Add(this.labelDiscount);
             this.Controls.Add(this.labelDiscountName);
             this.Controls.Add(this.labelContracts);
@@ -537,6 +550,7 @@
         private System.Windows.Forms.ToolStripProgressBar ProgressBar1;
         private System.Windows.Forms.Label labelDiscount;
         private System.Windows.Forms.Label labelDiscountName;
+        private System.Windows.Forms.Label labelFile;
     }
 }
 
