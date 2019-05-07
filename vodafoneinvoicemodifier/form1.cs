@@ -237,11 +237,11 @@ namespace VodafoneInvoiceModifier
         private string parametrStart = "Контракт";
         private string parametrEnd = "ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
 
-        double discountDouble = 1;
-        double beforeDiscountDouble = 1;
+        double billDiscount = 1;
+        double billBeforeDiscount = 1;
         string discount = null;
         string beforeDiscount = null;
-        private double discountValue = 0.70; //скидка в текущем счете (1-discountValue/100) - 30% 
+        private double amountBillAfterDiscount = 0.70; //скидка в текущем счете (1-amountBillAfterDiscount/100) - 30% 
 
         private bool loadedBill = false;
         private bool selectedServices = false;
@@ -1321,10 +1321,11 @@ namespace VodafoneInvoiceModifier
             {
                 try
                 {
+                    labelFile.Text ="Выбран счет: "+ Path.GetFileName(filePathTxt);
                     var Coder = Encoding.GetEncoding(1251);
                     discount = null;
                     beforeDiscount = null;
-                    string test = null;
+                  //  string test = null;
                     using (StreamReader Reader = new StreamReader(filePathTxt, Coder))
                     {
                         string s; int i = 0;
@@ -1339,14 +1340,12 @@ namespace VodafoneInvoiceModifier
                                 labelAccount.Visible = true;
                                 labelAccount.Text = substrings[substrings.Length - 1].Trim();
                             }
-
                             else if (s.Contains("Номер рахунку"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
                                 labelBill.Visible = true;
                                 labelBill.Text = substrings[substrings.Length - 3].Trim();
                             }
-
                             else if (s.Contains(pDiscount))
                             {
                                 lenghtData = (s.Split(':')[1].Trim()).Split(' ').Length;
@@ -1382,17 +1381,30 @@ namespace VodafoneInvoiceModifier
 
 
                         // вычисление скидки предоставленной Вудафон на данный счет(зависит от ИТОГОВОЙ суммы счета)
-                        discountDouble = 1;
-                        beforeDiscountDouble = 1;
-                        if (double.TryParse(discount, out discountDouble) && double.TryParse(beforeDiscount, out beforeDiscountDouble)) //calculate current discount in the biil
+                        billDiscount = 0;
+                        billBeforeDiscount = 1;
+                        double resultOfCalculatingDiscount = 30;
+                        if (double.TryParse(discount, out billDiscount) && double.TryParse(beforeDiscount, out billBeforeDiscount)) //calculate current discount in the biil
                         {
-                            discountValue = 1 - (Math.Abs(Math.Round((discountDouble / beforeDiscountDouble), 2, MidpointRounding.AwayFromZero) * 100)) / 100;
-                            labelDiscount.Text = ((1 - discountValue) * 100).ToString();
-                            labelDiscount.Visible = true;
+                            resultOfCalculatingDiscount = Convert.ToInt32(Math.Abs(Math.Round(billDiscount / billBeforeDiscount, 2) * 100));
+                            double tmp;
+                            if (resultOfCalculatingDiscount > 30)
+                            {
+                                resultOfCalculatingDiscount = 30;
+                            }
+                            else if ((tmp = resultOfCalculatingDiscount % 5) != 0)
+                            {
+                                resultOfCalculatingDiscount += resultOfCalculatingDiscount > -1 ? (5 - tmp) : -tmp;
+                            }
                         }
-                        //todo
-                        // add switch with discount caltulating
+                        else
+                        {
+                            resultOfCalculatingDiscount = 30;
+                        }
+                        amountBillAfterDiscount = (100 - resultOfCalculatingDiscount)/100 ;
 
+                        labelDiscount.Text = resultOfCalculatingDiscount.ToString() + "%";
+                        labelDiscount.Visible = true;
                     }
 
 
@@ -1640,7 +1652,7 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.monthCost = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * discountValue * 1.275;
+                        mcpCurrent.monthCost = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * amountBillAfterDiscount * 1.275;
                     }
 
                     else if (s.Contains(pListParseStrings[5]))
@@ -1677,14 +1689,14 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * discountValue;
+                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
 
                     else if (s.Contains(pListParseStrings[13]))
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.outToCity += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * discountValue;
+                        mcpCurrent.outToCity += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
 
                     else if (s.Contains(pListParseStrings[14]))
@@ -1705,7 +1717,7 @@ namespace VodafoneInvoiceModifier
                     {
                         substrings = s.Split(' ');
                         n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraServiceOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * discountValue;
+                        mcpCurrent.extraServiceOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
                     else if (s.Equals(pDiscount))
                     {
@@ -2154,7 +2166,7 @@ namespace VodafoneInvoiceModifier
                     case 11:
                         {
                             sheet.Columns[k + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00";
-                            sheet.Columns[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                            sheet.Columns[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
                             break;
                         }
                 }
