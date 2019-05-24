@@ -347,7 +347,10 @@ namespace VodafoneInvoiceModifier
         }
 
         private void openBillItem_Click(object sender, EventArgs e)//Menu "Open"
-        { OpenBill(); }
+        {
+                dtMobile.Rows.Clear();
+                OpenBill();
+        }
 
         private void makeFullReportItem_Click(object sender, EventArgs e)
         { MakeExcelReport(ExportFullDataTableToExcel); }
@@ -472,7 +475,11 @@ namespace VodafoneInvoiceModifier
         }
 
         private async void prepareBillItem_Click(object sender, EventArgs e)
-        { await Task.Run(() => LoadBillIntoMemory()); }
+        {
+            dtMarket.Rows.Clear();
+
+            await Task.Run(() => LoadBillIntoMemory());
+        }
 
         private void LoadBillIntoMemory()
         {
@@ -684,7 +691,9 @@ namespace VodafoneInvoiceModifier
         { MakeExcelReport(ExportMarketReport); }
 
         private void ExportMarketReport()
-        { ExportDatatableToExcel(dtMarket, "_Marketing.xlsx"); }     //Заполнение таблицы в Excel  данными
+        {
+            ExportDatatableToExcel(dtMarket, "_Marketing.xlsx");
+        }     //Заполнение таблицы в Excel  данными
 
         private void CheckConditionEnableMarketingReport() //enableing Marketing report if load data is correct
         {
@@ -1544,7 +1553,6 @@ namespace VodafoneInvoiceModifier
 
         private void MyTmpToMyArray() //Парсинг строк и передача результата текстовый редактор
         {
-            dtMobile.Rows.Clear();
             DataRow row = dtMobile.NewRow();
             bool isUsedCurrent = false;
             bool isCheckFinishedTitles = false;
