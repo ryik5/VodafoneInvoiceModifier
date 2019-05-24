@@ -348,9 +348,9 @@ namespace VodafoneInvoiceModifier
 
         private void openBillItem_Click(object sender, EventArgs e)//Menu "Open"
         {
-            /
                 dtMobile.Rows.Clear();
-                OpenBill(); }
+                OpenBill();
+        }
 
         private void makeFullReportItem_Click(object sender, EventArgs e)
         { MakeExcelReport(ExportFullDataTableToExcel); }
