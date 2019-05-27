@@ -477,7 +477,6 @@ namespace VodafoneInvoiceModifier
         private async void prepareBillItem_Click(object sender, EventArgs e)
         {
             dtMarket.Rows.Clear();
-
             await Task.Run(() => LoadBillIntoMemory());
         }
 
@@ -757,7 +756,7 @@ namespace VodafoneInvoiceModifier
             bool newInvoice = true;
             try
             {
-                if (strSavedPathToInvoice.Length > 1)
+                if (strSavedPathToInvoice?.Length > 1)
                 {
                     DialogResult result = MessageBox.Show(
                           "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
@@ -786,7 +785,7 @@ namespace VodafoneInvoiceModifier
                         filepathLoadedData = strSavedPathToInvoice;
                     }
 
-                    if (filepathLoadedData == null || filepathLoadedData.Length < 1)
+                    if (filepathLoadedData?.Length < 2)
                     { MessageBox.Show("Did not select File!"); }
                     else
                     {
@@ -800,12 +799,13 @@ namespace VodafoneInvoiceModifier
                                     loadedString = s.Trim();
 
                                     //Set label Date
-                                    if (s.Contains("Особовий рахунок")) { checkRahunok = true; }
-                                    if (s.Contains("Номер рахунку")) { checkNomerRahunku = true; }
-                                    if (s.Contains("Розрахунковий період"))
+                                    if (loadedString.Contains("Особовий рахунок")) { checkRahunok = true; }
+                                    if (loadedString.Contains("Номер рахунку")) { checkNomerRahunku = true; }
+                                    if (loadedString.Contains("Розрахунковий період"))
                                     {
-                                        string[] substrings = Regex.Split(s, ": ");
+                                        string[] substrings = Regex.Split(loadedString, ": ");
                                         periodInvoice = substrings[substrings.Length - 1].Trim();
+                                        ParameterLastInvoiceRegistrySave();
                                         checkPeriod = true;
                                     }
 
@@ -838,7 +838,6 @@ namespace VodafoneInvoiceModifier
                             {
                                 _ControlSetItsText(labelPeriod, periodInvoice);
                             }
-                            ParameterLastInvoiceRegistrySave();
                         }
                         catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row\n" + expt.ToString()); }
                         if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
@@ -852,7 +851,7 @@ namespace VodafoneInvoiceModifier
 
         private void useSavedDataItem_Click(object sender, EventArgs e)
         {
-            if (strSavedPathToInvoice != null && strSavedPathToInvoice.Length > 1)
+            if (strSavedPathToInvoice?.Length > 1)
             { filepathLoadedData = strSavedPathToInvoice; }
             else { strSavedPathToInvoice = ""; }
 
@@ -2661,7 +2660,7 @@ namespace VodafoneInvoiceModifier
             {
                 using (Microsoft.Win32.RegistryKey EvUserKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(myRegKey))
                 {
-                    if (filepathLoadedData != null && filepathLoadedData.Length > 0)
+                    if (filepathLoadedData?.Length > 0)
                     { EvUserKey.SetValue("PathToLastInvoice", filepathLoadedData, Microsoft.Win32.RegistryValueKind.String); }
 
                     if (_ControlReturnItsText(labelPeriod).Length > 0)
