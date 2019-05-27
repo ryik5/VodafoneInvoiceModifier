@@ -90,7 +90,7 @@
             this.textBoxLog.Multiline = true;
             this.textBoxLog.Name = "textBoxLog";
             this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxLog.Size = new System.Drawing.Size(604, 273);
+            this.textBoxLog.Size = new System.Drawing.Size(604, 291);
             this.textBoxLog.TabIndex = 2;
             this.textBoxLog.WordWrap = false;
             // 
@@ -100,7 +100,7 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.StatusLabel1,
             this.ProgressBar1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 321);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 339);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
             this.statusStrip1.Size = new System.Drawing.Size(801, 22);
@@ -122,7 +122,7 @@
             // labelAccountName
             // 
             this.labelAccountName.AutoSize = true;
-            this.labelAccountName.Location = new System.Drawing.Point(285, 11);
+            this.labelAccountName.Location = new System.Drawing.Point(119, 11);
             this.labelAccountName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelAccountName.Name = "labelAccountName";
             this.labelAccountName.Size = new System.Drawing.Size(55, 13);
@@ -134,10 +134,11 @@
             // 
             this.labelAccount.AutoSize = true;
             this.labelAccount.BackColor = System.Drawing.Color.Transparent;
-            this.labelAccount.Location = new System.Drawing.Point(335, 11);
+            this.labelAccount.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelAccount.Location = new System.Drawing.Point(175, 11);
             this.labelAccount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelAccount.Name = "labelAccount";
-            this.labelAccount.Size = new System.Drawing.Size(25, 13);
+            this.labelAccount.Size = new System.Drawing.Size(29, 13);
             this.labelAccount.TabIndex = 6;
             this.labelAccount.Text = "л.с.";
             this.labelAccount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -146,7 +147,7 @@
             // 
             this.labelPeriodName.AutoSize = true;
             this.labelPeriodName.BackColor = System.Drawing.Color.Transparent;
-            this.labelPeriodName.Location = new System.Drawing.Point(424, 30);
+            this.labelPeriodName.Location = new System.Drawing.Point(278, 30);
             this.labelPeriodName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelPeriodName.Name = "labelPeriodName";
             this.labelPeriodName.Size = new System.Drawing.Size(48, 13);
@@ -158,10 +159,11 @@
             // 
             this.labelPeriod.AutoSize = true;
             this.labelPeriod.BackColor = System.Drawing.Color.Transparent;
-            this.labelPeriod.Location = new System.Drawing.Point(467, 30);
+            this.labelPeriod.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelPeriod.Location = new System.Drawing.Point(323, 30);
             this.labelPeriod.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelPeriod.Name = "labelPeriod";
-            this.labelPeriod.Size = new System.Drawing.Size(33, 13);
+            this.labelPeriod.Size = new System.Drawing.Size(37, 13);
             this.labelPeriod.TabIndex = 8;
             this.labelPeriod.Text = "Дата";
             this.labelPeriod.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -169,7 +171,7 @@
             // labelBillName
             // 
             this.labelBillName.AutoSize = true;
-            this.labelBillName.Location = new System.Drawing.Point(286, 30);
+            this.labelBillName.Location = new System.Drawing.Point(120, 30);
             this.labelBillName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelBillName.Name = "labelBillName";
             this.labelBillName.Size = new System.Drawing.Size(49, 13);
@@ -181,10 +183,11 @@
             // 
             this.labelBill.AutoSize = true;
             this.labelBill.BackColor = System.Drawing.Color.Transparent;
-            this.labelBill.Location = new System.Drawing.Point(331, 30);
+            this.labelBill.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelBill.Location = new System.Drawing.Point(175, 30);
             this.labelBill.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelBill.Name = "labelBill";
-            this.labelBill.Size = new System.Drawing.Size(29, 13);
+            this.labelBill.Size = new System.Drawing.Size(33, 13);
             this.labelBill.TabIndex = 10;
             this.labelBill.Text = "счет";
             this.labelBill.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -193,7 +196,7 @@
             // 
             this.labelContractsName.AutoSize = true;
             this.labelContractsName.BackColor = System.Drawing.Color.Transparent;
-            this.labelContractsName.Location = new System.Drawing.Point(423, 11);
+            this.labelContractsName.Location = new System.Drawing.Point(277, 11);
             this.labelContractsName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelContractsName.Name = "labelContractsName";
             this.labelContractsName.Size = new System.Drawing.Size(69, 13);
@@ -205,10 +208,11 @@
             // 
             this.labelContracts.AutoSize = true;
             this.labelContracts.BackColor = System.Drawing.Color.Transparent;
-            this.labelContracts.Location = new System.Drawing.Point(489, 11);
+            this.labelContracts.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelContracts.Location = new System.Drawing.Point(344, 11);
             this.labelContracts.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelContracts.Name = "labelContracts";
-            this.labelContracts.Size = new System.Drawing.Size(65, 13);
+            this.labelContracts.Size = new System.Drawing.Size(75, 13);
             this.labelContracts.TabIndex = 12;
             this.labelContracts.Text = "контрактов";
             this.labelContracts.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -275,12 +279,13 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Location = new System.Drawing.Point(608, 46);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox1.Size = new System.Drawing.Size(184, 273);
+            this.groupBox1.Size = new System.Drawing.Size(184, 291);
             this.groupBox1.TabIndex = 20;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Парсеры счета Vodafone";
@@ -432,10 +437,11 @@
             // 
             this.labelDiscount.AutoSize = true;
             this.labelDiscount.BackColor = System.Drawing.Color.Transparent;
-            this.labelDiscount.Location = new System.Drawing.Point(715, 11);
+            this.labelDiscount.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelDiscount.Location = new System.Drawing.Point(582, 11);
             this.labelDiscount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDiscount.Name = "labelDiscount";
-            this.labelDiscount.Size = new System.Drawing.Size(44, 13);
+            this.labelDiscount.Size = new System.Drawing.Size(50, 13);
             this.labelDiscount.TabIndex = 28;
             this.labelDiscount.Text = "Скидка";
             this.labelDiscount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -444,7 +450,7 @@
             // 
             this.labelDiscountName.AutoSize = true;
             this.labelDiscountName.BackColor = System.Drawing.Color.Transparent;
-            this.labelDiscountName.Location = new System.Drawing.Point(614, 11);
+            this.labelDiscountName.Location = new System.Drawing.Point(493, 11);
             this.labelDiscountName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDiscountName.Name = "labelDiscountName";
             this.labelDiscountName.Size = new System.Drawing.Size(87, 13);
@@ -456,7 +462,8 @@
             // 
             this.labelFile.AutoSize = true;
             this.labelFile.BackColor = System.Drawing.Color.Transparent;
-            this.labelFile.Location = new System.Drawing.Point(11, 30);
+            this.labelFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelFile.Location = new System.Drawing.Point(493, 30);
             this.labelFile.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelFile.Name = "labelFile";
             this.labelFile.Size = new System.Drawing.Size(0, 13);
@@ -468,7 +475,7 @@
             this.AccessibleDescription = "Парсер счетов МТС в текстовом формате и экспорт результата в Excel";
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(801, 343);
+            this.ClientSize = new System.Drawing.Size(801, 361);
             this.Controls.Add(this.labelAccountName);
             this.Controls.Add(this.labelAccount);
             this.Controls.Add(this.labelContractsName);

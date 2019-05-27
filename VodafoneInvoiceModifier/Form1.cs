@@ -1064,7 +1064,7 @@ namespace VodafoneInvoiceModifier
                         makeReportAccountantItem.Enabled = true;
                         makeFullReportItem.Enabled = true;
 
-                        StatusLabel1.Text = "Обработка счета завершена!";
+                        StatusLabel1.Text = "Обработка счета из файла "+ Path.GetFileName(filePathTxt)+" завершена!";
                     }
                     else
                     {
@@ -1329,7 +1329,9 @@ namespace VodafoneInvoiceModifier
             {
                 try
                 {
-                    labelFile.Text ="Выбран счет: "+ Path.GetFileName(filePathTxt);
+                    _ControlSetItsText(labelFile, Path.GetFileName(filePathTxt));
+                    toolTip1.SetToolTip(labelFile, "Выбранный счет для обработки");
+
                     var Coder = Encoding.GetEncoding(1251);
                     discount = null;
                     beforeDiscount = null;
@@ -1345,14 +1347,14 @@ namespace VodafoneInvoiceModifier
                             if (s.Contains("Особовий рахунок"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
-                                labelAccount.Visible = true;
-                                labelAccount.Text = substrings[substrings.Length - 1].Trim();
+                               _ControlVisibleEnabled( labelAccount, true);                                
+                                _ControlSetItsText(labelAccount, substrings[substrings.Length - 1].Trim());
                             }
                             else if (s.Contains("Номер рахунку"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
-                                labelBill.Visible = true;
-                                labelBill.Text = substrings[substrings.Length - 3].Trim();
+                                _ControlVisibleEnabled(labelBill, true);
+                                _ControlSetItsText(labelBill, substrings[substrings.Length - 3].Trim());
                             }
                             else if (s.Contains(pDiscount))
                             {
@@ -1368,8 +1370,8 @@ namespace VodafoneInvoiceModifier
                             {
                                 string[] substrings = Regex.Split(s, ": ");
                                 periodInvoice = substrings[substrings.Length - 1].Trim();
-                                labelPeriod.Visible = true;
-                                labelPeriod.Text = periodInvoice;
+                                _ControlVisibleEnabled(labelPeriod, true);
+                                _ControlSetItsText(labelPeriod, periodInvoice);
                             }
 
                             if (s.Contains(pListParseStrings[1]))
@@ -1384,9 +1386,8 @@ namespace VodafoneInvoiceModifier
                                 { listTempContract.Add(s.Trim()); break; }
                             }
                         }
-                        labelContracts.Visible = true;
-                        labelContracts.Text = " " + i + " шт.";
-
+                        _ControlVisibleEnabled(labelContracts, true);
+                        _ControlSetItsText(labelContracts, " " + i + " шт.");
 
                         // вычисление скидки предоставленной Вудафон на данный счет(зависит от ИТОГОВОЙ суммы счета)
                         billDiscount = 0;
@@ -1411,8 +1412,8 @@ namespace VodafoneInvoiceModifier
                         }
                         amountBillAfterDiscount = (100 - resultOfCalculatingDiscount)/100 ;
 
-                        labelDiscount.Text = resultOfCalculatingDiscount.ToString() + "%";
-                        labelDiscount.Visible = true;
+                        _ControlVisibleEnabled(labelDiscount, true);
+                        _ControlSetItsText(labelDiscount, resultOfCalculatingDiscount.ToString() + "%");
                     }
 
 
