@@ -2559,99 +2559,81 @@ namespace VodafoneInvoiceModifier
             else
                 control.Clear();
         }
-
-
-
+        
 
         //Save and Recover Data in Registry
-
         public void ListsRegistryDataCheck() //Read previously Saved Parameters from Registry
         {
             listSavedServices = new List<string>();
             listSavedNumbers = new List<string>();
+            StringBuilder sb = new StringBuilder();
             string[] getValue;
 
-            try
+            using (Microsoft.Win32.RegistryKey EvUserKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                  myRegKey,
+                  Microsoft.Win32.RegistryKeyPermissionCheck.ReadSubTree,
+                  System.Security.AccessControl.RegistryRights.ReadKey))
             {
-                using (Microsoft.Win32.RegistryKey EvUserKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
-                      myRegKey,
-                      Microsoft.Win32.RegistryKeyPermissionCheck.ReadSubTree,
-                      System.Security.AccessControl.RegistryRights.ReadKey))
+                getValue = (string[])EvUserKey?.GetValue("ListServices");
+
+                if (getValue?.Length > 0)
                 {
-                    getValue = (string[])EvUserKey.GetValue("ListServices");
-
-                    try
+                    foreach (string line in getValue)
                     {
-                        foreach (string line in getValue)
-                        {
-                            listSavedServices.Add(line.Trim());
-                        }
-                        foundSavedData = true;
-
+                        listSavedServices.Add(line.Trim());
                     }
-                    catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
-
-                    getValue = (string[])EvUserKey.GetValue("ListNumbers");
-
-                    try
-                    {
-                        foreach (string line in getValue)
-                        {
-                            listSavedNumbers.Add(line.Trim());
-                        }
-                        _ControlSetItsText(labelContracts, listSavedNumbers.Count.ToString() + " шт.");
-                        _ControlVisibleEnabled(labelContracts, true);
-                        foundSavedData = true;
-
-                    }
-                    catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
-
-                    try
-                    {
-                        strSavedPathToInvoice = (string)EvUserKey.GetValue("PathToLastInvoice");
-
-                        if (strSavedPathToInvoice.Trim().Length > 3)
-                        { prepareBillItem.Enabled = true; }
-
-                        string period = (string)EvUserKey.GetValue("PeriodLastInvoice");
-
-                        if (period.Length > 6)
-                        {
-                            _ControlSetItsText(labelPeriod, period);
-                            _ControlVisibleEnabled(labelPeriod, true);
-                        }
-                    }
-                    catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
-
-                    try
-                    {
-                        textBoxLog.AppendText("Настроенные данные для сбора данных для маркетинга:\n");
-                        textBoxLog.AppendText("===================================================\n\n");
-
-                        if (listSavedServices.Count > 0)
-                        {
-                            selectedServices = true;
-                            textBoxLog.AppendText("Загруженный список сервисов:\n");
-                            foreach (string service in listSavedServices)
-                            { textBoxLog.AppendText(service + "\n"); }
-                            textBoxLog.AppendText("===================================================\n\n");
-                        }
-
-                        if (listSavedNumbers.Count > 0)
-                        {
-                            selectedNumbers = true;
-                            textBoxLog.AppendText("Загруженный список номеров:\n");
-                            foreach (string number in listSavedNumbers)
-                            { textBoxLog.AppendText(number + "\n"); }
-                            textBoxLog.AppendText("===================================================\n");
-                        }
-                        textBoxLog.AppendText("===================================================\n\n");
-
-                    }
-                    catch { }
+                    foundSavedData = true;
                 }
+
+                getValue = (string[])EvUserKey?.GetValue("ListNumbers");
+
+                if (getValue?.Length > 0)
+                {
+                    foreach (string line in getValue)
+                    {
+                        listSavedNumbers.Add(line.Trim());
+                    }
+                    _ControlSetItsText(labelContracts, listSavedNumbers.Count.ToString() + " шт.");
+                    _ControlVisibleEnabled(labelContracts, true);
+                    foundSavedData = true;
+                }
+
+                strSavedPathToInvoice = (string)EvUserKey?.GetValue("PathToLastInvoice");
+
+                if (strSavedPathToInvoice?.Trim()?.Length > 3)
+                { prepareBillItem.Enabled = true; }
+
+                string period = (string)EvUserKey?.GetValue("PeriodLastInvoice");
+
+                if (period?.Length > 6)
+                {
+                    _ControlSetItsText(labelPeriod, period);
+                    _ControlVisibleEnabled(labelPeriod, true);
+                }
+                sb.AppendLine("Настроенные данные для сбора данных для маркетинга:\n");
+                sb.AppendLine("===================================================\n\n");
+
+                if (listSavedServices?.Count > 0)
+                {
+                    selectedServices = true;
+                    sb.AppendLine("Загруженный список сервисов:\n");
+                    foreach (string service in listSavedServices)
+                    { sb.AppendLine(service + "\n"); }
+                    sb.AppendLine("===================================================\n\n");
+                }
+
+                if (listSavedNumbers?.Count > 0)
+                {
+                    selectedNumbers = true;
+                    sb.AppendLine("Загруженный список номеров:\n");
+                    foreach (string number in listSavedNumbers)
+                    { sb.AppendLine(number + "\n"); }
+                    sb.AppendLine("===================================================\n");
+                }
+                sb.AppendLine("===================================================\n\n");
             }
-            catch (Exception exct) { textBoxLog.AppendText("\n" + exct.ToString() + "\n"); }
+
+            textBoxLog.AppendText(sb.ToString());
         }
 
         public void ListServicesRegistrySave() //Save Parameters into Registry and variables
