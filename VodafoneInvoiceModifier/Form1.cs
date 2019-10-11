@@ -390,6 +390,7 @@ namespace VodafoneInvoiceModifier
                 foreach (string s in tempListString)
                 {
                     strTemp = MakeCommonViewPhone(s);
+
                     if (strTemp.Length == 13)  //check Length of a number == 13
                     { listNumbers.Add(strTemp); }
                     else
@@ -403,9 +404,11 @@ namespace VodafoneInvoiceModifier
                     int wrongRow = 0;
                     foreach (string s in listWrongString)
                     {
-                        textBoxLog.AppendText(s + "\n"); wrongRow++;
-                        if (wrongRow > limitWrongNumber) { break; }
+                        textBoxLog.AppendText(s + "\n");
+                        wrongRow++;
 
+                        if (wrongRow > limitWrongNumber)
+                        { break; }
                     }
                     textBoxLog.AppendText("\n\n");
                 }
@@ -427,10 +430,12 @@ namespace VodafoneInvoiceModifier
 
                     textBoxLog.AppendText("List of numbers:\n");
                     textBoxLog.AppendText("--------------------------------------------\n\n");
+
                     foreach (string s in listNumbers)
                     { textBoxLog.AppendText(s + "\n"); }
                 }
-                else { textBoxLog.AppendText("Check the list of numbers\n"); }
+                else
+                { textBoxLog.AppendText("Check the list of numbers\n"); }
 
 
                 //clean temporary elements
@@ -457,8 +462,10 @@ namespace VodafoneInvoiceModifier
             if (0 < listServices.Count && listServices.Count < 100)
             {
                 textBoxLog.AppendText("\nList of services:\n");
+
                 foreach (string s in listServices)
                 { textBoxLog.AppendText(s + "\n"); }
+
                 selectedServices = true;
 
                 ListServicesRegistrySave();
@@ -687,10 +694,11 @@ namespace VodafoneInvoiceModifier
         private void makeReportMarketingItem_Click(object sender, EventArgs e)
         { MakeExcelReport(ExportMarketReport); }
 
+        //Заполнение таблицы в Excel  данными
         private void ExportMarketReport()
         {
             ExportDatatableToExcel(dtMarket, "_Marketing.xlsx");
-        }     //Заполнение таблицы в Excel  данными
+        } 
 
         private void CheckConditionEnableMarketingReport() //enableing Marketing report if load data is correct
         {
@@ -734,6 +742,7 @@ namespace VodafoneInvoiceModifier
                     }
                 }
                 catch (Exception expt) { MessageBox.Show("Ошибка произошла на " + i + " строке:\n\n" + expt.ToString()); }
+
                 if (i > listMaxLength - 10 || i == 0)
                 { MessageBox.Show("Error was happened on " + i + " row\n You've been chosen the long file!"); }
             }
@@ -864,16 +873,6 @@ namespace VodafoneInvoiceModifier
             { prepareBillItem.Enabled = true; }
         }
 
-        /*
-        public void ControlHoverChangeColorPale(Control control)
-        { control.BackColor = System.Drawing.Color.PaleGreen; }
-
-        public void ControlLeaveChangeColorSandy(Control control)
-        { control.BackColor = System.Drawing.Color.SandyBrown; }
-
-        public void ControlLeaveChangeColorNormal(Control control)
-        { control.BackColor = System.Drawing.SystemColors.Control; }*/
-
         private async void OpenBill()
         {
             dtMobile.Rows.Clear();
@@ -916,6 +915,10 @@ namespace VodafoneInvoiceModifier
                 {
                     await Task.Run(() => CheckNewTarif());
 
+                        //clear log if it was found a problem
+                        if (listTarifData.Count > 0)
+                        { textBoxLog.Clear(); }
+
                     if (!newModels)
                     {
                         MyTmpToMyArray();
@@ -932,7 +935,9 @@ namespace VodafoneInvoiceModifier
 
                         string sortOrder = dtMobile.Columns[0].ColumnName + " ASC";
 
-                        textBoxLog.AppendText("\n");
+
+
+                            textBoxLog.AppendText("\n");
                         textBoxLog.AppendText("Дата счета:  " + dtMobile.Rows[1][16].ToString()); //Дата счета
                         textBoxLog.AppendText("\n");
                         textBoxLog.AppendText("====================================================\n");
@@ -941,118 +946,119 @@ namespace VodafoneInvoiceModifier
 
 
                         //////////////////////////////
-                        textBoxLog.AppendText("---= Список тарифных схем, не существующих в программе =---\n");
-                        textBoxLog.AppendText(
-                                                    String.Format("{0,-40}", columnName1) +
-                                                    String.Format("{0,-15}", columnName2) +
-                                                    String.Format("{0,-30}", columnName3) +
-                                                    String.Format("{0,-10}", columnName4) +
-                                                    String.Format("{0,-30}", columnName5) +
-                                                    "\n");
-
-                        foreach (string str in listTarifData)
+                        if (listTarifData.Count > 0)
                         {
-                            textBoxLog.AppendText("\"" + str + "\"\n");
-                            results = dtMobile.Select("'" + dtMobile.Columns[21].ColumnName.Length + "' LIKE '" + str + "'", sortOrder, DataViewRowState.Added);
+                            textBoxLog.AppendText("---= Список тарифных схем, не существующих в программе =---\n");
+                            textBoxLog.AppendText("'"+columnName5 + "' - " + columnName1 + " (" + columnName2 + ")\n");
 
+
+                            foreach (string str in listTarifData)
+                            {
+                                textBoxLog.AppendText( str +"\n");
+                             /*   results = dtMobile.Select("'" + dtMobile.Columns[21].ColumnName.Length + "' LIKE '" + str + "'", sortOrder, DataViewRowState.Added);
+
+                                for (int i = 0; i < results.Length; i++)
+                                {
+
+                                    textBoxLog.AppendText(
+                                     string.Format("{0,-40}", results[i][0].ToString()) +
+                                     string.Format("{0,-15}", results[i][2].ToString()) +
+                                     string.Format("{0,-30}", results[i][3].ToString()) +
+                                     string.Format("{0,-10}", results[i][10].ToString()) +
+                                     string.Format("{0,-30}", results[i][21].ToString()) +
+                                     "\n"
+                                      );
+                                }*/
+                            }
+                            textBoxLog.AppendText("\n");
+                            textBoxLog.AppendText("\n");
+                            textBoxLog.AppendText("----------------------------------------------------\n");
+                        }
+
+                        /////////////////
+                        results = dtMobile.Select("NumberUsed='False' AND NumberNoBlock='True'", sortOrder, DataViewRowState.Added);
+                        if (results.Length > 0)
+                        {
+                            textBoxLog.AppendText("---= Список контрактов, по которым не велась работа =---\n");
+                            textBoxLog.AppendText(
+                                 string.Format("{0,-40}", columnName1) +
+                                 string.Format("{0,-15}", columnName2) +
+                                 string.Format("{0,-30}", columnName3) +
+                                 string.Format("{0,-10}", columnName4) +
+                                 string.Format("{0,-30}", columnName5) +
+                                 "\n");
                             for (int i = 0; i < results.Length; i++)
                             {
 
                                 textBoxLog.AppendText(
-                                 String.Format("{0,-40}", results[i][0].ToString()) +
-                                 String.Format("{0,-15}", results[i][2].ToString()) +
-                                 String.Format("{0,-30}", results[i][3].ToString()) +
-                                 String.Format("{0,-10}", results[i][10].ToString()) +
-                                 String.Format("{0,-30}", results[i][21].ToString()) +
+                                 string.Format("{0,-40}", results[i][0].ToString()) +
+                                 string.Format("{0,-15}", results[i][2].ToString()) +
+                                 string.Format("{0,-30}", results[i][3].ToString()) +
+                                 string.Format("{0,-10}", results[i][10].ToString()) +
+                                 string.Format("{0,-30}", results[i][21].ToString()) +
                                  "\n"
                                   );
                             }
+                            textBoxLog.AppendText("\n");
+                            textBoxLog.AppendText("\n");
+                            textBoxLog.AppendText("----------------------------------------------------\n");
                         }
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("----------------------------------------------------\n");
-
 
                         /////////////////
-                        textBoxLog.AppendText("---= Список контрактов, по которым не велась работа =---\n");
-                        results = dtMobile.Select("NumberUsed='False' AND NumberNoBlock='True'", sortOrder, DataViewRowState.Added);
-                        textBoxLog.AppendText(
-                             String.Format("{0,-40}", columnName1) +
-                             String.Format("{0,-15}", columnName2) +
-                             String.Format("{0,-30}", columnName3) +
-                             String.Format("{0,-10}", columnName4) +
-                             String.Format("{0,-30}", columnName5) +
-                             "\n");
-                        for (int i = 0; i < results.Length; i++)
-                        {
-
-                            textBoxLog.AppendText(
-                             String.Format("{0,-40}", results[i][0].ToString()) +
-                             String.Format("{0,-15}", results[i][2].ToString()) +
-                             String.Format("{0,-30}", results[i][3].ToString()) +
-                             String.Format("{0,-10}", results[i][10].ToString()) +
-                             String.Format("{0,-30}", results[i][21].ToString()) +
-                             "\n"
-                              );
-                        }
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("----------------------------------------------------\n");
-
-
-                        /////////////////
-                        textBoxLog.AppendText("---= Список заблокированных контрактов =---\n");
                         results = dtMobile.Select("NumberNoBlock='False'", sortOrder, DataViewRowState.Added);
-                        textBoxLog.AppendText(
-                             String.Format("{0,-40}", columnName1) +
-                             String.Format("{0,-15}", columnName2) +
-                             String.Format("{0,-30}", columnName3) +
-                             String.Format("{0,-10}", columnName4) +
-                             String.Format("{0,-30}", columnName5) +
-                             "\n");
-                        for (int i = 0; i < results.Length; i++)
+                        if (results.Length > 0)
                         {
+                            textBoxLog.AppendText("---= Список заблокированных контрактов =---\n");
                             textBoxLog.AppendText(
-                             String.Format("{0,-40}", results[i][0].ToString()) +
-                             String.Format("{0,-15}", results[i][2].ToString()) +
-                             String.Format("{0,-30}", results[i][3].ToString()) +
-                             String.Format("{0,-10}", results[i][10].ToString()) +
-                             String.Format("{0,-30}", results[i][21].ToString()) +
-                             "\n"
-                              );
+                                 string.Format("{0,-40}", columnName1) +
+                                 string.Format("{0,-15}", columnName2) +
+                                 string.Format("{0,-30}", columnName3) +
+                                 string.Format("{0,-10}", columnName4) +
+                                 string.Format("{0,-30}", columnName5) +
+                                 "\n");
+                            for (int i = 0; i < results.Length; i++)
+                            {
+                                textBoxLog.AppendText(
+                                 string.Format("{0,-40}", results[i][0].ToString()) +
+                                 string.Format("{0,-15}", results[i][2].ToString()) +
+                                 string.Format("{0,-30}", results[i][3].ToString()) +
+                                 string.Format("{0,-10}", results[i][10].ToString()) +
+                                 string.Format("{0,-30}", results[i][21].ToString()) +
+                                 "\n"
+                                  );
+                            }
+                            textBoxLog.AppendText("\n");
+                            textBoxLog.AppendText("\n");
+                            textBoxLog.AppendText("----------------------------------------------------\n");
                         }
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("----------------------------------------------------\n");
-
 
                         /////////////////
                         textBoxLog.AppendText("---= Все =---\n");
                         results = dtMobile.Select(dtMobile.Columns[0].ColumnName.Length + " > 0", sortOrder, DataViewRowState.Added);
                         textBoxLog.AppendText(
-                             String.Format("{0,-40}", columnName1) +
-                             String.Format("{0,-15}", columnName2) +
-                             String.Format("{0,-30}", columnName3) +
-                             String.Format("{0,-10}", columnName4) +
-                             String.Format("{0,-10}", columnName6) +
+                             string.Format("{0,-40}", columnName1) +
+                             string.Format("{0,-15}", columnName2) +
+                             string.Format("{0,-30}", columnName3) +
+                             string.Format("{0,-10}", columnName4) +
+                             string.Format("{0,-10}", columnName6) +
 
-                             String.Format("{0,-30}", columnName5) +
-                             String.Format("{0,-12}", columnName10) +
-                             String.Format("{0,-12}", columnName11) +
+                             string.Format("{0,-30}", columnName5) +
+                             string.Format("{0,-12}", columnName10) +
+                             string.Format("{0,-12}", columnName11) +
                              "\n");
                         for (int i = 0; i < results.Length; i++)
                         {
 
                             textBoxLog.AppendText(
-                             String.Format("{0,-40}", results[i][0].ToString().Trim()) +
-                             String.Format("{0,-15}", results[i][2].ToString()) +
-                             String.Format("{0,-30}", results[i][3].ToString()) +
-                             String.Format("{0,-10}", results[i][10].ToString()) +
-                             String.Format("{0,-10}", results[i][5].ToString()) +
+                             string.Format("{0,-40}", results[i][0].ToString().Trim()) +
+                             string.Format("{0,-15}", results[i][2].ToString()) +
+                             string.Format("{0,-30}", results[i][3].ToString()) +
+                             string.Format("{0,-10}", results[i][10].ToString()) +
+                             string.Format("{0,-10}", results[i][5].ToString()) +
 
-                             String.Format("{0,-30}", results[i][21].ToString()) +
-                             String.Format("{0,-12}", results[i][24].ToString()) +
-                             String.Format("{0,-12}", results[i][25].ToString()) +
+                             string.Format("{0,-30}", results[i][21].ToString()) +
+                             string.Format("{0,-12}", results[i][24].ToString()) +
+                             string.Format("{0,-12}", results[i][25].ToString()) +
                              "\n"
                               );
                         }
@@ -2277,24 +2283,6 @@ namespace VodafoneInvoiceModifier
             obj = null;
         }
 
-        /*private static string GetColumnName1(int columnNumber)  // получить букву колонки в Екселе по ее номеру (нумерация идет от 1)
-        {
-            int dividend = columnNumber;
-            string columnName = "A";
-            try
-            {
-                int modulo;
-                while (dividend > 0)
-                {
-                    modulo = (dividend - 1) % 26;
-                    columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
-                    dividend = (int)((dividend - modulo) / 26);
-                }
-            }
-            catch(Exception expt) { MessageBox.Show(expt.ToString()); }
-            return columnName;
-        }*/
-
         static string GetColumnName(int number)
         {
             string result;
@@ -2325,9 +2313,14 @@ namespace VodafoneInvoiceModifier
                                    " t5.tariff_package_name AS tariff, t5.begin_dt AS first_data , t5.end_dt AS last_data" +
                                    " FROM v_rs_contract_detail t1" +
                                    " INNER JOIN os_emp t2 ON t1.emp_id = t2.emp_id" +
-                                   " LEFT JOIN (SELECT* FROM os_contract_link WHERE till_dt IS NULL)  t3 ON t1.contract_id = t3.contract_id" +
+                                   " LEFT JOIN ("+
+                                   " SELECT * FROM os_contract_link WHERE till_dt IS NULL OR till_dt > '" + dataStartSearch + "'" +
+                                   " ) t3 ON t1.contract_id = t3.contract_id" +
                                    " LEFT JOIN rs_pay_model t4 ON t3.pay_model_id = t4.pay_model_id" +
-                                   " RIGHT JOIN (SELECT contract_id, tariff_package_name, begin_dt, end_dt, contract_bill_id FROM v_dp_contract_bill_detail_ex) t5 ON t1.contract_id = t5.contract_id" +
+                                   " RIGHT JOIN ("+
+                                   " SELECT contract_id, tariff_package_name, begin_dt, end_dt, contract_bill_id FROM v_dp_contract_bill_detail_ex"+
+                                   " ) t5"+
+                                   " ON t1.contract_id = t5.contract_id" +
                                    " WHERE t1.emp_id IS NOT NULL" +
                                    " AND" +
                                    " t5.end_dt = '" + dataEndSearch + "'" +
@@ -2338,7 +2331,7 @@ namespace VodafoneInvoiceModifier
                                    " AND (" +
                                    " t1.till_dt IS null" +
                                    " OR" +
-                                   " t1.till_dt > '" + dataEndSearch + "'" +
+                                   " t1.till_dt > '" + dataStartSearch + "'" +
                                    " ) AND" +
                                    " t1.from_dt < '" + dataEndSearch + "'" +
                                    " ORDER by t1.phone_no, t1.emp_name ;";
@@ -2356,20 +2349,24 @@ namespace VodafoneInvoiceModifier
                             {
                                 if (record != null && record.ToString().Length > 0 && record["phone_no"].ToString().Length > 0)
                                 {
+                                    string mobileNumber = MakeCommonViewPhone(record["phone_no"].ToString());
+                                    string fio = record["emp_name"].ToString().Trim();
+                                    string model = record["model_name"].ToString().Trim();
+
                                     DataRow row = dtTarif.NewRow();
-                                    row["Номер телефона"] = MakeCommonViewPhone(record["phone_no"].ToString());
-                                    row["ФИО"] = record["emp_name"].ToString().Trim();
+                                    row["Номер телефона"] = mobileNumber;
+                                    row["ФИО"] = fio;
                                     row["NAV"] = record["NAV"].ToString().Trim();
                                     row["Подразделение"] = record["org_unit_name"].ToString().Trim();
                                     row["Основной"] = DefineMainPhone(record["main"].ToString());
                                     row["Действует c"] = record["from_dt"].ToString().Trim().Split(' ')[0];
-                                    row["Модель компенсации"] = "T[" + record["pay_model_id"].ToString().Trim() + "] " + record["model_name"].ToString().Trim();
+                                    row["Модель компенсации"] = "T[" + record["pay_model_id"].ToString().Trim() + "] " + model;
 
                                     //record contracts with error
                                     if (record["pay_model_id"].ToString().Trim().Length == 0) sbError.AppendLine(row["Номер телефона"].ToString().Trim() + ", " + row["ФИО"].ToString().Trim() + " - " + row["Модель компенсации"]);
 
                                     //if( record["model_name"].ToString().Trim().Length>0 ) listTarifData.Add(record["model_name"].ToString().Trim());
-                                    listTarifData.Add(record["model_name"].ToString().Trim());
+                                    listTarifData.Add("'"+model + "' - " +fio + " (" +  mobileNumber+")");
                                     dtTarif.Rows.Add(row);
                                 }
                             }
@@ -2380,14 +2377,6 @@ namespace VodafoneInvoiceModifier
             catch (Exception expt) { MessageBox.Show(expt.ToString()); }
 
             sSqlQuery = null;
-
-            //test only
-            /*  string ttt = null;
-              foreach (DataRow rowTarif in dtTarif.Rows)
-              {
-                  ttt += rowTarif["ФИО"].ToString() + " " + rowTarif["NAV"].ToString() + " " + rowTarif["Номер телефона"].ToString() + "\n";                
-              }
-              MessageBox.Show(ttt);*/
         }
 
         private string MakeCommonViewPhone(string sPrimaryPhone) //Normalize Phone to +380504197443
@@ -2421,7 +2410,20 @@ namespace VodafoneInvoiceModifier
         private void CheckNewTarif()
         {
             string pathToNewModels = Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt";
-            listTarifData.ExceptWith(new HashSet<string>(arrayTarif));
+            string[] arrayData = listTarifData.ToArray();
+            List<string> removeData = new List<string>();
+            foreach (var tarif in arrayTarif)
+            {
+                for (int index = 0; index < arrayData.Length; index++)
+                {
+                    if (arrayData[index].Contains(tarif))
+                    {
+                        removeData.Add(arrayData[index]);
+                    }
+                }
+            }
+            
+            listTarifData.ExceptWith(removeData);
             if (listTarifData.Count > 0)
             {
                 int i = 0;
@@ -2438,15 +2440,18 @@ namespace VodafoneInvoiceModifier
                     sb.AppendLine(@"");
                     sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
                     sb.AppendLine(@";");
-                    sb.AppendLine(@"; Найдены новые не учтенные модели компенсации затрат сотрудников:");
+                    sb.AppendLine(@"; Найдены новые не учтенные модели компенсации затрат сотрудников привязанные к сотруднику в текущем счете:");
                     sb.AppendLine(@"");
                     sb.AppendLine(@"");
 
                     foreach (string str in listTarifData)
                     {
-                        i++;
-                        strNewModels += i + ". \"" + str + "\"\n";
-                        sb.AppendLine(i + ". \"" + str + "\"");
+                        if (str?.Length > 0)
+                        {
+                            i++;
+                            strNewModels += i + ". \"" + str + "\"\n";
+                            sb.AppendLine(i + ". \"" + str + "\"");
+                        }
                     }
                     sb.AppendLine(@"");
 
@@ -2580,7 +2585,8 @@ namespace VodafoneInvoiceModifier
                 {
                     foreach (string line in getValue)
                     {
-                        listSavedServices.Add(line.Trim());
+                        if (!string.IsNullOrWhiteSpace(line))
+                            listSavedServices.Add(line.Trim());
                     }
                     foundSavedData = true;
                 }
@@ -2591,7 +2597,8 @@ namespace VodafoneInvoiceModifier
                 {
                     foreach (string line in getValue)
                     {
-                        listSavedNumbers.Add(line.Trim());
+                        if (!string.IsNullOrWhiteSpace(line))
+                        { listSavedNumbers.Add(line.Trim()); }
                     }
                     _ControlSetItsText(labelContracts, listSavedNumbers.Count.ToString() + " шт.");
                     _ControlVisibleEnabled(labelContracts, true);
@@ -2627,7 +2634,9 @@ namespace VodafoneInvoiceModifier
                     selectedNumbers = true;
                     sb.AppendLine("Загруженный список номеров:\n");
                     foreach (string number in listSavedNumbers)
-                    { sb.AppendLine(number + "\n"); }
+                    {
+                        sb.AppendLine(number + "\n");
+                    }
                     sb.AppendLine("===================================================\n");
                 }
                 sb.AppendLine("===================================================\n\n");
