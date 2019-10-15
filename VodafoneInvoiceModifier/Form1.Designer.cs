@@ -34,7 +34,6 @@
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.ProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.labelAccountName = new System.Windows.Forms.Label();
             this.labelAccount = new System.Windows.Forms.Label();
             this.labelPeriodName = new System.Windows.Forms.Label();
@@ -71,6 +70,7 @@
             this.labelDiscount = new System.Windows.Forms.Label();
             this.labelDiscountName = new System.Windows.Forms.Label();
             this.labelFile = new System.Windows.Forms.Label();
+            this.ProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -113,11 +113,6 @@
             this.StatusLabel1.Size = new System.Drawing.Size(73, 17);
             this.StatusLabel1.Text = "StatusLabel1";
             this.StatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // ProgressBar1
-            // 
-            this.ProgressBar1.Name = "ProgressBar1";
-            this.ProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
             // labelAccountName
             // 
@@ -470,6 +465,11 @@
             this.labelFile.TabIndex = 29;
             this.labelFile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // ProgressBar1
+            // 
+            this.ProgressBar1.Name = "ProgressBar1";
+            this.ProgressBar1.Size = new System.Drawing.Size(100, 16);
+            // 
             // Form1
             // 
             this.AccessibleDescription = "Парсер счетов МТС в текстовом формате и экспорт результата в Excel";
@@ -554,10 +554,10 @@
         private System.Windows.Forms.ToolStripMenuItem makeReportMarketingItem;
         private System.Windows.Forms.ToolStripMenuItem prepareBillItem;
         private System.Windows.Forms.ToolStripMenuItem useSavedDataItem;
-        private System.Windows.Forms.ToolStripProgressBar ProgressBar1;
         private System.Windows.Forms.Label labelDiscount;
         private System.Windows.Forms.Label labelDiscountName;
         private System.Windows.Forms.Label labelFile;
+        private System.Windows.Forms.ToolStripProgressBar ProgressBar1;
     }
 }
 
