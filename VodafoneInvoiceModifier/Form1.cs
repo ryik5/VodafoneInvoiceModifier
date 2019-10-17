@@ -298,7 +298,7 @@ namespace VodafoneInvoiceModifier
             labelPeriod.Visible = false;
             labelBill.Visible = false;
             labelContracts.Visible = false;
-            readinifile();
+            ReadIniFile();
 
             makeReportAccountantItem.Enabled = false;
             makeFullReportItem.Enabled = false;
@@ -378,7 +378,7 @@ namespace VodafoneInvoiceModifier
         {
             selectedNumbers = false;
             makeReportMarketingItem.Enabled = false;
-            string strTemp = "";
+            string strTemp;
             List<string> listWrongString = new List<string>();
             List<string> tempListString = LoadDataIntoList();
             int limitWrongNumber = 300;
@@ -438,12 +438,6 @@ namespace VodafoneInvoiceModifier
                 }
                 else
                 { textBoxLog.AppendText("Check the list of numbers\n"); }
-
-
-                //clean temporary elements
-                strTemp = null;
-                listWrongString = null;
-                tempListString = null;
             }
             CheckConditionEnableMarketingReport();
         }
@@ -531,7 +525,6 @@ namespace VodafoneInvoiceModifier
             _ProgressWork1Step();
 
             List<string> loadedBillWithServicesFilter = LoadDataUsingParameters(filterBill, parametrStart, pStop);
-            filterBill = null;
 
             int allRow = loadedBillWithServicesFilter.Count * listServices.Count * (dtTarif.Rows.Count + listNumbers.Count); //всего строк для борабоки
 
@@ -681,7 +674,6 @@ namespace VodafoneInvoiceModifier
                 }
                 loadedBill = true;
                 File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
-                sb = null;
             }
             else
             { _TextboxAppendText(textBoxLog, "Нет в выборке ничего для указанных номеров!\n"); }
@@ -760,7 +752,6 @@ namespace VodafoneInvoiceModifier
             int countStepProgressBar = 500;
             int listMaxLength = 500000;
             List<string> listRows = new List<string>(listMaxLength);
-            string s = "";
             string loadedString = "";
             bool newInvoice = true;
             try
@@ -803,10 +794,8 @@ namespace VodafoneInvoiceModifier
                         {
                             using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
                             {
-                                while ((s = Reader.ReadLine()) != null && !endLoadData && listRows.Count < listMaxLength)
+                                while ((loadedString = Reader.ReadLine()?.Trim()) != null && !endLoadData && listRows.Count < listMaxLength)
                                 {
-                                    loadedString = s.Trim();
-
                                     //Set label Date
                                     if (loadedString.Contains("Особовий рахунок")) { checkRahunok = true; }
                                     if (loadedString.Contains("Номер рахунку")) { checkNomerRahunku = true; }
@@ -859,7 +848,7 @@ namespace VodafoneInvoiceModifier
             return listRows;
         }
 
-        private void useSavedDataItem_Click(object sender, EventArgs e)
+        private void UseSavedDataItem_Click(object sender, EventArgs e)
         {
             if (strSavedPathToInvoice?.Length > 1)
             { filepathLoadedData = strSavedPathToInvoice; }
@@ -938,7 +927,6 @@ namespace VodafoneInvoiceModifier
                         string sortOrder = dtMobile.Columns[0].ColumnName + " ASC";
 
 
-
                         textBoxLog.AppendText("\n");
                         textBoxLog.AppendText("Дата счета:  " + dtMobile.Rows[1][16].ToString()); //Дата счета
                         textBoxLog.AppendText("\n");
@@ -953,24 +941,9 @@ namespace VodafoneInvoiceModifier
                             textBoxLog.AppendText("---= Список тарифных схем, не существующих в программе =---\n");
                             textBoxLog.AppendText("'" + columnName5 + "' - " + columnName1 + " (" + columnName2 + ")\n");
 
-
                             foreach (string str in listTarifData)
                             {
                                 textBoxLog.AppendText(str + "\n");
-                                /*   results = dtMobile.Select("'" + dtMobile.Columns[21].ColumnName.Length + "' LIKE '" + str + "'", sortOrder, DataViewRowState.Added);
-
-                                   for (int i = 0; i < results.Length; i++)
-                                   {
-
-                                       textBoxLog.AppendText(
-                                        string.Format("{0,-40}", results[i][0].ToString()) +
-                                        string.Format("{0,-15}", results[i][2].ToString()) +
-                                        string.Format("{0,-30}", results[i][3].ToString()) +
-                                        string.Format("{0,-10}", results[i][10].ToString()) +
-                                        string.Format("{0,-30}", results[i][21].ToString()) +
-                                        "\n"
-                                         );
-                                   }*/
                             }
                             textBoxLog.AppendText("\n");
                             textBoxLog.AppendText("\n");
@@ -1043,7 +1016,6 @@ namespace VodafoneInvoiceModifier
                              string.Format("{0,-30}", columnName3) +
                              string.Format("{0,-10}", columnName4) +
                              string.Format("{0,-10}", columnName6) +
-
                              string.Format("{0,-30}", columnName5) +
                              string.Format("{0,-12}", columnName10) +
                              string.Format("{0,-12}", columnName11) +
@@ -1074,7 +1046,6 @@ namespace VodafoneInvoiceModifier
                         makeFullReportItem.Enabled = true;
 
                         StatusLabel1.Text = "Предварительная обработка счета из файла " + Path.GetFileName(filePathTxt) + " завершена!";
-
                         StatusLabel1.ToolTipText = "Данные для генерации отчета для бухгалтерии подготовлены";
                     }
                     else
@@ -1138,32 +1109,9 @@ namespace VodafoneInvoiceModifier
             makeReportMarketingMenuItem.Enabled = true;
 
             StatusLabel1.Text = @"Формирование отчета завершено. Файл сохранен в папку:  " + Path.GetDirectoryName(filePathTxt);
-
-            GC.Collect();
         }
 
-        /*
-        private void Save_Click(object sender, EventArgs e) //Кнопка "Save"
-        {
-            saveFileDialog1.FileName = openFileDialog1.FileName + ".csv";
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    TextWriter Writer = new StreamWriter(saveFileDialog1.FileName, false, Encoding.GetEncoding(1251));
-                    Writer.Write(textBox1.Text);
-                    Writer.Flush();
-                    Writer.Close();
-                }
-                catch (Exception Expt)
-                { // Отчет обо всех возможных ошибках
-                    MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK,
-                    MessageBoxIcon.Exclamation);
-                }
-            }
-        }*/
-
-        private string GetParameterValue(string delimeter, string parameter, string defaultValue = null)
+        private string GetParameterValueFromIniFile(string delimeter, string parameter, string defaultValue = null)
         {
             if (parameter == null)
             {
@@ -1182,7 +1130,7 @@ namespace VodafoneInvoiceModifier
             }
         }
 
-        private async void readinifile() //Чтение парсеров из ini файла
+        private async void ReadIniFile() //Чтение парсеров из ini файла
         {
             string s = "";
             bool b1 = false, b2 = false;
@@ -1208,38 +1156,38 @@ namespace VodafoneInvoiceModifier
                             {
                                 if (s.StartsWith(nameof(pConnectionServer) + "="))
                                 {
-                                    pConnectionServer = GetParameterValue("=", s, pConnectionServer);
+                                    pConnectionServer = GetParameterValueFromIniFile("=", s, pConnectionServer);
                                 }
                                 else if (s.StartsWith(nameof(pConnectionUserName) + "="))
                                 {
-                                    pConnectionUserName = GetParameterValue("=", s, pConnectionUserName);
+                                    pConnectionUserName = GetParameterValueFromIniFile("=", s, pConnectionUserName);
                                 }
                                 else if (s.StartsWith(nameof(pConnectionUserPasswords) + "="))
                                 {
-                                    pConnectionUserPasswords = GetParameterValue("=", s, pConnectionUserPasswords);
+                                    pConnectionUserPasswords = GetParameterValueFromIniFile("=", s, pConnectionUserPasswords);
                                 }
                                 else if (s.StartsWith(nameof(parametrStart) + "="))
                                 {
-                                    parametrStart = GetParameterValue("=", s, parametrStart);
+                                    parametrStart = GetParameterValueFromIniFile("=", s, parametrStart);
                                 }
                                 else if (s.StartsWith(nameof(pStop) + "="))
                                 {
-                                    pStop = GetParameterValue("=", s, pStop);
+                                    pStop = GetParameterValueFromIniFile("=", s, pStop);
                                 }
                                 else if (s.StartsWith(nameof(pBillDeliveryCost) + "=")) //Строка с суммой стоимости доставки электронного счета до вычисления скидки и налогов
                                 {
-                                    pBillDeliveryCost = GetParameterValue("=", s, pBillDeliveryCost);
+                                    pBillDeliveryCost = GetParameterValueFromIniFile("=", s, pBillDeliveryCost);
                                 }
                                 else if (s.StartsWith(nameof(pBillDeliveryCostDiscount) + "="))//Строка с суммой скидки на доставку электронного счет
                                 {
-                                    pBillDeliveryCostDiscount = GetParameterValue("=", s, pBillDeliveryCostDiscount);
+                                    pBillDeliveryCostDiscount = GetParameterValueFromIniFile("=", s, pBillDeliveryCostDiscount);
                                 }
 
                                 for (int i = 0; i < p?.Length; i++)
                                 {
                                     if (s.StartsWith("p" + i.ToString() + "="))
                                     {
-                                        p[i] = GetParameterValue("=", s);
+                                        p[i] = GetParameterValueFromIniFile("=", s);
                                     }
                                 }
                             }

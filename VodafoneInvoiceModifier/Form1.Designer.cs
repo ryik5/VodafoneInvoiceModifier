@@ -363,7 +363,7 @@
             this.useSavedDataItem.Name = "useSavedDataItem";
             this.useSavedDataItem.Size = new System.Drawing.Size(257, 22);
             this.useSavedDataItem.Text = "Предыдущая сесия";
-            this.useSavedDataItem.Click += new System.EventHandler(this.useSavedDataItem_Click);
+            this.useSavedDataItem.Click += new System.EventHandler(this.UseSavedDataItem_Click);
             // 
             // selectListNumbersItem
             // 
