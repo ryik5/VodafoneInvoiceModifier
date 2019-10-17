@@ -10,14 +10,14 @@ using System.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Drawing;
 
-namespace VodafoneInvoiceModifier
+namespace BillReportsGenerator
 {
     public partial class Form1 : Form
     {
         private System.Diagnostics.FileVersionInfo myFileVersionInfo;
         private ContextMenu contextMenu1;
-        private string myRegKey = @"SOFTWARE\RYIK\VodafoneInvoiceModifier";
-        string pathToIni = Application.StartupPath + @"\VodafoneInvoiceModifier.ini"; //path to ini of tools
+        private string myRegKey = @"SOFTWARE\RYIK\BillReportsGenerator";
+        string pathToIni = Application.StartupPath + @"\BillReportsGenerator.ini"; //path to ini of tools
 
         private string pStop = @"ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
 
@@ -39,14 +39,16 @@ namespace VodafoneInvoiceModifier
         private string pConnectionServer = ""; //string connection to MS SQL DB
         private string pConnectionUserName = ""; //string connection to MS SQL DB
         private string pConnectionUserPasswords = ""; //string connection to MS SQL DB
-
-        private string[] p = new string[] //Features of the mobile contract and db that have the values
+        const string CONTRACT_NUMBER = @"Контракт №";
+        const string NUMBER = @"Моб.номер";
+        const string NAME_OF_TARIF = @"Ціновий Пакет";
+        private readonly string[] p = new string[] //Features of the mobile contract and db that have the values
         {
             // со счета
             @"Владелец",                                        //0     //owner
-            @"Контракт №",                                      //1     //number of contract
-            @"Моб.номер",                                       //2     //number
-            @"Ціновий Пакет",                                   //3     //name of package
+            CONTRACT_NUMBER,                                    //1     //number of contract
+            NUMBER,                                             //2     //number
+            NAME_OF_TARIF,                                      //3     //name of tarif package
             @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА",                 //4     //cost of package
             @"ПОСЛУГИ МІЖНАРОДНОГО РОУМІНГУ",                   //5     //rouming
             @"ЗНИЖКИ",                                          //6     //discount
@@ -298,7 +300,7 @@ namespace VodafoneInvoiceModifier
             labelPeriod.Visible = false;
             labelBill.Visible = false;
             labelContracts.Visible = false;
-            readinifile();
+            ReadStringsWithParametersFromIniFile();
 
             makeReportAccountantItem.Enabled = false;
             makeFullReportItem.Enabled = false;
@@ -343,7 +345,7 @@ namespace VodafoneInvoiceModifier
 
         private void ApplicationExit()
         {
-            writeinitofile();
+            WriteStringsWithParametersIntoIniFile();
             Application.Exit();
         }
 
@@ -378,7 +380,7 @@ namespace VodafoneInvoiceModifier
         {
             selectedNumbers = false;
             makeReportMarketingItem.Enabled = false;
-            string strTemp = "";
+            string strTemp;
             List<string> listWrongString = new List<string>();
             List<string> tempListString = LoadDataIntoList();
             int limitWrongNumber = 300;
@@ -438,12 +440,6 @@ namespace VodafoneInvoiceModifier
                 }
                 else
                 { textBoxLog.AppendText("Check the list of numbers\n"); }
-
-
-                //clean temporary elements
-                strTemp = null;
-                listWrongString = null;
-                tempListString = null;
             }
             CheckConditionEnableMarketingReport();
         }
@@ -511,6 +507,10 @@ namespace VodafoneInvoiceModifier
             string durationB = "";
             string cost = "";
 
+           // CONTRACT_NUMBER,  //1     //number of contract
+           // NUMBER,           //2     //number
+           // NAME_OF_TARIF,    //3     //name of tarif package
+
             p[1] = _ControlReturnItsText(textBoxP1);
             p[2] = _ControlReturnItsText(textBoxP2);
 
@@ -531,7 +531,6 @@ namespace VodafoneInvoiceModifier
             _ProgressWork1Step();
 
             List<string> loadedBillWithServicesFilter = LoadDataUsingParameters(filterBill, parametrStart, pStop);
-            filterBill = null;
 
             int allRow = loadedBillWithServicesFilter.Count * listServices.Count * (dtTarif.Rows.Count + listNumbers.Count); //всего строк для борабоки
 
@@ -571,7 +570,7 @@ namespace VodafoneInvoiceModifier
                             MessageBox.Show("Проверьте правильность выбора детализации разговоров!\n" +
                         "Возможно поменялся формат.\n" +
                         "Правильный формат:\n" +
-                        "Контракт № 000000000  _номер_: 380000000000");
+                        CONTRACT_NUMBER + " 000000000  _номер_: 380000000000");
                         }
                     }
                     else
@@ -681,7 +680,6 @@ namespace VodafoneInvoiceModifier
                 }
                 loadedBill = true;
                 File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
-                sb = null;
             }
             else
             { _TextboxAppendText(textBoxLog, "Нет в выборке ничего для указанных номеров!\n"); }
@@ -760,7 +758,6 @@ namespace VodafoneInvoiceModifier
             int countStepProgressBar = 500;
             int listMaxLength = 500000;
             List<string> listRows = new List<string>(listMaxLength);
-            string s = "";
             string loadedString = "";
             bool newInvoice = true;
             try
@@ -803,10 +800,8 @@ namespace VodafoneInvoiceModifier
                         {
                             using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
                             {
-                                while ((s = Reader.ReadLine()) != null && !endLoadData && listRows.Count < listMaxLength)
+                                while ((loadedString = Reader.ReadLine()?.Trim()) != null && !endLoadData && listRows.Count < listMaxLength)
                                 {
-                                    loadedString = s.Trim();
-
                                     //Set label Date
                                     if (loadedString.Contains("Особовий рахунок")) { checkRahunok = true; }
                                     if (loadedString.Contains("Номер рахунку")) { checkNomerRahunku = true; }
@@ -859,7 +854,7 @@ namespace VodafoneInvoiceModifier
             return listRows;
         }
 
-        private void useSavedDataItem_Click(object sender, EventArgs e)
+        private void UseSavedDataItem_Click(object sender, EventArgs e)
         {
             if (strSavedPathToInvoice?.Length > 1)
             { filepathLoadedData = strSavedPathToInvoice; }
@@ -900,7 +895,7 @@ namespace VodafoneInvoiceModifier
             pStop = textBoxP8.Text;
 
             StatusLabel1.Text = "Обрабатываю исходные данные...";
-            bool billCorrect = ReadTxtAndWiteToMyTmp();
+            bool billCorrect = TryToReadBillToPrepareList();
 
             if (billCorrect)
             {
@@ -923,7 +918,7 @@ namespace VodafoneInvoiceModifier
 
                     if (!newModels)
                     {
-                        MyTmpToMyArray();
+                        ParseStringsOfPreparedListIntoTable();
                         DataRow[] results;
 
                         string columnName1 = dtMobile.Columns[0].ColumnName.Remove(3);
@@ -936,7 +931,6 @@ namespace VodafoneInvoiceModifier
                         string columnName11 = dtMobile.Columns[25].ColumnName;
 
                         string sortOrder = dtMobile.Columns[0].ColumnName + " ASC";
-
 
 
                         textBoxLog.AppendText("\n");
@@ -953,24 +947,9 @@ namespace VodafoneInvoiceModifier
                             textBoxLog.AppendText("---= Список тарифных схем, не существующих в программе =---\n");
                             textBoxLog.AppendText("'" + columnName5 + "' - " + columnName1 + " (" + columnName2 + ")\n");
 
-
                             foreach (string str in listTarifData)
                             {
                                 textBoxLog.AppendText(str + "\n");
-                                /*   results = dtMobile.Select("'" + dtMobile.Columns[21].ColumnName.Length + "' LIKE '" + str + "'", sortOrder, DataViewRowState.Added);
-
-                                   for (int i = 0; i < results.Length; i++)
-                                   {
-
-                                       textBoxLog.AppendText(
-                                        string.Format("{0,-40}", results[i][0].ToString()) +
-                                        string.Format("{0,-15}", results[i][2].ToString()) +
-                                        string.Format("{0,-30}", results[i][3].ToString()) +
-                                        string.Format("{0,-10}", results[i][10].ToString()) +
-                                        string.Format("{0,-30}", results[i][21].ToString()) +
-                                        "\n"
-                                         );
-                                   }*/
                             }
                             textBoxLog.AppendText("\n");
                             textBoxLog.AppendText("\n");
@@ -1043,7 +1022,6 @@ namespace VodafoneInvoiceModifier
                              string.Format("{0,-30}", columnName3) +
                              string.Format("{0,-10}", columnName4) +
                              string.Format("{0,-10}", columnName6) +
-
                              string.Format("{0,-30}", columnName5) +
                              string.Format("{0,-12}", columnName10) +
                              string.Format("{0,-12}", columnName11) +
@@ -1074,7 +1052,6 @@ namespace VodafoneInvoiceModifier
                         makeFullReportItem.Enabled = true;
 
                         StatusLabel1.Text = "Предварительная обработка счета из файла " + Path.GetFileName(filePathTxt) + " завершена!";
-
                         StatusLabel1.ToolTipText = "Данные для генерации отчета для бухгалтерии подготовлены";
                     }
                     else
@@ -1138,34 +1115,11 @@ namespace VodafoneInvoiceModifier
             makeReportMarketingMenuItem.Enabled = true;
 
             StatusLabel1.Text = @"Формирование отчета завершено. Файл сохранен в папку:  " + Path.GetDirectoryName(filePathTxt);
-
-            GC.Collect();
         }
 
-        /*
-        private void Save_Click(object sender, EventArgs e) //Кнопка "Save"
+        private string ParseParameterNameAndValueFromReadString(string delimeter, string parameter, string defaultValue = null)
         {
-            saveFileDialog1.FileName = openFileDialog1.FileName + ".csv";
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    TextWriter Writer = new StreamWriter(saveFileDialog1.FileName, false, Encoding.GetEncoding(1251));
-                    Writer.Write(textBox1.Text);
-                    Writer.Flush();
-                    Writer.Close();
-                }
-                catch (Exception Expt)
-                { // Отчет обо всех возможных ошибках
-                    MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK,
-                    MessageBoxIcon.Exclamation);
-                }
-            }
-        }*/
-
-        private string GetParameterValue(string delimeter, string parameter, string defaultValue = null)
-        {
-            if (parameter == null)
+            if (parameter == null|| delimeter==null)
             {
                 return null;
             }
@@ -1182,7 +1136,7 @@ namespace VodafoneInvoiceModifier
             }
         }
 
-        private async void readinifile() //Чтение парсеров из ini файла
+        private async void ReadStringsWithParametersFromIniFile() //Чтение парсеров из ini файла
         {
             string s = "";
             bool b1 = false, b2 = false;
@@ -1208,38 +1162,38 @@ namespace VodafoneInvoiceModifier
                             {
                                 if (s.StartsWith(nameof(pConnectionServer) + "="))
                                 {
-                                    pConnectionServer = GetParameterValue("=", s, pConnectionServer);
+                                    pConnectionServer = ParseParameterNameAndValueFromReadString("=", s, pConnectionServer);
                                 }
                                 else if (s.StartsWith(nameof(pConnectionUserName) + "="))
                                 {
-                                    pConnectionUserName = GetParameterValue("=", s, pConnectionUserName);
+                                    pConnectionUserName = ParseParameterNameAndValueFromReadString("=", s, pConnectionUserName);
                                 }
                                 else if (s.StartsWith(nameof(pConnectionUserPasswords) + "="))
                                 {
-                                    pConnectionUserPasswords = GetParameterValue("=", s, pConnectionUserPasswords);
+                                    pConnectionUserPasswords = ParseParameterNameAndValueFromReadString("=", s, pConnectionUserPasswords);
                                 }
                                 else if (s.StartsWith(nameof(parametrStart) + "="))
                                 {
-                                    parametrStart = GetParameterValue("=", s, parametrStart);
+                                    parametrStart = ParseParameterNameAndValueFromReadString("=", s, parametrStart);
                                 }
                                 else if (s.StartsWith(nameof(pStop) + "="))
                                 {
-                                    pStop = GetParameterValue("=", s, pStop);
+                                    pStop = ParseParameterNameAndValueFromReadString("=", s, pStop);
                                 }
                                 else if (s.StartsWith(nameof(pBillDeliveryCost) + "=")) //Строка с суммой стоимости доставки электронного счета до вычисления скидки и налогов
                                 {
-                                    pBillDeliveryCost = GetParameterValue("=", s, pBillDeliveryCost);
+                                    pBillDeliveryCost = ParseParameterNameAndValueFromReadString("=", s, pBillDeliveryCost);
                                 }
                                 else if (s.StartsWith(nameof(pBillDeliveryCostDiscount) + "="))//Строка с суммой скидки на доставку электронного счет
                                 {
-                                    pBillDeliveryCostDiscount = GetParameterValue("=", s, pBillDeliveryCostDiscount);
+                                    pBillDeliveryCostDiscount = ParseParameterNameAndValueFromReadString("=", s, pBillDeliveryCostDiscount);
                                 }
 
                                 for (int i = 0; i < p?.Length; i++)
                                 {
                                     if (s.StartsWith("p" + i.ToString() + "="))
                                     {
-                                        p[i] = GetParameterValue("=", s);
+                                        p[i] = ParseParameterNameAndValueFromReadString("=", s);
                                     }
                                 }
                             }
@@ -1248,11 +1202,11 @@ namespace VodafoneInvoiceModifier
                 }
 
                 if ((b1 && b2 == false) || (b2 && b1 == false))
-                { toolTip1.SetToolTip(this.groupBox1, "Настройки из VodafoneInvoiceModifier.ini проигнорированы. Изменен формат файла"); }
+                { toolTip1.SetToolTip(this.groupBox1, "Настройки из BillReportsGenerator.ini проигнорированы. Изменен формат файла"); }
                 else
                 {
                     groupBox1.BackColor = System.Drawing.Color.Tan;
-                    toolTip1.SetToolTip(this.groupBox1, "Парсинг модифицирован настройками из VodafoneInvoiceModifier.ini");
+                    toolTip1.SetToolTip(this.groupBox1, "Парсинг модифицирован настройками из BillReportsGenerator.ini");
                 }
             }
 
@@ -1282,45 +1236,46 @@ namespace VodafoneInvoiceModifier
 
                 bool aliveServer = false;
                 _ProgressBar1Start();
-                Timer timer1 = new Timer();
-                timer1.Interval = 200;
-                timer1.Tick += new System.EventHandler(this.timer1_Tick);
-                timer1.Enabled = true;
-                timer1.Start();
-
-                await Task.Run(() => aliveServer = CheckAliveServer());
-                if (!aliveServer)
+                using (Timer timer1 = new Timer { Interval = 200, Enabled = true })
                 {
-                    infoStatusBar = "БД сервера с Tfactura не доступна";
-                    MessageBox.Show(infoStatusBar + "\nПроверьте настройки в файле с настройками -\n\n" + pathToIni + "\nи исправьте не верные данные:\n\n" +
-                        "pConnectionServer=" + pConnectionServer + "\npConnectionUserName=" + pConnectionUserName + "\npConnectionUserPasswords=" + pConnectionUserPasswords,
-                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    timer1.Tick += new System.EventHandler(this.timer1_Tick);
+                    timer1.Start();
 
-                    StatusLabel1.Text = infoStatusBar;
-                    StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
-                }
-                else
-                {
-                    fileMenuItem.Enabled = true;
-                    StatusLabel1.BackColor = System.Drawing.Color.PaleGreen;
-                    StatusLabel1.Text = "Сервер доступен. Готов к работе.";
-                }
+                    await Task.Run(() => aliveServer = CheckAliveDbServer());
+                    if (!aliveServer)
+                    {
+                        infoStatusBar = "БД сервера с Tfactura не доступна";
+                        MessageBox.Show(infoStatusBar + "\nПроверьте настройки в файле с настройками -\n\n" + pathToIni + "\nи исправьте не верные данные:\n\n" +
+                            "pConnectionServer=" + pConnectionServer + "\npConnectionUserName=" + pConnectionUserName + "\npConnectionUserPasswords=" + pConnectionUserPasswords,
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                timer1.Enabled = false;
-                timer1.Stop();
+                        StatusLabel1.Text = infoStatusBar;
+                        StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
+                    }
+                    else
+                    {
+                        fileMenuItem.Enabled = true;
+                        StatusLabel1.BackColor = System.Drawing.Color.PaleGreen;
+                        StatusLabel1.Text = "Сервер доступен. Готов к работе.";
+                    }
+
+                    timer1.Enabled = false;
+                    timer1.Stop();
+                }
                 _ProgressBar1Stop();
             }
-            s = null;
             StatusLabel1.ForeColor = System.Drawing.Color.Black;
-
         }
 
-        private bool CheckAliveServer()
+        private bool CheckAliveDbServer()
         {
             bool state = false;
-            string pConnection = "Data Source=" + pConnectionServer +
-            "; Initial Catalog=EBP;Type System Version=SQL Server 2005;Persist Security Info =True;User ID=" +
-            pConnectionUserName + "; Password=" + pConnectionUserPasswords + "; Connect Timeout=5";
+            string pConnection = 
+                "Data Source=" + pConnectionServer +
+                "; Initial Catalog=EBP; Type System Version=SQL Server 2005; Persist Security Info =True"+
+                "; User ID=" + pConnectionUserName + 
+                "; Password=" + pConnectionUserPasswords + 
+                "; Connect Timeout=5";
 
             string sqlQuery = @"SELECT database_id FROM sys.databases WHERE Name ='EBP'";
             using (var sqlConnection = new System.Data.SqlClient.SqlConnection(pConnection))
@@ -1328,25 +1283,21 @@ namespace VodafoneInvoiceModifier
                 try
                 {
                     sqlConnection.Open();
+
                     using (var sqlCommand = new System.Data.SqlClient.SqlCommand(sqlQuery, sqlConnection))
                     { sqlCommand.ExecuteScalar(); }
 
                     sqlConnection.Close();
                     state = true;
                 }
-                catch
-                {
-                    state = false;
-                }
-                finally
-                {
-                    sqlConnection.Close();
-                }
+                catch { state = false; }
+                finally { sqlConnection.Close(); }
             }
+
             return state;
         }
 
-        private string ParameterStringToIniString(System.Linq.Expressions.Expression<Func<string>> parameter)
+        private string ReturnPreparedStringWithParameterForIniFile(System.Linq.Expressions.Expression<Func<string>> parameter)
         {
             var me = (System.Linq.Expressions.MemberExpression)parameter.Body;
             var variableName = me.Member.Name;
@@ -1357,14 +1308,14 @@ namespace VodafoneInvoiceModifier
             else { return variableName + "="; }
         }
 
-        private void writeinitofile() //Запись всех рабочих парсеров в ini файл
+        private void WriteStringsWithParametersIntoIniFile() //Запись всех рабочих парсеров в ini файл
         {
             StringBuilder sb = new StringBuilder(String.Empty);
             DateTime localDate = DateTime.Now;
 
             try
             {
-                sb.AppendLine(@"; This VodafoneInvoiceModifier.ini for " + myFileVersionInfo.ProductName);
+                sb.AppendLine(@"; This BillReportsGenerator.ini for " + myFileVersionInfo.ProductName);
                 sb.AppendLine(@"; " + @"Author " + myFileVersionInfo.LegalCopyright);
                 sb.AppendLine(@"");
 
@@ -1375,13 +1326,13 @@ namespace VodafoneInvoiceModifier
                     else { sb.AppendLine("p" + i + "="); }
                 }
 
-                sb.AppendLine(ParameterStringToIniString(() => pConnectionServer));
-                sb.AppendLine(ParameterStringToIniString(() => pConnectionUserName));
-                sb.AppendLine(ParameterStringToIniString(() => pConnectionUserPasswords));
-                sb.AppendLine(ParameterStringToIniString(() => pBillDeliveryCost));
-                sb.AppendLine(ParameterStringToIniString(() => pBillDeliveryCostDiscount));
-                sb.AppendLine(ParameterStringToIniString(() => parametrStart));
-                sb.AppendLine(ParameterStringToIniString(() => pStop));
+                sb.AppendLine(ReturnPreparedStringWithParameterForIniFile(() => pConnectionServer));
+                sb.AppendLine(ReturnPreparedStringWithParameterForIniFile(() => pConnectionUserName));
+                sb.AppendLine(ReturnPreparedStringWithParameterForIniFile(() => pConnectionUserPasswords));
+                sb.AppendLine(ReturnPreparedStringWithParameterForIniFile(() => pBillDeliveryCost));
+                sb.AppendLine(ReturnPreparedStringWithParameterForIniFile(() => pBillDeliveryCostDiscount));
+                sb.AppendLine(ReturnPreparedStringWithParameterForIniFile(() => parametrStart));
+                sb.AppendLine(ReturnPreparedStringWithParameterForIniFile(() => pStop));
 
                 sb.AppendLine(@"");
                 sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
@@ -1394,7 +1345,7 @@ namespace VodafoneInvoiceModifier
             { sb = null; }
         }
 
-        private bool ReadTxtAndWiteToMyTmp() //Чтение исходного файл, и первичный разбор счета (удаление ненужных данных)
+        private bool TryToReadBillToPrepareList() //Чтение исходного файл, и первичный разбор счета (удаление ненужных данных)
         {
             bool ChosenFile = false;
             int i = 0; //amount contracts in the current bill
@@ -1488,8 +1439,7 @@ namespace VodafoneInvoiceModifier
                     _ControlSetItsText(labelDiscount, resultOfCalculatingDiscount.ToString() + "%");
 
                     StatusLabel1.ToolTipText = "";
-                    //----- Test module The Start. Dump onto a  local disk -----
-                    //   StringBuilder sb = new StringBuilder(String.Empty);
+                    
                     Dictionary<string, int> countParser = new Dictionary<string, int>();
 
                     foreach (string parser in p)
@@ -1508,15 +1458,16 @@ namespace VodafoneInvoiceModifier
                     }
                     //   File.WriteAllText(Path.GetDirectoryName(filePathTxt) + @"\listTempContract.txt", sb.ToString(), Encoding.GetEncoding(1251));
 
-                    if (countParser[p[1]] == 0 ||
-                        countParser[p[1]] != countParser[p[2]] ||
-                        countParser[p[2]] != countParser[p[3]])
+                    if (!(countParser[p[1]] != 0 &&                   //Количество контрактов должно быть больше нуля
+                        countParser[p[1]] == countParser[p[2]] &&   //количество контрактов должно соответствовать 
+                        countParser[p[2]] == countParser[p[3]]))     //количеству номеров и наименованию тарифных пакетов
                     {
                         ChosenFile = false;
-                        string message = "Счет для анализа выбран с некорректными парсерами.\nЭти парсеры не должны равняться 0:\n'" +
-                                                      p[1] + @"' =  " + countParser[p[1]] + "\n'" +
-                                                      p[2] + @"' =  " + countParser[p[2]] + "\n'" +
-                                                      p[3] + @"' =  " + countParser[p[3]];
+                        string message = "Счет для анализа выбран с некорректными парсерами.\n" +
+                                         "Количество этих параметров должны быть одинаковое и больше нуля:" +
+                                         "\n'" + p[1] + @"' =  " + countParser[p[1]] + 
+                                         "\n'" + p[2] + @"' =  " + countParser[p[2]] + 
+                                         "\n'" + p[3] + @"' =  " + countParser[p[3]];
                         MessageBox.Show(message);
                         StatusLabel1.ToolTipText = message;
                     }
@@ -1525,7 +1476,7 @@ namespace VodafoneInvoiceModifier
                 catch (Exception Expt)
                 {
                     ChosenFile = false;
-                    MessageBox.Show(Expt.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(Expt.ToString(), Expt.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     StatusLabel1.ToolTipText = Expt.Message;
                 }
             }
@@ -1533,7 +1484,7 @@ namespace VodafoneInvoiceModifier
             return ChosenFile;
         }
 
-        private double modelToPayment(MobileContractPerson mobileContractPerson)
+        private double ClaculateAmountPaymentOfContractOwner(MobileContractPerson mobileContractPerson)
         {
             double result = 0;
 
@@ -1629,18 +1580,19 @@ namespace VodafoneInvoiceModifier
                             result = 0;
                             break;
                     }
+                    return result; 
                 }
             }
             return result;
         }
 
-        private double tax(double beforePayTax)
-        { return beforePayTax * 0.2; }
+        private double CalculateTax(double valueBeforeTaxes)
+        { return valueBeforeTaxes * 0.2; }
 
-        private double pF(double beforePayToPF)
-        { return beforePayToPF * 0.075; }
+        private double CalculatePf(double valueBeforeTaxes)
+        { return valueBeforeTaxes * 0.075; }
 
-        private void MyTmpToMyArray() //Парсинг строк и передача результата текстовый редактор
+        private void ParseStringsOfPreparedListIntoTable() //Парсинг строк и передача результата текстовый редактор
         {
             _ToolStripStatusLabelSetItsText(StatusLabel1, "Обрабатываю полученные данные...");
             dataStart = labelPeriod.Text.Split('-')[0].Trim(); // дата начала периода счета
@@ -1660,15 +1612,18 @@ namespace VodafoneInvoiceModifier
             {
                 foreach (string s in listTempContract.ToArray())
                 {
-                    if (s.Contains(p[1]) || s.Contains(pStop))
+                    if (s.Contains(p[1]) || s.Contains(pStop))  //Начало учетов парсеров каждого кокретного контракта после упоминания ключевого слова в переменной 'p[1]'
                     {
+                        //Начало учетов парсеров контракта начинаем после упоминания ключевого слова в переменной 'p[1]'
+                        //перед началов учета парсеров этого контракта сначала записываем все собранные данные по предыдущему контракту
+                        //для последнего в счете контракта маркером окночания данных является ключевое слово в переменной 'pStop'
                         isCheckFinishedTitles = false;
                         if (mcpCurrent.contractName.Length > 1)
                         {
                             mcpCurrent.dateBillStart = dataStart;
                             mcpCurrent.dateBillEnd = dataEnd;
-                            mcpCurrent.tax = tax(mcpCurrent.totalCost);
-                            mcpCurrent.pF = pF(mcpCurrent.totalCost);
+                            mcpCurrent.tax = CalculateTax(mcpCurrent.totalCost);
+                            mcpCurrent.pF = CalculatePf(mcpCurrent.totalCost);
                             mcpCurrent.totalCostWithTax = mcpCurrent.totalCost * 1.275;  //number spend+НДС+ПФ
 
                             searchNumber = mcpCurrent.mobNumberName;
@@ -1684,7 +1639,7 @@ namespace VodafoneInvoiceModifier
                                     break;
                                 }
                             }
-                            mcpCurrent.payOwner = modelToPayment(mcpCurrent);
+                            mcpCurrent.payOwner = ClaculateAmountPaymentOfContractOwner(mcpCurrent);
                             mcpCurrent.isUsed = isUsedCurrent;
                             if (mcpCurrent.totalCostWithTax > 0)
                             { mcpCurrent.isUnblocked = true; }
@@ -1808,8 +1763,8 @@ namespace VodafoneInvoiceModifier
                 mcpCurrent = new MobileContractPerson();
                 mcpCurrent.totalCost = Math.Abs(BillDeliveryCost * amountBillAfterDiscount);
                 mcpCurrent.discount = Math.Abs(BillDeliveryCostDiscount);
-                mcpCurrent.tax = tax(mcpCurrent.totalCost);
-                mcpCurrent.pF = pF(mcpCurrent.totalCost);
+                mcpCurrent.tax = CalculateTax(mcpCurrent.totalCost);
+                mcpCurrent.pF = CalculatePf(mcpCurrent.totalCost);
                 mcpCurrent.totalCostWithTax = mcpCurrent.totalCost * 1.275;  //number spend+НДС+ПФ
 
                 row = dtMobile.NewRow();
@@ -1829,8 +1784,6 @@ namespace VodafoneInvoiceModifier
             }
             catch (Exception Expt) { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
-            row = null;
-            mcpCurrent = null;
             listTempContract.Clear();
         }
 
@@ -2408,7 +2361,7 @@ namespace VodafoneInvoiceModifier
                 {
                     if (File.Exists(pathToNewModels))
                     { File.Delete(pathToNewModels); }
-                    sb.AppendLine(@"; This VodafoneInvoiceModifier.ini for " + myFileVersionInfo.ProductName);
+                    sb.AppendLine(@"; This BillReportsGenerator.ini for " + myFileVersionInfo.ProductName);
                     sb.AppendLine(@"; " + @"Author " + myFileVersionInfo.LegalCopyright);
                     sb.AppendLine(@"");
                     sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());

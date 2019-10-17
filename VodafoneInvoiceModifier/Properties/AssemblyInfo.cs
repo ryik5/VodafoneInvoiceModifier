@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("VodafoneInvoiceModifier")]
+[assembly: AssemblyTitle("Bill Reports Generator")]
 [assembly: AssemblyDescription("Генератор отчетов по мобильной связи")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("©Yuri Ryabchenko")]
-[assembly: AssemblyProduct("VodafoneInvoiceModifier")]
-[assembly: AssemblyCopyright("©Yuri Ryabchenko 2016 - 2018")]
+[assembly: AssemblyProduct("BillReportsGenerator")]
+[assembly: AssemblyCopyright("©Yuri Ryabchenko 2016 - 2019")]
 [assembly: AssemblyTrademark("©Yuri Ryabchenko")]
 [assembly: AssemblyCulture("")]
 
