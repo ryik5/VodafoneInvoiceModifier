@@ -2335,7 +2335,7 @@ namespace BillReportsGenerator
 
         private void CheckNewTarif()
         {
-            string pathToNewModels = Application.StartupPath + @"\VodafoneInvoiceModifierNewModels.txt";
+            string pathToNewModels = Application.StartupPath + @"\BillReportsGeneratorIsNotExistedPaymentModels.txt";
             string[] arrayData = listTarifData.ToArray();
             List<string> removeData = new List<string>();
             foreach (var tarif in arrayTarif)
@@ -2384,13 +2384,13 @@ namespace BillReportsGenerator
                     File.WriteAllText(pathToNewModels, sb.ToString(), Encoding.GetEncoding(1251));
                     File.AppendAllText(pathToNewModels, sbError.ToString(), Encoding.GetEncoding(1251));
                 }
-                catch (Exception Expt)
-                { MessageBox.Show(Expt.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                catch (Exception e)
+                { MessageBox.Show(e.ToString(), e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
                 infoStatusBar = "В базе найдены новые, не добавленные ранее, модели компенсации затрат сотрудников!";
 
                 DialogResult result = MessageBox.Show(
-                    "В базе найдены новые не учтенные модели компенсации затрат сотрудников!\n\n" + strNewModels +
+                    "В базе со счетами мобильного оператора на сервере "+pConnectionServer+" найдены не существующие в программе модели компенсации затрат сотрудников!\n\n" + strNewModels +
                     "\n\nДля их учета необходимо, внести изменения в модели рассчета в программе!\n\n" +
                     "Для прерывания дальнейших рассчетов нажмите кнопку\n\"Yes\"(Да)\nдля продолжения:\n\"No\"(Нет)",
                     "Внимание!",
