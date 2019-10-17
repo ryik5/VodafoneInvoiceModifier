@@ -1,4 +1,4 @@
-﻿namespace VodafoneInvoiceModifier
+﻿namespace BillReportsGenerator
 {
     partial class Form1
     {
