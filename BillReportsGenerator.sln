@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodafoneInvoiceModifier", "VodafoneInvoiceModifier\VodafoneInvoiceModifier.csproj", "{EE2E919C-DD0E-4986-A46C-BF9E65001CE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BillReportsGenerator", "VodafoneInvoiceModifier\BillReportsGenerator.csproj", "{EE2E919C-DD0E-4986-A46C-BF9E65001CE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
