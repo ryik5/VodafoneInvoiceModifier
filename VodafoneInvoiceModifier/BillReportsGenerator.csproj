@@ -31,7 +31,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ProductName>BillReportsGenerator</ProductName>
-    <PublisherName>YuriRyabchenko</PublisherName>
+    <PublisherName>RYIK</PublisherName>
     <SuiteName>BillReportsGenerator</SuiteName>
     <AutorunEnabled>true</AutorunEnabled>
     <ApplicationRevision>11</ApplicationRevision>
@@ -63,7 +63,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>true</Prefer32Bit>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>RYIK.ico</ApplicationIcon>
