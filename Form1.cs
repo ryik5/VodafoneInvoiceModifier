@@ -241,6 +241,7 @@ namespace MobileNumbersDetailizationReportGenerator
                               //    new DataColumn("Результат",typeof(decimal)),
                               };
         DataTable dtMarket = new DataTable("MarketReport");
+        List<ParsedStringOfBillWithContractOwner> listParsedStrings = new List<ParsedStringOfBillWithContractOwner>();
 
         List<string> listSavedServices = new List<string>();
         List<string> listSavedNumbers = new List<string>();
@@ -546,6 +547,7 @@ namespace MobileNumbersDetailizationReportGenerator
             _ControlVisibleEnabled(labelPeriod, true);
 
             loadedBill = false;
+            TextFileWritting textWritting = new TextFileWritting();
 
             dtOwnerOfMobileWithinSelectedPeriod = GetDataWithModel();
 
@@ -585,24 +587,36 @@ namespace MobileNumbersDetailizationReportGenerator
             _ProgressWork1Step();
 
             foreach (string service in listServices)
-            { filterBill.Add(service); }
+            {
+                filterBill.Add(service);
+                _TextboxAppendText(textBoxLog,service+"\n");
+            }
 
             _ProgressWork1Step();
 
-            List<string> loadedBillWithServicesFiltered = LoadDataUsingParameters(filterBill, parametrStart, pStop, exceptedStringContains);
+            List<string> loadedBillWithServicesFilter = LoadDataUsingParameters(filterBill, parametrStart, pStop);
 
-            int counterstep = (dtOwnerOfMobileWithinSelectedPeriod.Rows.Count + listNumbers.Count);
+            int allRow = loadedBillWithServicesFilter.Count * listServices.Count * (dtTarif.Rows.Count + listNumbers.Count); //всего строк для борабоки
+
+            int counterstep = 10000;
             int countStepProgressBar = counterstep;
-            int countRowsInTable = 0;
-
-            if (loadedBillWithServicesFiltered?.Count > 0)
+            int counted = 0;
+            if (loadedBillWithServicesFilter?.Count > 0)
             {
                 //  dtFullBill.Rows.Clear();
                 StringBuilder sb = new StringBuilder();
 
+                bool foundTarif;
                 //todo parsing strings of the filtered bill
-                foreach (string sRowBill in loadedBillWithServicesFiltered)
+                foreach (string sRowBill in loadedBillWithServicesFilter)
                 {
+                    countStepProgressBar--;
+                    if (countStepProgressBar == 0)
+                    {
+                        _ProgressWork1Step();
+                        countStepProgressBar = counterstep;
+                    }
+
                     if (sRowBill.StartsWith(p[1]))
                     {
                         try
@@ -617,106 +631,111 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                         catch (Exception err)
                         {
-                            MessageBox.Show("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
-                                "Возможно поменялся формат." + Environment.NewLine +
-                                "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
-                                NUMBER_OF_CONTRACT + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
-                                "Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
-                                "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
-                                sRowBill + Environment.NewLine +
-                                "Ошибка: " + err.ToString()
-                                );
+                            MessageBox.Show("Проверьте правильность выбора детализации разговоров!\n" +
+                        "Возможно поменялся формат.\n" +
+                        "Правильный формат:\n" +
+                        NUMBER_OF_CONTRACT + " 000000000  _номер_: 380000000000");
                         }
                     }
                     else
                     {
-                        //parse a string of the contract 
-                        //start position of a symbol and last one in the parse string 
-                        /*
-                        1-39	наименование услуги
-                        40-52	номер(целевой)
-                        53-63	дата
-                        66-74	время
-                        75-84	длительность
-                        85-95	учтенная длительность оператором (для биллинга)
-                        96-106	стоимость
-                        */
-                        ParsingStringDetalizationOfBill parsing = new ParsingStringDetalizationOfBill();
-                        ParsedStringOfBill parsed;
-
-                        try
+                        foreach (string service in listServices)
                         {
-                            foreach (string sNumber in listNumbers)
+                            countStepProgressBar--;
+                            if (countStepProgressBar == 0)
                             {
-                                if (numberMobile.StartsWith(sNumber))
+                                _ProgressWork1Step();
+                                countStepProgressBar = counterstep;
+                            }
+                            //parse a string of the contract 
+                            //start position of a symbol and last one in the parse string 
+                            /*
+                            1-39	наименование услуги
+                            40-52	номер(целевой)
+                            53-63	дата
+                            66-74	время
+                            75-84	длительность
+                            85-95	учтенная длительность оператором (для биллинга)
+                            96-106	стоимость
+                            */
+
+                            try
+                            {
+                                serviceName = sRowBill?.Substring(0, 38)?.Trim();
+                                numberB = sRowBill?.Substring(38, 13)?.Trim();
+                                date = sRowBill?.Substring(52, 10)?.Trim();
+                                time = sRowBill?.Substring(65, 8)?.Trim();
+                                durationA = sRowBill?.Substring(74, 9)?.Trim();
+                                durationB = sRowBill?.Substring(84, 9)?.Trim();
+                                cost = sRowBill?.Substring(95)?.Trim();
+
+                                DataRow rowMarket = dtMarket.NewRow(); //for Market
+                                rowMarket["Контракт"] = kontrakt;
+                                rowMarket["Номер телефона"] = numberMobile;
+                                rowMarket["Имя сервиса"] = serviceName;
+                                rowMarket["Номер В"] = numberB;
+                                rowMarket["Дата"] = date;
+                                rowMarket["Время"] = time;
+                                rowMarket["Длительность А"] = durationA;
+                                rowMarket["Длительность В"] = durationB;
+                                rowMarket["Стоимость"] = cost;
+
+                                if (!time.Contains('.')) //except a common service with ". . ."
                                 {
-                                    //serviceName = sRowBill?.Substring(0, 38)?.Trim();
-                                    //numberB = sRowBill?.Substring(38, 13)?.Trim();
-                                    //date = sRowBill?.Substring(52, 10)?.Trim();
-                                    //time = sRowBill?.Substring(65, 8)?.Trim();
-                                    //durationA = sRowBill?.Substring(74, 9)?.Trim();
-                                    //durationB = sRowBill?.Substring(84, 9)?.Trim();
-                                    //cost = sRowBill?.Substring(95)?.Trim();
-
-                                    parsing.SetString(sRowBill);
-                                    parsed = parsing.ParseString();
-
-                                    parsed.contract = contract;
-                                    parsed.numberOwner = sNumber;
-
-                                    foreach (DataRow rowTarif in dtOwnerOfMobileWithinSelectedPeriod.Rows)
+                                    bool foundTarif = false;
+                                    foreach (DataRow rowTarif in dtTarif.Rows)
                                     {
-                                        if (rowTarif["Номер телефона"].ToString().Contains(sNumber))
+                                        if (rowTarif["Номер телефона"].ToString().Contains(numberMobile))
                                         {
-                                            parsed.fio = rowTarif["ФИО"].ToString();
-                                            parsed.nav = rowTarif["NAV"].ToString();
-                                            parsed.department = rowTarif["Подразделение"].ToString();
+                                            fio = rowTarif["ФИО"].ToString();
+                                            nav = rowTarif["NAV"].ToString();
+                                            department = rowTarif["Подразделение"].ToString();
+
+                                            rowMarket["ФИО"] = fio;
+                                            rowMarket["NAV"] = nav;
+                                            rowMarket["Подразделение"] = department;
+                                            foundTarif = true;
+                                        }
+
+                                        countStepProgressBar--;
+                                        if (countStepProgressBar == 0)
+                                        {
+                                            _ProgressWork1Step("Обработано " + (++counted) + " строк из " + allRow / counterstep);
+                                            countStepProgressBar = counterstep;
+                                        }
+                                        if (foundTarif)
+                                        {
                                             break;
                                         }
                                     }
 
-                                    //for dump
-                                    tempRow = $"{parsed.numberOwner}\t{parsed.fio}\t{parsed.nav}\t{parsed.department}\t{parsed.serviceName}\t" +
-                                        $"{parsed.numberTarget}\t{parsed.date}\t{parsed.time}\t{parsed.durationA}\t{parsed.durationB}\t{parsed.cost}";
+                                    tempRow = numberMobile + "\t" + fio + "\t" + nav + "\t" + department + "\t" + serviceName + "\t" + numberB + "\t" + date + "\t" + time + "\t" + durationA + "\t" + durationB + "\t" + cost;
 
-                                    DataRow rowMarket = dtMarket.NewRow(); //for Market
-                                    rowMarket["Контракт"] = parsed.contract;
-                                    rowMarket["Номер телефона"] = parsed.numberOwner;
-                                    rowMarket["Имя сервиса"] = parsed.serviceName;
-                                    rowMarket["Номер В"] = parsed.numberTarget;
-                                    rowMarket["Дата"] = parsed.date;
-                                    rowMarket["Время"] = parsed.time;
-                                    rowMarket["Длительность А"] = parsed.durationA;
-                                    rowMarket["Длительность В"] = parsed.durationB;
-                                    rowMarket["Стоимость"] = parsed.cost;
-                                    rowMarket["ФИО"] = parsed.fio;
-                                    rowMarket["NAV"] = parsed.nav;
-                                    rowMarket["Подразделение"] = parsed.department;
+                                    foundTarif = false;
+                                    foreach (string sNumber in listNumbers)
+                                    {
+                                        if (tempRow.StartsWith(sNumber))
+                                        {
+                                            dtMarket.Rows.Add(rowMarket);
+                                            sb.AppendLine(tempRow);
+                                        }
 
-                                    dtMarket.Rows.Add(rowMarket);
-                                    countRowsInTable++;
-                                    sb.AppendLine(tempRow);
-                                    break;
+                                        countStepProgressBar--;
+                                        if (countStepProgressBar == 0)
+                                        {
+                                            _ProgressWork1Step("Обработано " + (++counted) + " строк из " + allRow / counterstep);
+                                            countStepProgressBar = counterstep;
+                                        }
+                                    }
                                 }
-
-                                countStepProgressBar--;
-                                if (countStepProgressBar <= 0)
-                                {
-                                    string s = $"В отчет добавлено {countRowsInTable,20 }, строк из {loadedBillWithServicesFiltered.Count,15}";
-                                    _ProgressWork1Step(s);
-                                    countStepProgressBar = counterstep;
-                                }
+                                break;
                             }
+                            catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString(), expt.Message); }
                         }
-                        catch (Exception err)
-                        { MessageBox.Show($"Во время парсинга счета возникла ошибка в строке:{Environment.NewLine}{sRowBill}{Environment.NewLine}{err.ToString()}", err.Message); }
                     }
                 }
                 loadedBill = true;
-                { textBoxLog.AppendLine($"Сформировано для генерации отчета {countRowsInTable} строк c номерами мобильных подпадающими под фильтр."); }
-
-                sb.ToString()
-                    .WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "listMarketingCollectRows.csv"));
+                File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
             }
             else
             { textBoxLog.AppendLine("В выборке нет ничего для указанных номеров!"); }
@@ -803,15 +822,22 @@ namespace MobileNumbersDetailizationReportGenerator
                 var Coder = Encoding.GetEncoding(1251);
                 if (countParameters > 0)
                 {
-                    if (oldSavedInvoice)
+                    if (!(filepathLoadedData?.Length > 2))
                     {
-                        DialogResult result = MessageBox.Show(
-                              "Использовать предыдущий выбор файла?" + Environment.NewLine + strSavedPathToInvoice,
-                              Properties.Resources.Attention,
-                              MessageBoxButtons.YesNo,
-                              MessageBoxIcon.Exclamation,
-                              MessageBoxDefaultButton.Button1);
-                        if (result == DialogResult.No)
+                        if (strSavedPathToInvoice?.Length > 1)
+                        {
+                            DialogResult result = MessageBox.Show(
+                                  "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
+                                  "Внимание!",
+                                  MessageBoxButtons.YesNo,
+                                  MessageBoxIcon.Exclamation,
+                                  MessageBoxDefaultButton.Button1);
+                            if (result == DialogResult.Yes)
+                            {
+                                newInvoice = false;
+                            }
+                        }
+                        if (newInvoice == true)
                         {
                             filepathLoadedData = _OpenFileDialogReturnPath(openFileDialog1);
                         }
@@ -854,7 +880,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     {
                                         foreach (string parameterString in listParameters)
                                         {
-                                            if (loadedString.StartsWith(parameterString) && !loadedString.Contains(excepted))
+                                            if (loadedString.StartsWith(parameterString))
                                             {
                                                 listRows.Add(loadedString);
                                                 counter++;
@@ -878,10 +904,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
                             ParameterLastInvoiceRegistrySave();
                         }
-                        catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row" + Environment.NewLine + expt.ToString()); }
-                        textBoxLog.AppendLine("Из файла-счета: " + Environment.NewLine);
-                        textBoxLog.AppendLine(filepathLoadedData);
-                        textBoxLog.AppendLine("отобрано для построения отчета " + counter + " строк с требуемыми сервисами");
+                        catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row\n" + expt.ToString()); }
                         if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
                         { MessageBox.Show("Error was happened on " + (listRows.Count) + " row" + Environment.NewLine + " You've been chosen the long file!"); }
                     }
@@ -1404,8 +1427,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         bool mystatusbegin = false;
                         bool startModuleWithDiscountWholeBill = false;
                         int lenghtData = 0;
-
-                        _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + invoice.invoicePathToFile);
+                        _ToolStripStatusLabelSetItsText(StatusLabel1, "Обрабатываю файл:  " + filePathTxt);
                         while ((s = Reader.ReadLine()) != null)
                         {
                             if (s.Contains("Особовий рахунок"))
@@ -1637,7 +1659,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private void ParseStringsOfPreparedListIntoTable() //Парсинг строк и передача результата текстовый редактор
         {
-            _ToolStripStatusLabelSetText(StatusLabel1, Properties.Resources.WorkingWithData);
+            _ToolStripStatusLabelSetItsText(StatusLabel1, "Обрабатываю полученные данные...");
             dataStart = labelPeriod.Text.Split('-')[0].Trim(); // дата начала периода счета
             dataEnd = labelPeriod.Text.Split('-')[1].Trim();  // дата конца периода счета
 
@@ -2242,11 +2264,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private DataTable GetDataWithModel()  // получение данных из базы ТФактура
         {
-            DataTable dt = dtOwnerOfMobileWithinSelectedPeriod.Clone();
-
-            string dataFromLabel = _ControlReturnText(labelPeriod);
-            dataStart = dataFromLabel.Split('-')[0].Trim(); //'01.05.2018'
-            dataEnd = dataFromLabel.Split('-')[1].Trim();  //'31.05.2018'
+            dataStart = _ControlReturnItsText(labelPeriod).Split('-')[0].Trim(); //'01.05.2018'
+            dataEnd = _ControlReturnItsText(labelPeriod).Split('-')[1].Trim();  //'31.05.2018'
             string dataStartSearch = dataStart.Split('.')[2] + "-" + dataStart.Split('.')[1] + "-" + dataStart.Split('.')[0]; //'2018-05-01'
             string dataEndSearch = dataEnd.Split('.')[2] + " - " + dataEnd.Split('.')[1] + "-" + dataEnd.Split('.')[0]; //'2018-05-31'
 
@@ -2695,4 +2714,5 @@ namespace MobileNumbersDetailizationReportGenerator
             catch (Exception expt) { _ = MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.", expt.Message); }
         }
     }
+
 }
