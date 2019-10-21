@@ -15,7 +15,7 @@ namespace BillReportsGenerator
     public partial class Form1 : Form
     {
         System.Diagnostics.FileVersionInfo myFileVersionInfo;
-        ContextMenu contextMenu1;
+        private ContextMenu contextMenu1;
         string myRegKey;
         string pathToIni; //path to ini of tools
 
@@ -175,8 +175,6 @@ namespace BillReportsGenerator
 
         List<string> listTempContract = new List<string>();
 
-        // из базы
-        //  private List<string> lTarifData = new List<string>();
         DataTable dtOwnerOfMobileWithinSelectedPeriod = new DataTable("TarifListData");
       readonly  DataColumn[] dcTarif ={
                                   new DataColumn("Номер телефона",typeof(string)),
@@ -188,26 +186,7 @@ namespace BillReportsGenerator
                                   new DataColumn("Модель компенсации",typeof(string)),
                                   new DataColumn("Тарифный пакет",typeof(string))
                               };
-        //search in DataTable:
-        /*private static void ShowTable(DataTable table) {
-          foreach (DataColumn col in table.Columns) {
-            Console.Write("{0,-14}", col.ColumnName);
-            }
-           Console.WriteLine();
 
-         foreach (DataRow row in table.Rows) {
-           foreach (DataColumn col in table.Columns) {
-            if (col.DataType.Equals(typeof(DateTime)))
-               Console.Write("{0,-14:d}", row[col]);
-            else if (col.DataType.Equals(typeof(Decimal)))
-               Console.Write("{0,-14:C}", row[col]);
-            else
-               Console.Write("{0,-14}", row[col]);           
-           }
-           Console.WriteLine();
-         }
-         Console.WriteLine();
-         }*/
 
         HashSet<string> listTarifData = new HashSet<string>(); //will write models in modelToPayment()
 
@@ -402,7 +381,7 @@ namespace BillReportsGenerator
                 {
                     strTemp = MakeCommonFormFromPhoneNumber(s);
 
-                    if (strTemp.Length == 13)  //check Length of a number == 13
+                    if (strTemp.Length == 13)  //Correct Length of a formated mobile number == 13 //+380123456789
                     { listNumbers.Add(strTemp); }
                     else
                     { listWrongString.Add(strTemp); }
@@ -427,11 +406,11 @@ namespace BillReportsGenerator
                 if (0 < listNumbers?.Count && listNumbers?.Count < 500)
                 {
                     selectedNumbers = true;
-                    SaveListStringsInRegistry("ListNumbers", listNumbers);
+                    SaveListStringsInRegistry(Properties.Resources.ListOfNumbers, listNumbers);
                     _ControlSetItsText(labelContracts, listNumbers.Count.ToString() + " шт.");
                     _ControlVisibleEnabled(labelContracts, true);
 
-                    textBoxLog.AppendText("List of numbers:\n");
+                    textBoxLog.AppendText(Properties.Resources.ListOfNumbers);
                     textBoxLog.AppendText(Properties.Resources.RowDashedLinesBefore2NewLines);
 
                     foreach (string s in listNumbers)
@@ -458,14 +437,16 @@ namespace BillReportsGenerator
 
             if (0 < listServices?.Count && listServices?.Count < 100)
             {
-                textBoxLog.AppendText("\nList of services:\n");
+                textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
+                textBoxLog.AppendText(Properties.Resources.ListOfServices);
+                textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
 
                 foreach (string s in listServices)
                 { textBoxLog.AppendText(s + "\n"); }
 
                 selectedServices = true;
 
-                SaveListStringsInRegistry("ListServices", listServices);
+                SaveListStringsInRegistry(Properties.Resources.ListOfServices, listServices);
             }
             else
             {
@@ -492,7 +473,8 @@ namespace BillReportsGenerator
             loadedBill = false;
             WrittingOfTextAtFile textWritting = new WrittingOfTextAtFile();
 
-            GetDataWithModel();
+            dtOwnerOfMobileWithinSelectedPeriod = GetDataWithModel();
+
             string kontrakt = "";
             string numberMobile = "";
             string fio = "";
@@ -535,10 +517,9 @@ namespace BillReportsGenerator
 
             List<string> loadedBillWithServicesFiltered = LoadDataUsingParameters(filterBill, parametrStart, pStop, exceptedStringContains);
 
-            textWritting.Write(Path.GetDirectoryName(filepathLoadedData) + @"\selectedRows.csv", loadedBillWithServicesFiltered);
+            //debug only
+            //textWritting.Write(Path.GetDirectoryName(filepathLoadedData) + @"\selectedRows.csv", loadedBillWithServicesFiltered);
             
-            int allRow = loadedBillWithServicesFiltered.Count * listServices.Count * (dtOwnerOfMobileWithinSelectedPeriod.Rows.Count + listNumbers.Count); //всего строк для борабоки
-
             int counterstep = (dtOwnerOfMobileWithinSelectedPeriod.Rows.Count + listNumbers.Count);
             int countStepProgressBar = counterstep;
             int countRowsInTable = 0;
@@ -569,7 +550,7 @@ namespace BillReportsGenerator
                                 "Возможно поменялся формат.\n" +
                                 "Правильный формат начала каждого контракта:\n" +
                                 NUMBER_OF_CONTRACT + " 000000000  _номер_: 380000000000\n\n" +
-                                "Данная строка с началом разбираемого контракта имеет вид:\n" +
+                                "Данная же строка с началом разбираемого контракта имеет другую форму:\n" +
                                 sRowBill
                                 );
                         }
@@ -590,32 +571,32 @@ namespace BillReportsGenerator
 
                         try
                         {
-                            serviceName = sRowBill?.Substring(0, 38)?.Trim();
-                            numberB = sRowBill?.Substring(38, 13)?.Trim();
-                            date = sRowBill?.Substring(52, 10)?.Trim();
-                            time = sRowBill?.Substring(65, 8)?.Trim();
-                            durationA = sRowBill?.Substring(74, 9)?.Trim();
-                            durationB = sRowBill?.Substring(84, 9)?.Trim();
-                            cost = sRowBill?.Substring(95)?.Trim();
-                            
-                            foreach (DataRow rowTarif in dtOwnerOfMobileWithinSelectedPeriod.Rows)
-                            {
-                                if (rowTarif["Номер телефона"].ToString().Contains(numberMobile))
-                                {
-                                    fio = rowTarif["ФИО"].ToString();
-                                    nav = rowTarif["NAV"].ToString();
-                                    department = rowTarif["Подразделение"].ToString();
-                                    break;
-                                }
-
-                            }
-
-                            tempRow = numberMobile + "\t" + fio + "\t" + nav + "\t" + department + "\t" + serviceName + "\t" + numberB + "\t" + date + "\t" + time + "\t" + durationA + "\t" + durationB + "\t" + cost;
-
                             foreach (string sNumber in listNumbers)
                             {
-                                if (tempRow.StartsWith(sNumber))
+                                if (numberMobile.StartsWith(sNumber))
                                 {
+                                    serviceName = sRowBill?.Substring(0, 38)?.Trim();
+                                    numberB = sRowBill?.Substring(38, 13)?.Trim();
+                                    date = sRowBill?.Substring(52, 10)?.Trim();
+                                    time = sRowBill?.Substring(65, 8)?.Trim();
+                                    durationA = sRowBill?.Substring(74, 9)?.Trim();
+                                    durationB = sRowBill?.Substring(84, 9)?.Trim();
+                                    cost = sRowBill?.Substring(95)?.Trim();
+                                    
+                                    foreach (DataRow rowTarif in dtOwnerOfMobileWithinSelectedPeriod.Rows)
+                                    {
+                                        if (rowTarif["Номер телефона"].ToString().Contains(numberMobile))
+                                        {
+                                            fio = rowTarif["ФИО"].ToString();
+                                            nav = rowTarif["NAV"].ToString();
+                                            department = rowTarif["Подразделение"].ToString();
+                                            break;
+                                        }
+
+                                    }
+
+                                    tempRow = numberMobile + "\t" + fio + "\t" + nav + "\t" + department + "\t" + serviceName + "\t" + numberB + "\t" + date + "\t" + time + "\t" + durationA + "\t" + durationB + "\t" + cost;
+
                                     DataRow rowMarket = dtMarket.NewRow(); //for Market
                                     rowMarket["Контракт"] = kontrakt;
                                     rowMarket["Номер телефона"] = numberMobile;
@@ -630,7 +611,7 @@ namespace BillReportsGenerator
                                     rowMarket["ФИО"] = fio;
                                     rowMarket["NAV"] = nav;
                                     rowMarket["Подразделение"] = department;
-                                    
+
                                     dtMarket.Rows.Add(rowMarket);
                                     /*
                                     listParsedStrings.Add(
@@ -657,9 +638,9 @@ namespace BillReportsGenerator
                                 }
 
                                 countStepProgressBar--;
-                                if (countStepProgressBar == 0)
+                                if (countStepProgressBar <= 0)
                                 {
-                                    string s = String.Format("В отчет добавлено {0,20 }, строк из {1,10}", countRowsInTable, loadedBillWithServicesFiltered.Count);
+                                    string s = String.Format("В отчет добавлено {0,20 }, строк из {1,15}", countRowsInTable, loadedBillWithServicesFiltered.Count);
                                     _ProgressWork1Step(s);
                                     countStepProgressBar = counterstep;
                                 }
@@ -876,7 +857,7 @@ namespace BillReportsGenerator
 
         private async void OpenBill()
         {
-            dtMobile.Rows.Clear();
+            dtMobile?.Rows?.Clear();
             filePathTxt = null;
             sbError = new StringBuilder();
             StatusLabel1.BackColor = System.Drawing.SystemColors.Control;
@@ -905,7 +886,7 @@ namespace BillReportsGenerator
             {
                 StatusLabel1.Text = "Получаю данные с базы Tfactura...";
 
-                await Task.Run(() => GetDataWithModel());
+                await Task.Run(() => dtOwnerOfMobileWithinSelectedPeriod = GetDataWithModel());
                 if (dtOwnerOfMobileWithinSelectedPeriod.Rows.Count < 2)
                 {
                     MessageBox.Show("Выбранный счет в базу данных Tfactura еще не импортирован!\nПеред обработкой счета, предварительно необходимо импортировать счет в базу!");
@@ -940,7 +921,7 @@ namespace BillReportsGenerator
                         textBoxLog.AppendText("\n");
                         textBoxLog.AppendText("-= Дата счета:  " + dtMobile.Rows[1][16].ToString() + " =-"); //Дата счета
                         textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("====================================================\n");
+                        textBoxLog.AppendText(Properties.Resources.RowWithDozenEqualSymbols);
                         textBoxLog.AppendText("\n");
                         textBoxLog.AppendText("\n");
 
@@ -948,8 +929,8 @@ namespace BillReportsGenerator
                         //////////////////////////////
                         if (listTarifData.Count > 0)
                         {
-                            textBoxLog.AppendText("-= Список тарифных схем, не существующих в программе =-\n");
-                            textBoxLog.AppendText("'" + columnName5 + "' - " + columnName1 + " (" + columnName2 + ")\n");
+                            textBoxLog.AppendText("-= Список тарифных схем, не существующих в программе =-");
+                            textBoxLog.AppendText("\n'" + columnName5 + "' - " + columnName1 + " (" + columnName2 + ")\n");
 
                             foreach (string str in listTarifData)
                             {
@@ -1045,7 +1026,7 @@ namespace BillReportsGenerator
                         }
                         textBoxLog.AppendText("\n");
                         textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("====================================================\n");
+                        textBoxLog.AppendText(Properties.Resources.RowWithDozenEqualSymbols);
                         /////////////////
 
 
@@ -1065,9 +1046,8 @@ namespace BillReportsGenerator
                         {
                             textBoxLog.AppendText(++i + ". \"" + str + "\"\n");
                         }
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("====================================================\n");
+                        textBoxLog.AppendText("\n\n");
+                        textBoxLog.AppendText(Properties.Resources.RowWithDozenEqualSymbols);
                         textBoxLog.AppendText("\n");
                         textBoxLog.AppendText(sbError.ToString());
                     }
@@ -1231,8 +1211,7 @@ namespace BillReportsGenerator
                       "pConnectionServer=" + pConnectionServer + 
                       "\npConnectionUserName=" + pConnectionUserName + 
                       "\npConnectionUserPasswords=" + pConnectionUserPasswords;
-                MessageBox.Show(info,
-                      "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(info, Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 StatusLabel1.Text = infoStatusBar;
                 StatusLabel1.ToolTipText= info;
@@ -1261,8 +1240,7 @@ namespace BillReportsGenerator
                         infoStatusBar = "БД сервера со счетами Tfactura не доступна";
                         info += infoStatusBar + "\nПроверьте настройки в файле с настройками -\n\n" + pathToIni + "\nи исправьте не верные данные:\n\n" +
                             "pConnectionServer=" + pConnectionServer + "\npConnectionUserName=" + pConnectionUserName + "\npConnectionUserPasswords=" + pConnectionUserPasswords;
-                        MessageBox.Show(info,
-                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(info, Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                         infoStatusTooltip = info;
                         infoStatus=infoStatusBar;
@@ -1359,23 +1337,29 @@ namespace BillReportsGenerator
                 File.WriteAllText(pathToIni, sb.ToString(), Encoding.GetEncoding(1251));
             }
             catch (Exception Expt)
-            { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            { MessageBox.Show(Expt.ToString(), Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error); }
             finally
             { sb = null; }
         }
 
         private bool TryToReadBillToPrepareList() //Чтение исходного файл, и первичный разбор счета (удаление ненужных данных)
         {
+            //to do
+            //change output data into  new Invoice() and alollected strings
+
             bool ChosenFile = false;
             int i = 0; //amount contracts in the current bill
             listTempContract.Clear();
             filePathTxt = _OpenFileDialogReturnPath(openFileDialog1);
 
-            if (filePathTxt == null || filePathTxt.Length < 1) { return false; }
-            else
+            if (filePathTxt?.Length > 3)
             {
                 try
                 {
+                    Invoice invoice = new Invoice();
+                    invoice.invoicePathToFile = filePathTxt;
+                    invoice.invoiceFileName = Path.GetFileName(filePathTxt);
+
                     _ControlSetItsText(labelFile, Path.GetFileName(filePathTxt));
                     toolTip1.SetToolTip(labelFile, "Выбранный счет для обработки");
 
@@ -1387,20 +1371,25 @@ namespace BillReportsGenerator
                         bool mystatusbegin = false;
                         bool startModuleWithDiscountWholeBill = false;
                         int lenghtData = 0;
+
                         _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filePathTxt);
                         while ((s = Reader.ReadLine()) != null)
                         {
                             if (s.Contains("Особовий рахунок"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
+                                invoice.invoiceInternalHoldingNumber = substrings[substrings.Length - 1].Trim();
+
                                 _ControlVisibleEnabled(labelAccount, true);
-                                _ControlSetItsText(labelAccount, substrings[substrings.Length - 1].Trim());
+                                _ControlSetItsText(labelAccount, invoice.invoiceInternalHoldingNumber);
                             }
                             else if (s.Contains("Номер рахунку"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
+                                invoice.invoiceNumber = substrings[substrings.Length - 3].Trim();
+
                                 _ControlVisibleEnabled(labelBill, true);
-                                _ControlSetItsText(labelBill, substrings[substrings.Length - 3].Trim());
+                                _ControlSetItsText(labelBill, invoice.invoiceNumber);
                             }
                             else if (s.Contains(pStop)) //finished to look for contracts and start data for the bill's delivery cost
                             {
@@ -1411,19 +1400,22 @@ namespace BillReportsGenerator
                             {
                                 lenghtData = s.Split(' ').Length;
                                 tmp = s.Split(' ')[lenghtData - 1];
-
                                 BillDeliveryCost = Convert.ToDouble(Regex.Replace(tmp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                                invoice.invoiceDeliveryCost = BillDeliveryCost;
                             }
                             else if (startModuleWithDiscountWholeBill && s.Contains(pBillDeliveryCostDiscount)) //discount calculating for the whole bill after all of contracts
                             {
                                 lenghtData = s.Split(' ').Length;
                                 tmp = s.Split(' ')[lenghtData - 1];
                                 BillDeliveryCostDiscount = Convert.ToDouble(Regex.Replace(tmp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                                invoice.invoiceDeliveryCostDiscount = BillDeliveryCostDiscount;
                             }
                             else if (s.Contains("Розрахунковий період"))
                             {
                                 string[] substrings = Regex.Split(s, ": ");
                                 periodInvoice = substrings[substrings.Length - 1].Trim();
+                                invoice.invoicePeriod = periodInvoice;
+
                                 _ControlVisibleEnabled(labelPeriod, true);
                                 _ControlSetItsText(labelPeriod, periodInvoice);
                             }
@@ -1495,7 +1487,10 @@ namespace BillReportsGenerator
                     MessageBox.Show(Expt.ToString(), Expt.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     StatusLabel1.ToolTipText = Expt.Message;
                 }
+
             }
+            else { return false; }
+
 
             return ChosenFile;
         }
@@ -1798,7 +1793,7 @@ namespace BillReportsGenerator
                 row[21] = "T[6] L100% корпорация";
                 dtMobile.Rows.Add(row);
             }
-            catch (Exception Expt) { MessageBox.Show(Expt.ToString(), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception Expt) { MessageBox.Show(Expt.ToString(), Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
             listTempContract.Clear();
         }
@@ -1888,7 +1883,7 @@ namespace BillReportsGenerator
                     stepCount--;
                     if (stepCount == 0)
                     {
-                        _ProgressWork1Step("Обработано " + rows + " строк, из " + rowsInTable);
+                        _ProgressWork1Step(String.Format("Обработано {0,20 }, строк из {1,15}", rows, rowsInTable));
                         stepCount = stepOfProgressCount;
                     }
                     //  sheet.Columns[column.Ordinal + 1].AutoFit();
@@ -1927,13 +1922,13 @@ namespace BillReportsGenerator
             _ProgressWork1Step(" ");
 
             lastCell = null;
-            releaseObject(range);
-            releaseObject(sheet);
-            releaseObject(sheets);
-            releaseObject(workbook);
-            releaseObject(workbooks);
+            ReleaseObject(range);
+            ReleaseObject(sheet);
+            ReleaseObject(sheets);
+            ReleaseObject(workbook);
+            ReleaseObject(workbooks);
             excel.Quit();
-            releaseObject(excel);
+            ReleaseObject(excel);
             _ProgressBar1Stop();
         }
 
@@ -2051,14 +2046,14 @@ namespace BillReportsGenerator
             listCollumnsHide = null;
             nameColumnSorted = null;
             lastCell = null;
-            releaseObject(range);
-            releaseObject(rangeKey);
-            releaseObject(sheet);
-            releaseObject(sheets);
-            releaseObject(workbook);
-            releaseObject(workbooks);
+            ReleaseObject(range);
+            ReleaseObject(rangeKey);
+            ReleaseObject(sheet);
+            ReleaseObject(sheets);
+            ReleaseObject(workbook);
+            ReleaseObject(workbooks);
             excel.Quit();
-            releaseObject(excel);
+            ReleaseObject(excel);
 
             //  autofill. manualy set number in D1 and D2, then use function
             //rng = this.Application.get_Range("D1","D2");
@@ -2203,21 +2198,20 @@ namespace BillReportsGenerator
             workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
             workbooks.Close();
 
-            releaseObject(range);
-            releaseObject(rangeKey);
-            releaseObject(sheet);
-            releaseObject(sheets);
-            releaseObject(workbook);
-            releaseObject(workbooks);
+            ReleaseObject(range);
+            ReleaseObject(rangeKey);
+            ReleaseObject(sheet);
+            ReleaseObject(sheets);
+            ReleaseObject(workbook);
+            ReleaseObject(workbooks);
             excel.Quit();
-            releaseObject(excel);
+            ReleaseObject(excel);
             MessageBox.Show("Отчет готов и сохранен:\n" + Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx");
         }
 
-        private void releaseObject(object obj)
+        private void ReleaseObject(object obj)
         {
             System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
-            obj = null;
         }
 
         static string GetColumnName(int number)
@@ -2237,8 +2231,10 @@ namespace BillReportsGenerator
         }
 
 
-        private void GetDataWithModel()  // получение данных из базы ТФактура
+        private DataTable GetDataWithModel()  // получение данных из базы ТФактура
         {
+            DataTable dt =dtOwnerOfMobileWithinSelectedPeriod.Clone();
+            
             string dataFromLabel = _ControlReturnText(labelPeriod);
             dataStart = dataFromLabel.Split('-')[0].Trim(); //'01.05.2018'
             dataEnd = dataFromLabel.Split('-')[1].Trim();  //'31.05.2018'
@@ -2255,7 +2251,7 @@ namespace BillReportsGenerator
                                    " INNER JOIN os_emp t2 ON t1.emp_id = t2.emp_id" +
                                    " LEFT JOIN (" +
                                    " SELECT * FROM os_contract_link WHERE till_dt IS NULL OR till_dt > '" + dataStartSearch + " 01:01:01 AM" + "'" +
-                                   " ) t3 ON t1.contract_id = t3.contract_id AND t3.emp_id=t1.emp_id " +
+                                   " ) t3 ON t1.contract_id = t3.contract_id AND t1.emp_id = t3.emp_id" +
                                    " LEFT JOIN rs_pay_model t4 ON t3.pay_model_id = t4.pay_model_id" +
                                    " RIGHT JOIN (" +
                                    " SELECT contract_id, tariff_package_name, begin_dt, end_dt, contract_bill_id FROM v_dp_contract_bill_detail_ex" +
@@ -2285,7 +2281,7 @@ namespace BillReportsGenerator
                 using (System.Data.SqlClient.SqlConnection sqlConnection = new System.Data.SqlClient.SqlConnection(pConnection))
                 {
                     sqlConnection.Open();
-                    dtOwnerOfMobileWithinSelectedPeriod?.Rows?.Clear();
+
                     using (System.Data.SqlClient.SqlCommand sqlCommand = new System.Data.SqlClient.SqlCommand(sSqlQuery, sqlConnection))
                     {
                         using (System.Data.SqlClient.SqlDataReader sqlReader = sqlCommand.ExecuteReader())
@@ -2298,7 +2294,7 @@ namespace BillReportsGenerator
                                     string fio = record["emp_name"].ToString().Trim();
                                     string model = record["model_name"].ToString().Trim();
 
-                                    DataRow row = dtOwnerOfMobileWithinSelectedPeriod.NewRow();
+                                    DataRow row = dt.NewRow();
                                     row["Номер телефона"] = mobileNumber;
                                     row["ФИО"] = fio;
                                     row["NAV"] = record["NAV"].ToString().Trim();
@@ -2312,7 +2308,7 @@ namespace BillReportsGenerator
 
                                     //if( record["model_name"].ToString().Trim().Length>0 ) listTarifData.Add(record["model_name"].ToString().Trim());
                                     listTarifData.Add("'" + model + "' - " + fio + " (" + mobileNumber + ")");
-                                    dtOwnerOfMobileWithinSelectedPeriod.Rows.Add(row);
+                                    dt.Rows.Add(row);
                                 }
                             }
                         }
@@ -2320,6 +2316,7 @@ namespace BillReportsGenerator
                 }
             }
             catch (Exception expt) { MessageBox.Show(expt.ToString()); }
+            return dt;
         }
 
         static string MakeCommonFormFromPhoneNumber(string sPrimaryPhone) //Normalize Phone to +380504197443
@@ -2601,7 +2598,7 @@ namespace BillReportsGenerator
                   Microsoft.Win32.RegistryKeyPermissionCheck.ReadSubTree,
                   System.Security.AccessControl.RegistryRights.ReadKey))
             {
-                getValue = (string[])EvUserKey?.GetValue("ListServices");
+                getValue = (string[])EvUserKey?.GetValue(Properties.Resources.ListOfServices);
                 if (getValue?.Length > 0)
                 {
                     foreach (string line in getValue)
@@ -2612,7 +2609,7 @@ namespace BillReportsGenerator
                     foundSavedData = true;
                 }
 
-                getValue = (string[])EvUserKey?.GetValue("ListNumbers");
+                getValue = (string[])EvUserKey?.GetValue(Properties.Resources.ListOfNumbers);
                 if (getValue?.Length > 0)
                 {
                     foreach (string line in getValue)
@@ -2639,27 +2636,27 @@ namespace BillReportsGenerator
                 if (listSavedServices?.Count > 0 || listSavedNumbers?.Count > 0)
                 {
                     sb.AppendLine("-= Данные для генерации маркетингового отчета =-");
-                    sb.AppendLine("===================================================");
+                    sb.AppendLine(Properties.Resources.RowWithDozenEqualSymbols);
                 }
 
                 if (listSavedServices?.Count > 0)
                 {
                     selectedServices = true;
-                    sb.AppendLine("Учитываемые имена сервисов:");
+                    sb.AppendLine(Properties.Resources.ListOfServices);
                     foreach (string service in listSavedServices)
                     { sb.AppendLine(service ); }
-                    sb.AppendLine("===================================================");
+                    sb.AppendLine(Properties.Resources.RowWithDozenEqualSymbols);
                 }
 
                 if (listSavedNumbers?.Count > 0)
                 {
                     selectedNumbers = true;
-                    sb.AppendLine("Список номеров по которым генерируется отчет:");
+                    sb.AppendLine(Properties.Resources.ListOfNumbers);
                     foreach (string number in listSavedNumbers)
                     {
                         sb.AppendLine(number);
                     }
-                    sb.AppendLine("===================================================");
+                    sb.AppendLine(Properties.Resources.RowWithDozenEqualSymbols);
                 }
             }
 
@@ -2828,5 +2825,17 @@ namespace BillReportsGenerator
         internal string fio = "";
         internal string nav = "";
         internal string department = "";
+    }
+
+    public class Invoice
+    {
+        internal string invoiceFileName; // путь до текстового файла с детализацией
+        internal string invoicePathToFile; // путь до текстового файла с детализацией
+        internal string invoiceInternalHoldingNumber; //"Особовий рахунок"
+        internal string invoiceNumber; //"Номер рахунку"
+        internal string invoicePeriod; //"Розрахунковий період"
+
+        internal double invoiceDeliveryCost; // Скидка навесь счет
+        internal double invoiceDeliveryCostDiscount; // скидка на услугу детализ.счет в электронном виде
     }
 }
