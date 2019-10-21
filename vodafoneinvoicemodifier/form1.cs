@@ -745,7 +745,7 @@ namespace BillReportsGenerator
                     {
                         DialogResult result = MessageBox.Show(
                               "Использовать предыдущий выбор файла?" + Environment.NewLine + strSavedPathToInvoice,
-                              "Внимание!",
+                              Properties.Resources.Attention,
                               MessageBoxButtons.YesNo,
                               MessageBoxIcon.Exclamation,
                               MessageBoxDefaultButton.Button1);
@@ -1089,7 +1089,7 @@ namespace BillReportsGenerator
         {
             string s = "", info = "";
             bool b1 = false, b2 = false;
-            toolTip1.SetToolTip(this.groupBox1, "Использованы исходНые настройки программы");
+            toolTip1.SetToolTip(this.groupBox1, "Использованы исходные настройки программы");
 
             if (File.Exists(pathToIni))
             {
@@ -1331,19 +1331,19 @@ namespace BillReportsGenerator
                     invoice.invoicePathToFile = filePathTxt;
                     invoice.invoiceFileName = Path.GetFileName(filePathTxt);
 
-                    _ControlSetItsText(labelFile, Path.GetFileName(filePathTxt));
-                    toolTip1.SetToolTip(labelFile, "Выбранный счет для обработки");
+                    _ControlSetItsText(labelFile, invoice.invoiceFileName);
+                    toolTip1.SetToolTip(labelFile, Properties.Resources.SelectedInvoice);
 
                     var Coder = Encoding.GetEncoding(1251);
 
-                    using (StreamReader Reader = new StreamReader(filePathTxt, Coder))
+                    using (StreamReader Reader = new StreamReader(invoice.invoicePathToFile, Coder))
                     {
                         string s, tmp;
                         bool mystatusbegin = false;
                         bool startModuleWithDiscountWholeBill = false;
                         int lenghtData = 0;
 
-                        _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filePathTxt);
+                        _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + invoice.invoicePathToFile);
                         while ((s = Reader.ReadLine()) != null)
                         {
                             if (s.Contains("Особовий рахунок"))
@@ -1462,7 +1462,6 @@ namespace BillReportsGenerator
             }
             else { return false; }
 
-
             return ChosenFile;
         }
 
@@ -1568,19 +1567,19 @@ namespace BillReportsGenerator
             return result;
         }
 
-        private double CalculateTax(double valueBeforeTaxes)
+        private static double CalculateTax(double valueBeforeTaxes)
         { return valueBeforeTaxes * 0.2; }
 
-        private double CalculatePf(double valueBeforeTaxes)
+        private static double CalculatePf(double valueBeforeTaxes)
         { return valueBeforeTaxes * 0.075; }
 
         private void ParseStringsOfPreparedListIntoTable() //Парсинг строк и передача результата текстовый редактор
         {
-            _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю полученные данные...");
+            _ToolStripStatusLabelSetText(StatusLabel1, Properties.Resources.WorkingWithData);
             dataStart = labelPeriod.Text.Split('-')[0].Trim(); // дата начала периода счета
             dataEnd = labelPeriod.Text.Split('-')[1].Trim();  // дата конца периода счета
 
-            DataRow row = dtMobile.NewRow();
+            DataRow row ;
             bool isUsedCurrent = false;
             bool isCheckFinishedTitles = false;
 
@@ -1769,32 +1768,6 @@ namespace BillReportsGenerator
             listTempContract.Clear();
         }
 
-        /*
-        [System.Runtime.InteropServices.DllImport("User32.dll")]
-        public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int ProcessId);
-        private static void KillExcel(Microsoft.Office.Interop.Excel.Application theApp)
-        {
-            int id = 0;
-            IntPtr intptr = new IntPtr(theApp.Hwnd);
-            System.Diagnostics.Process p = null;
-            try
-            {
-                GetWindowThreadProcessId(intptr, out id);
-                p = System.Diagnostics.Process.GetProcessById(id);
-                if (p != null)
-                {
-                    p.Kill();
-                    p.Dispose();
-                }
-            }
-            catch (Exception ex)
-            {
-              //  System.Windows.Forms.MessageBox.Show("KillExcel:" + ex.Message);
-            }
-        }
-        */
-
-
         private void ExportDatatableToExcel(DataTable dt, string sufixExportFile) //Заполнение таблицы в Excel  данными
         {
             _ProgressBar1Start();
@@ -1854,7 +1827,7 @@ namespace BillReportsGenerator
                     stepCount--;
                     if (stepCount == 0)
                     {
-                        _ProgressWork1Step(String.Format("Обработано {0,20 }, строк из {1,15}", rows, rowsInTable));
+                        _ProgressWork1Step(string.Format("Обработано {0,20 }, строк из {1,15}", rows, rowsInTable));
                         stepCount = stepOfProgressCount;
                     }
                     //  sheet.Columns[column.Ordinal + 1].AutoFit();
@@ -2253,7 +2226,9 @@ namespace BillReportsGenerator
                 {
                     sqlConnection.Open();
 
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
                     using (System.Data.SqlClient.SqlCommand sqlCommand = new System.Data.SqlClient.SqlCommand(sSqlQuery, sqlConnection))
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
                     {
                         using (System.Data.SqlClient.SqlDataReader sqlReader = sqlCommand.ExecuteReader())
                         {
@@ -2301,10 +2276,12 @@ namespace BillReportsGenerator
             sTemp1 = sTemp2.Replace("/", "");
             sTemp2 = sTemp1.Replace("_", "");
 
+#pragma warning disable CA1307 // Specify StringComparison
             if (sTemp2.StartsWith("+") && sTemp2.Length == 13) sPhone = sTemp2;
             else if (sTemp2.StartsWith("380") && sTemp2.Length == 12) sPhone = "+" + sTemp2;
             else if (sTemp2.StartsWith("80") && sTemp2.Length == 11) sPhone = "+3" + sTemp2;
             else if (sTemp2.StartsWith("0") && sTemp2.Length == 10) sPhone = "+38" + sTemp2;
+#pragma warning restore CA1307 // Specify StringComparison
             else if (sTemp2.Length == 9) sPhone = "+380" + sTemp2;
             else sPhone = sTemp2;
 
@@ -2379,7 +2356,7 @@ namespace BillReportsGenerator
                     "Для их учета необходимо, внести изменения в модели рассчета в программе!" + Environment.NewLine +
                     "Для прерывания дальнейших рассчетов нажмите кнопку" + Environment.NewLine + "\"Yes\"(Да)" + Environment.NewLine +
                     "для продолжения:" + Environment.NewLine + "\"No\"(Нет)",
-                    "Внимание!",
+                    Properties.Resources.Attention,
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Exclamation,
                     MessageBoxDefaultButton.Button1);
@@ -2397,14 +2374,14 @@ namespace BillReportsGenerator
                 Invoke(new MethodInvoker(delegate
                 {
                     ofd.FileName = @"";
-                    ofd.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
+                    ofd.Filter = Properties.Resources.OpenDialogTextFiles;
                     ofd.ShowDialog();
                     filePath = ofd.FileName;
                 }));
             else
             {
                 ofd.FileName = @"";
-                ofd.Filter = "Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*";
+                ofd.Filter =Properties.Resources.OpenDialogTextFiles;
                 ofd.ShowDialog();
                 filePath = ofd.FileName;
             }
@@ -2649,7 +2626,7 @@ namespace BillReportsGenerator
                     }
                     foundSavedData = true;
                 }
-                catch { MessageBox.Show("Ошибки с доступом для записи списка " + parameterName + " в реестр. Данные не сохранены."); }
+                catch(Exception expt) { MessageBox.Show("Ошибки с доступом для записи списка " + parameterName + " в реестр. Данные не сохранены.", expt.Message); }
             }
         }
 
@@ -2667,7 +2644,7 @@ namespace BillReportsGenerator
                 }
                 foundSavedData = true;
             }
-            catch { _ = MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно."); }
+            catch(Exception expt) { _ = MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.", expt.Message); }
         }
     }
 
@@ -2694,16 +2671,16 @@ namespace BillReportsGenerator
         internal string dateBillStart = "";
         internal string dateBillEnd = "";
 
-        public string NAV = "";
-        public string orgUnit = "";
-        public string startDate;
-        public string modelCompensation = "";
-        public double payOwner = 0;
-        public bool isUsed = false;
-        public bool isUnblocked = false;
+        internal string NAV = "";
+        internal string orgUnit = "";
+        internal string startDate;
+        internal string modelCompensation = "";
+        internal double payOwner = 0;
+        internal bool isUsed = false;
+        internal bool isUnblocked = false;
     }
 
-    public class ParsedStringOfBillWithContractOwner
+    internal class ParsedStringOfBillWithContractOwner
     {
         internal string contract = "";
         internal string numberOwner = "";
@@ -2720,7 +2697,7 @@ namespace BillReportsGenerator
         internal string department = "";
     }
 
-    public class Invoice
+    internal class Invoice
     {
         internal string invoiceFileName; // путь до текстового файла с детализацией
         internal string invoicePathToFile; // путь до текстового файла с детализацией
@@ -2732,7 +2709,7 @@ namespace BillReportsGenerator
         internal double invoiceDeliveryCostDiscount; // скидка на услугу детализ.счет в электронном виде
     }
 
-    public static class WinFormsExtensions
+    internal static class WinFormsExtensions
     {
         internal static void AppendLine(this TextBox source, string value = "\r\n")
         {
