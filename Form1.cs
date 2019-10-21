@@ -551,6 +551,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             dtOwnerOfMobileWithinSelectedPeriod = GetDataWithModel();
 
+<<<<<<< HEAD:Form1.cs
             string contract = "";
             string numberMobile = "";
             //string fio = "";
@@ -565,6 +566,8 @@ namespace MobileNumbersDetailizationReportGenerator
             //string cost = "";
             string tempRow;
 
+=======
+>>>>>>> 1:vodafoneinvoicemodifier/form1.cs
             string exceptedStringContains = @". . .";
             // NUMBER_OF_CONTRACT,       //1     //number of contract
             // MOBILE_NUMBER,           //2     //number
@@ -594,22 +597,27 @@ namespace MobileNumbersDetailizationReportGenerator
 
             _ProgressWork1Step();
 
-            List<string> loadedBillWithServicesFilter = LoadDataUsingParameters(filterBill, parametrStart, pStop);
+            List<string> loadedBillWithServicesFiltered = LoadDataUsingParameters(filterBill, parametrStart, pStop, exceptedStringContains);
 
-            int allRow = loadedBillWithServicesFilter.Count * listServices.Count * (dtTarif.Rows.Count + listNumbers.Count); //всего строк для борабоки
+            textWritting.Write(Path.GetDirectoryName(filepathLoadedData) + @"\selectedRows.csv", loadedBillWithServicesFiltered);
+            
+            int allRow = loadedBillWithServicesFiltered.Count * listServices.Count * (dtTarif.Rows.Count + listNumbers.Count); //всего строк для борабоки
 
             int counterstep = 10000;
             int countStepProgressBar = counterstep;
-            int counted = 0;
-            if (loadedBillWithServicesFilter?.Count > 0)
+            int countedToShow = 0;
+            int countRowsInTable = 0;
+
+            if (loadedBillWithServicesFiltered?.Count > 0)
             {
                 //  dtFullBill.Rows.Clear();
                 StringBuilder sb = new StringBuilder();
 
                 bool foundTarif;
                 //todo parsing strings of the filtered bill
-                foreach (string sRowBill in loadedBillWithServicesFilter)
+                foreach (string sRowBill in loadedBillWithServicesFiltered)
                 {
+                    foundTarif = false;
                     countStepProgressBar--;
                     if (countStepProgressBar == 0)
                     {
@@ -631,111 +639,133 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                         catch (Exception err)
                         {
-                            MessageBox.Show("Проверьте правильность выбора детализации разговоров!\n" +
-                        "Возможно поменялся формат.\n" +
-                        "Правильный формат:\n" +
-                        NUMBER_OF_CONTRACT + " 000000000  _номер_: 380000000000");
+                            MessageBox.Show("Проверьте правильность выбора файла с контрактами с детализацией разговоров!\n" +
+                                "Возможно поменялся формат.\n" +
+                                "Правильный формат начала каждого контракта:\n" +
+                                NUMBER_OF_CONTRACT + " 000000000  _номер_: 380000000000\n\n" +
+                                "Данная строка с началом разбираемого контракта имеет вид:\n" +
+                                sRowBill
+                                );
                         }
                     }
                     else
                     {
-                        foreach (string service in listServices)
+                        countStepProgressBar--;
+                        if (countStepProgressBar == 0)
                         {
-                            countStepProgressBar--;
-                            if (countStepProgressBar == 0)
-                            {
-                                _ProgressWork1Step();
-                                countStepProgressBar = counterstep;
-                            }
-                            //parse a string of the contract 
-                            //start position of a symbol and last one in the parse string 
-                            /*
-                            1-39	наименование услуги
-                            40-52	номер(целевой)
-                            53-63	дата
-                            66-74	время
-                            75-84	длительность
-                            85-95	учтенная длительность оператором (для биллинга)
-                            96-106	стоимость
-                            */
-
-                            try
-                            {
-                                serviceName = sRowBill?.Substring(0, 38)?.Trim();
-                                numberB = sRowBill?.Substring(38, 13)?.Trim();
-                                date = sRowBill?.Substring(52, 10)?.Trim();
-                                time = sRowBill?.Substring(65, 8)?.Trim();
-                                durationA = sRowBill?.Substring(74, 9)?.Trim();
-                                durationB = sRowBill?.Substring(84, 9)?.Trim();
-                                cost = sRowBill?.Substring(95)?.Trim();
-
-                                DataRow rowMarket = dtMarket.NewRow(); //for Market
-                                rowMarket["Контракт"] = kontrakt;
-                                rowMarket["Номер телефона"] = numberMobile;
-                                rowMarket["Имя сервиса"] = serviceName;
-                                rowMarket["Номер В"] = numberB;
-                                rowMarket["Дата"] = date;
-                                rowMarket["Время"] = time;
-                                rowMarket["Длительность А"] = durationA;
-                                rowMarket["Длительность В"] = durationB;
-                                rowMarket["Стоимость"] = cost;
-
-                                if (!time.Contains('.')) //except a common service with ". . ."
-                                {
-                                    bool foundTarif = false;
-                                    foreach (DataRow rowTarif in dtTarif.Rows)
-                                    {
-                                        if (rowTarif["Номер телефона"].ToString().Contains(numberMobile))
-                                        {
-                                            fio = rowTarif["ФИО"].ToString();
-                                            nav = rowTarif["NAV"].ToString();
-                                            department = rowTarif["Подразделение"].ToString();
-
-                                            rowMarket["ФИО"] = fio;
-                                            rowMarket["NAV"] = nav;
-                                            rowMarket["Подразделение"] = department;
-                                            foundTarif = true;
-                                        }
-
-                                        countStepProgressBar--;
-                                        if (countStepProgressBar == 0)
-                                        {
-                                            _ProgressWork1Step("Обработано " + (++counted) + " строк из " + allRow / counterstep);
-                                            countStepProgressBar = counterstep;
-                                        }
-                                        if (foundTarif)
-                                        {
-                                            break;
-                                        }
-                                    }
-
-                                    tempRow = numberMobile + "\t" + fio + "\t" + nav + "\t" + department + "\t" + serviceName + "\t" + numberB + "\t" + date + "\t" + time + "\t" + durationA + "\t" + durationB + "\t" + cost;
-
-                                    foundTarif = false;
-                                    foreach (string sNumber in listNumbers)
-                                    {
-                                        if (tempRow.StartsWith(sNumber))
-                                        {
-                                            dtMarket.Rows.Add(rowMarket);
-                                            sb.AppendLine(tempRow);
-                                        }
-
-                                        countStepProgressBar--;
-                                        if (countStepProgressBar == 0)
-                                        {
-                                            _ProgressWork1Step("Обработано " + (++counted) + " строк из " + allRow / counterstep);
-                                            countStepProgressBar = counterstep;
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                            catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString(), expt.Message); }
+                            _ProgressWork1Step();
+                            countStepProgressBar = counterstep;
                         }
+                        //parse a string of the contract 
+                        //start position of a symbol and last one in the parse string 
+                        /*
+                        1-39	наименование услуги
+                        40-52	номер(целевой)
+                        53-63	дата
+                        66-74	время
+                        75-84	длительность
+                        85-95	учтенная длительность оператором (для биллинга)
+                        96-106	стоимость
+                        */
+
+                        try
+                        {
+                            serviceName = sRowBill?.Substring(0, 38)?.Trim();
+                            numberB = sRowBill?.Substring(38, 13)?.Trim();
+                            date = sRowBill?.Substring(52, 10)?.Trim();
+                            time = sRowBill?.Substring(65, 8)?.Trim();
+                            durationA = sRowBill?.Substring(74, 9)?.Trim();
+                            durationB = sRowBill?.Substring(84, 9)?.Trim();
+                            cost = sRowBill?.Substring(95)?.Trim();
+                            
+                            foreach (DataRow rowTarif in dtTarif.Rows)
+                            {
+                                if (rowTarif["Номер телефона"].ToString().Contains(numberMobile))
+                                {
+                                    fio = rowTarif["ФИО"].ToString();
+                                    nav = rowTarif["NAV"].ToString();
+                                    department = rowTarif["Подразделение"].ToString();
+                                    foundTarif = true;
+                                    break;
+                                }
+
+                                countStepProgressBar--;
+                                if (countStepProgressBar == 0)
+                                {
+                                    _ProgressWork1Step("Обработано " + (++countedToShow) + " строк из " + allRow / counterstep);
+                                    countStepProgressBar = counterstep;
+                                }
+                            }
+
+                            tempRow = numberMobile + "\t" + fio + "\t" + nav + "\t" + department + "\t" + serviceName + "\t" + numberB + "\t" + date + "\t" + time + "\t" + durationA + "\t" + durationB + "\t" + cost;
+
+                            foundTarif = false;
+                            foreach (string sNumber in listNumbers)
+                            {
+                                if (tempRow.StartsWith(sNumber))
+                                {
+                                    DataRow rowMarket = dtMarket.NewRow(); //for Market
+                                    rowMarket["Контракт"] = kontrakt;
+                                    rowMarket["Номер телефона"] = numberMobile;
+                                    rowMarket["Имя сервиса"] = serviceName;
+                                    rowMarket["Номер В"] = numberB;
+                                    rowMarket["Дата"] = date;
+                                    rowMarket["Время"] = time;
+                                    rowMarket["Длительность А"] = durationA;
+                                    rowMarket["Длительность В"] = durationB;
+                                    rowMarket["Стоимость"] = cost;
+
+                                    rowMarket["ФИО"] = fio;
+                                    rowMarket["NAV"] = nav;
+                                    rowMarket["Подразделение"] = department;
+                                    
+                                    dtMarket.Rows.Add(rowMarket);
+                                    /*
+                                    listParsedStrings.Add(
+                                        new ParsedStringOfBillWithContractOwner
+                                            {
+                                            contract = kontrakt,
+                                            numberOwner = numberMobile,
+                                            serviceName = serviceName,
+                                            numberTarget = numberB,
+                                            date = date,
+                                            time = time,
+                                            durationA = durationA,
+                                            durationB = durationB,
+                                            cost = cost,
+                                            fio = fio,
+                                            nav = nav,
+                                            department = department
+                                            }
+                                        ); 
+                                    */
+                                    countRowsInTable++;
+                                    sb.AppendLine(tempRow);
+                                    foundTarif = true;
+                                    break;
+                                }
+
+                                countStepProgressBar--;
+                                if (countStepProgressBar == 0)
+                                {
+                                    _ProgressWork1Step("В отчет добавлено " + countRowsInTable + " строк из " + loadedBillWithServicesFiltered.Count);
+                                    countStepProgressBar = counterstep;
+                                }
+                            }
+
+                        }
+                        catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString(), expt.Message); }
+
                     }
                 }
                 loadedBill = true;
-                File.WriteAllText(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString(), Encoding.GetEncoding(1251));
+                {
+                    _TextboxAppendText(textBoxLog, "\n");
+                    _TextboxAppendText(textBoxLog, "Сформировано для генерации отчета " + countRowsInTable + " строк номерами мобильных подпадающими под фильтр.");
+                    _TextboxAppendText(textBoxLog, "\n");
+                }
+
+                textWritting.Write(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString());
             }
             else
             { textBoxLog.AppendLine("В выборке нет ничего для указанных номеров!"); }
@@ -822,22 +852,15 @@ namespace MobileNumbersDetailizationReportGenerator
                 var Coder = Encoding.GetEncoding(1251);
                 if (countParameters > 0)
                 {
-                    if (!(filepathLoadedData?.Length > 2))
+                    if (oldSavedInvoice)
                     {
-                        if (strSavedPathToInvoice?.Length > 1)
-                        {
-                            DialogResult result = MessageBox.Show(
-                                  "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
-                                  "Внимание!",
-                                  MessageBoxButtons.YesNo,
-                                  MessageBoxIcon.Exclamation,
-                                  MessageBoxDefaultButton.Button1);
-                            if (result == DialogResult.Yes)
-                            {
-                                newInvoice = false;
-                            }
-                        }
-                        if (newInvoice == true)
+                        DialogResult result = MessageBox.Show(
+                              "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
+                              "Внимание!",
+                              MessageBoxButtons.YesNo,
+                              MessageBoxIcon.Exclamation,
+                              MessageBoxDefaultButton.Button1);
+                        if (result == DialogResult.No)
                         {
                             filepathLoadedData = _OpenFileDialogReturnPath(openFileDialog1);
                         }
@@ -880,7 +903,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     {
                                         foreach (string parameterString in listParameters)
                                         {
-                                            if (loadedString.StartsWith(parameterString))
+                                            if (loadedString.StartsWith(parameterString)&&!loadedString.Contains(excepted))
                                             {
                                                 listRows.Add(loadedString);
                                                 counter++;
@@ -905,6 +928,12 @@ namespace MobileNumbersDetailizationReportGenerator
                             ParameterLastInvoiceRegistrySave();
                         }
                         catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row\n" + expt.ToString()); }
+                        _TextboxAppendText(textBoxLog, "\n");
+                        _TextboxAppendText(textBoxLog, "Из файла-счета: \n");
+                        _TextboxAppendText(textBoxLog, filepathLoadedData);
+                        _TextboxAppendText(textBoxLog, "\n");
+                        _TextboxAppendText(textBoxLog, "отобрано для построения отчета " + counter + " строк с требуемыми сервисами");
+                        _TextboxAppendText(textBoxLog, "\n");
                         if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
                         { MessageBox.Show("Error was happened on " + (listRows.Count) + " row" + Environment.NewLine + " You've been chosen the long file!"); }
                     }
@@ -1427,7 +1456,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         bool mystatusbegin = false;
                         bool startModuleWithDiscountWholeBill = false;
                         int lenghtData = 0;
-                        _ToolStripStatusLabelSetItsText(StatusLabel1, "Обрабатываю файл:  " + filePathTxt);
+                        _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filePathTxt);
                         while ((s = Reader.ReadLine()) != null)
                         {
                             if (s.Contains("Особовий рахунок"))
@@ -1659,7 +1688,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private void ParseStringsOfPreparedListIntoTable() //Парсинг строк и передача результата текстовый редактор
         {
-            _ToolStripStatusLabelSetItsText(StatusLabel1, "Обрабатываю полученные данные...");
+            _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю полученные данные...");
             dataStart = labelPeriod.Text.Split('-')[0].Trim(); // дата начала периода счета
             dataEnd = labelPeriod.Text.Split('-')[1].Trim();  // дата конца периода счета
 
@@ -2264,8 +2293,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private DataTable GetDataWithModel()  // получение данных из базы ТФактура
         {
-            dataStart = _ControlReturnItsText(labelPeriod).Split('-')[0].Trim(); //'01.05.2018'
-            dataEnd = _ControlReturnItsText(labelPeriod).Split('-')[1].Trim();  //'31.05.2018'
+            dataStart = _ControlReturnText(labelPeriod).Split('-')[0].Trim(); //'01.05.2018'
+            dataEnd = _ControlReturnText(labelPeriod).Split('-')[1].Trim();  //'31.05.2018'
             string dataStartSearch = dataStart.Split('.')[2] + "-" + dataStart.Split('.')[1] + "-" + dataStart.Split('.')[0]; //'2018-05-01'
             string dataEndSearch = dataEnd.Split('.')[2] + " - " + dataEnd.Split('.')[1] + "-" + dataEnd.Split('.')[0]; //'2018-05-31'
 
@@ -2714,5 +2743,41 @@ namespace MobileNumbersDetailizationReportGenerator
             catch (Exception expt) { _ = MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.", expt.Message); }
         }
     }
+    public class TextFileWritting
+    {
+        public TextFileWritting() { }
 
+        public void Write(string filePath, string text)
+        {
+            File.WriteAllText(
+                filePath,
+                text,
+                Encoding.GetEncoding(1251));
+        }
+
+        public void Write(string filePath, List<string> listStrings)
+        {
+            File.WriteAllLines(
+                filePath,
+                listStrings,
+                Encoding.GetEncoding(1251));
+        }
+    }
+
+    public class ParsedStringOfBillWithContractOwner
+    {
+        public string contract = "";
+        public string numberOwner = "";
+        public string serviceName = "";
+        public string numberTarget = "";
+        public string date = "";
+        public string time = "";
+        public string durationA = "";
+        public string durationB = "";
+        public string cost = "";
+
+        public string fio = "";
+        public string nav = "";
+        public string department = "";
+    }
 }
