@@ -121,6 +121,9 @@
     <value>About</value>
     <comment>in Context Menu</comment>
   </data>
+  <data name="Error" xml:space="preserve">
+    <value>Ошибка!</value>
+  </data>
   <data name="Exit" xml:space="preserve">
     <value>Exit</value>
     <comment>in Context Menu</comment>
@@ -128,10 +131,19 @@
   <data name="InfoApp" xml:space="preserve">
     <value>"Информация о программе"</value>
   </data>
+  <data name="ListOfNumbers" xml:space="preserve">
+    <value>List of numbers</value>
+  </data>
+  <data name="ListOfServices" xml:space="preserve">
+    <value>List of services</value>
+  </data>
   <data name="RowDashedLinesBefore2NewLines" xml:space="preserve">
-    <value>"--------------------------------------------\n\n"</value>
+    <value>--------------------------------------------\n\n</value>
   </data>
   <data name="RowDashedLinesBetween2NewLines" xml:space="preserve">
-    <value>"\n--------------------------------------------\n"</value>
+    <value>\n--------------------------------------------\n</value>
+  </data>
+  <data name="RowWithDozenEqualSymbols" xml:space="preserve">
+    <value>===================================================</value>
   </data>
 </root>

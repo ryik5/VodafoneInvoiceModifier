@@ -70,6 +70,15 @@ namespace BillReportsGenerator.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ошибка!.
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exit.
         /// </summary>
         internal static string Exit {
@@ -88,7 +97,25 @@ namespace BillReportsGenerator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;--------------------------------------------\n\n&quot;.
+        ///   Looks up a localized string similar to List of numbers.
+        /// </summary>
+        internal static string ListOfNumbers {
+            get {
+                return ResourceManager.GetString("ListOfNumbers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to List of services.
+        /// </summary>
+        internal static string ListOfServices {
+            get {
+                return ResourceManager.GetString("ListOfServices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to --------------------------------------------\n\n.
         /// </summary>
         internal static string RowDashedLinesBefore2NewLines {
             get {
@@ -97,11 +124,20 @@ namespace BillReportsGenerator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;\n--------------------------------------------\n&quot;.
+        ///   Looks up a localized string similar to \n--------------------------------------------\n.
         /// </summary>
         internal static string RowDashedLinesBetween2NewLines {
             get {
                 return ResourceManager.GetString("RowDashedLinesBetween2NewLines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ===================================================.
+        /// </summary>
+        internal static string RowWithDozenEqualSymbols {
+            get {
+                return ResourceManager.GetString("RowWithDozenEqualSymbols", resourceCulture);
             }
         }
     }
