@@ -137,11 +137,8 @@
   <data name="ListOfServices" xml:space="preserve">
     <value>List of services</value>
   </data>
-  <data name="RowDashedLinesBefore2NewLines" xml:space="preserve">
-    <value>--------------------------------------------\n\n</value>
-  </data>
   <data name="RowDashedLinesBetween2NewLines" xml:space="preserve">
-    <value>\n--------------------------------------------\n</value>
+    <value>--------------------------------------------</value>
   </data>
   <data name="RowWithDozenEqualSymbols" xml:space="preserve">
     <value>===================================================</value>

@@ -115,16 +115,7 @@ namespace BillReportsGenerator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to --------------------------------------------\n\n.
-        /// </summary>
-        internal static string RowDashedLinesBefore2NewLines {
-            get {
-                return ResourceManager.GetString("RowDashedLinesBefore2NewLines", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to \n--------------------------------------------\n.
+        ///   Looks up a localized string similar to --------------------------------------------.
         /// </summary>
         internal static string RowDashedLinesBetween2NewLines {
             get {

@@ -272,7 +272,7 @@ namespace BillReportsGenerator
             notifyIcon1.ContextMenu = contextMenu1;
             contextMenu1.MenuItems.Add(Properties.Resources.About, AboutSoft);
             contextMenu1.MenuItems.Add(Properties.Resources.Exit, ApplicationExit);
-            notifyIcon1.Text = myFileVersionInfo.ProductName + "\nv." + myFileVersionInfo.FileVersion + "\n" + myFileVersionInfo.CompanyName;
+            notifyIcon1.Text = myFileVersionInfo.ProductName + Environment.NewLine+"v." + myFileVersionInfo.FileVersion + Environment.NewLine + myFileVersionInfo.CompanyName;
             this.Text = myFileVersionInfo.Comments;
             ProgressBar1.Value = 0;
 
@@ -290,9 +290,9 @@ namespace BillReportsGenerator
             prepareBillItem.Enabled = false;
 
 
-            openBillItem.ToolTipText = "Открыть счет Voodafon в текстовом формате.\nMax количество строк - 500 000";
-            makeFullReportItem.ToolTipText = "Подготовить полный отчет в Excel-файле.\nФайл будет сохранен в папке с программой";
-            makeReportAccountantItem.ToolTipText = "Подготовить отчет для бух. в Excel-файле.\nФайл будет сохранен в папке с программой";
+            openBillItem.ToolTipText = "Открыть счет Voodafon в текстовом формате."+ Environment.NewLine+"Max количество строк - 500 000";
+            makeFullReportItem.ToolTipText = "Подготовить полный отчет в Excel-файле." + Environment.NewLine + "Файл будет сохранен в папке с программой";
+            makeReportAccountantItem.ToolTipText = "Подготовить отчет для бух. в Excel-файле." + Environment.NewLine + "Файл будет сохранен в папке с программой";
             useSavedDataItem.ToolTipText = "Использовать сохраненный список файлов и сервисов из предыдущей сессии";
             labelDiscount.Text = "";
             clearTextboxItem.ToolTipText = "Убрать весь текст из окна просмотра";
@@ -317,8 +317,8 @@ namespace BillReportsGenerator
             string strVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             MessageBox.Show(
-                myFileVersionInfo.Comments + "\n\nВерсия: " + myFileVersionInfo.FileVersion + "\nBuild: " +
-                strVersion + "\n" + myFileVersionInfo.LegalCopyright,
+                myFileVersionInfo.Comments + Environment.NewLine+"Версия: " + myFileVersionInfo.FileVersion + Environment.NewLine+"Build: " +
+                strVersion + Environment.NewLine + myFileVersionInfo.LegalCopyright,
              Properties.Resources.InfoApp,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information,
@@ -389,18 +389,18 @@ namespace BillReportsGenerator
 
                 if (0 < listWrongString.Count)
                 {
-                    textBoxLog.AppendText("List of first 300 wrong rows in the selected list:\n");
-                    textBoxLog.AppendText(Properties.Resources.RowDashedLinesBefore2NewLines);
+                    textBoxLog.AppendText("List of first 300 wrong rows in the selected list:"+Environment.NewLine);
+                    textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
                     int wrongRow = 0;
                     foreach (string s in listWrongString)
                     {
-                        textBoxLog.AppendText(s + "\n");
+                        textBoxLog.AppendText(s + Environment.NewLine);
                         wrongRow++;
 
                         if (wrongRow > limitWrongNumber)
                         { break; }
                     }
-                    textBoxLog.AppendText("\n\n");
+                    textBoxLog.AppendText(Environment.NewLine);
                 }
 
                 if (0 < listNumbers?.Count && listNumbers?.Count < 500)
@@ -411,13 +411,13 @@ namespace BillReportsGenerator
                     _ControlVisibleEnabled(labelContracts, true);
 
                     textBoxLog.AppendText(Properties.Resources.ListOfNumbers);
-                    textBoxLog.AppendText(Properties.Resources.RowDashedLinesBefore2NewLines);
+                    textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
 
                     foreach (string s in listNumbers)
-                    { textBoxLog.AppendText(s + "\n"); }
+                    { textBoxLog.AppendText(s + Environment.NewLine); }
                 }
                 else
-                { textBoxLog.AppendText("Check the list of numbers.\nIn the list was found: " + listNumbers.Count + " number(s)"); }
+                { textBoxLog.AppendText("Check the list of numbers." + Environment.NewLine + "In the list was found: " + listNumbers.Count + " number(s)"); }
             }
             CheckConditionEnableMarketingReport();
         }
@@ -442,7 +442,7 @@ namespace BillReportsGenerator
                 textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
 
                 foreach (string s in listServices)
-                { textBoxLog.AppendText(s + "\n"); }
+                { textBoxLog.AppendText(s + Environment.NewLine); }
 
                 selectedServices = true;
 
@@ -451,7 +451,7 @@ namespace BillReportsGenerator
             else
             {
                 textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
-                textBoxLog.AppendText("The selected list is wrong!\nWill check the file!\nIt has to contain from 1 to 100 services.");
+                textBoxLog.AppendText("The selected list is wrong!" + Environment.NewLine + "Will check the file!" + Environment.NewLine + "It has to contain from 1 to 100 services.");
                 textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
             }
             CheckConditionEnableMarketingReport();
@@ -546,11 +546,11 @@ namespace BillReportsGenerator
                         }
                         catch
                         {
-                            MessageBox.Show("Проверьте правильность выбора файла с контрактами с детализацией разговоров!\n" +
-                                "Возможно поменялся формат.\n" +
-                                "Правильный формат начала каждого контракта:\n" +
-                                NUMBER_OF_CONTRACT + " 000000000  _номер_: 380000000000\n\n" +
-                                "Данная же строка с началом разбираемого контракта имеет другую форму:\n" +
+                            MessageBox.Show("Проверьте правильность выбора файла с контрактами с детализацией разговоров!"+Environment.NewLine +
+                                "Возможно поменялся формат."+Environment.NewLine +
+                                "Правильный формат начала каждого контракта:"+Environment.NewLine +
+                                NUMBER_OF_CONTRACT + " 000000000  _номер_: 380000000000"+Environment.NewLine +
+                                "Данная же строка с началом разбираемого контракта имеет другую форму:"+Environment.NewLine +
                                 sRowBill
                                 );
                         }
@@ -647,21 +647,21 @@ namespace BillReportsGenerator
                             }
 
                         }
-                        catch (Exception expt) { MessageBox.Show(sRowBill + "\n" + expt.ToString(), expt.Message); }
+                        catch (Exception expt) { MessageBox.Show(sRowBill + Environment.NewLine + expt.ToString(), expt.Message); }
 
                     }
                 }
                 loadedBill = true;
                 {
-                    _TextboxAppendText(textBoxLog, "\n");
+                    _TextboxAppendText(textBoxLog, Environment.NewLine);
                     _TextboxAppendText(textBoxLog, "Сформировано для генерации отчета " + countRowsInTable + " строк номерами мобильных подпадающими под фильтр.");
-                    _TextboxAppendText(textBoxLog, "\n");
+                    _TextboxAppendText(textBoxLog, Environment.NewLine);
                 }
 
                 textWritting.Write(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv", sb.ToString());
             }
             else
-            { _TextboxAppendText(textBoxLog, "Нет в выборке ничего для указанных номеров!\n"); }
+            { _TextboxAppendText(textBoxLog, "Нет в выборке ничего для указанных номеров!"+Environment.NewLine); }
 
             CheckConditionEnableMarketingReport();
             _ToolStripStatusLabelSetText(StatusLabel1, "Файл сохранен в папку: " + Path.GetDirectoryName(filepathLoadedData));
@@ -720,10 +720,10 @@ namespace BillReportsGenerator
                         }
                     }
                 }
-                catch (Exception expt) { MessageBox.Show("Ошибка произошла на " + i + " строке:\n\n" + expt.ToString()); }
+                catch (Exception expt) { MessageBox.Show("Ошибка произошла на " + i + " строке:"+Environment.NewLine + expt.ToString()); }
 
                 if (i > listMaxLength - 10 || i == 0)
-                { MessageBox.Show("Error was happened on " + i + " row\n You've been chosen the long file!"); }
+                { MessageBox.Show("Error was happened on " + i + " row"+ Environment.NewLine+" You've been chosen the long file!"); }
             }
             return listValue;
         }
@@ -750,7 +750,7 @@ namespace BillReportsGenerator
                     if (oldSavedInvoice)
                     {
                         DialogResult result = MessageBox.Show(
-                              "Использовать предыдущий выбор файла?\n" + strSavedPathToInvoice,
+                              "Использовать предыдущий выбор файла?" + Environment.NewLine + strSavedPathToInvoice,
                               "Внимание!",
                               MessageBoxButtons.YesNo,
                               MessageBoxIcon.Exclamation,
@@ -798,7 +798,7 @@ namespace BillReportsGenerator
                                     {
                                         foreach (string parameterString in listParameters)
                                         {
-                                            if (loadedString.StartsWith(parameterString)&&!loadedString.Contains(excepted))
+                                            if (loadedString.StartsWith(parameterString) && !loadedString.Contains(excepted))
                                             {
                                                 listRows.Add(loadedString);
                                                 counter++;
@@ -822,15 +822,15 @@ namespace BillReportsGenerator
 
                             ParameterLastInvoiceRegistrySave();
                         }
-                        catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row\n" + expt.ToString()); }
-                        _TextboxAppendText(textBoxLog, "\n");
-                        _TextboxAppendText(textBoxLog, "Из файла-счета: \n");
+                        catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row" + Environment.NewLine + expt.ToString()); }
+                        _TextboxAppendText(textBoxLog, Environment.NewLine);
+                        _TextboxAppendText(textBoxLog, "Из файла-счета: " + Environment.NewLine);
                         _TextboxAppendText(textBoxLog, filepathLoadedData);
-                        _TextboxAppendText(textBoxLog, "\n");
+                        _TextboxAppendText(textBoxLog, Environment.NewLine);
                         _TextboxAppendText(textBoxLog, "отобрано для построения отчета " + counter + " строк с требуемыми сервисами");
-                        _TextboxAppendText(textBoxLog, "\n");
+                        _TextboxAppendText(textBoxLog, Environment.NewLine);
                         if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
-                        { MessageBox.Show("Error was happened on " + (listRows.Count) + " row\n You've been chosen the long file!"); }
+                        { MessageBox.Show("Error was happened on " + (listRows.Count) + " row" + Environment.NewLine + " You've been chosen the long file!"); }
                     }
                     else { MessageBox.Show("Did not select File!"); }
                 }
@@ -889,7 +889,7 @@ namespace BillReportsGenerator
                 await Task.Run(() => dtOwnerOfMobileWithinSelectedPeriod = GetDataWithModel());
                 if (dtOwnerOfMobileWithinSelectedPeriod.Rows.Count < 2)
                 {
-                    MessageBox.Show("Выбранный счет в базу данных Tfactura еще не импортирован!\nПеред обработкой счета, предварительно необходимо импортировать счет в базу!");
+                    MessageBox.Show("Выбранный счет в базу данных Tfactura еще не импортирован!"+ Environment.NewLine+"Перед обработкой счета, предварительно необходимо импортировать счет в базу!");
                     StatusLabel1.Text = "Обработка счета прекращена! Предварительно импортируйте счет в Tfactura!";
                     StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
                 }
@@ -918,25 +918,25 @@ namespace BillReportsGenerator
                         string sortOrder = dtMobile.Columns[0].ColumnName + " ASC";
 
 
-                        textBoxLog.AppendText("\n");
+                        textBoxLog.AppendText(Environment.NewLine);
                         textBoxLog.AppendText("-= Дата счета:  " + dtMobile.Rows[1][16].ToString() + " =-"); //Дата счета
-                        textBoxLog.AppendText("\n");
+                        textBoxLog.AppendText(Environment.NewLine);
                         textBoxLog.AppendText(Properties.Resources.RowWithDozenEqualSymbols);
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("\n");
+                        textBoxLog.AppendText(Environment.NewLine);
+                        textBoxLog.AppendText(Environment.NewLine);
 
 
                         //////////////////////////////
                         if (listTarifData.Count > 0)
                         {
                             textBoxLog.AppendText("-= Список тарифных схем, не существующих в программе =-");
-                            textBoxLog.AppendText("\n'" + columnName5 + "' - " + columnName1 + " (" + columnName2 + ")\n");
+                            textBoxLog.AppendText(Environment.NewLine+"'" + columnName5 + "' - " + columnName1 + " (" + columnName2 + ")"+Environment.NewLine);
 
                             foreach (string str in listTarifData)
                             {
-                                textBoxLog.AppendText(str + "\n");
+                                textBoxLog.AppendText(str + Environment.NewLine);
                             }
-                            textBoxLog.AppendText("\n");
+                            textBoxLog.AppendText(Environment.NewLine);
                             textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
                         }
 
@@ -944,14 +944,16 @@ namespace BillReportsGenerator
                         results = dtMobile.Select("NumberUsed='False' AND NumberNoBlock='True'", sortOrder, DataViewRowState.Added);
                         if (results.Length > 0)
                         {
-                            textBoxLog.AppendText("-= Список контрактов, по которым не велась работа =-\n");
+                            textBoxLog.AppendText(Environment.NewLine);
+                            textBoxLog.AppendText("-= Список контрактов, по которым не велась работа =-");
+                            textBoxLog.AppendText(Environment.NewLine);
                             textBoxLog.AppendText(
                                  string.Format("{0,-40}", columnName1) +
                                  string.Format("{0,-15}", columnName2) +
                                  string.Format("{0,-30}", columnName3) +
                                  string.Format("{0,-10}", columnName4) +
                                  string.Format("{0,-30}", columnName5) +
-                                 "\n");
+                                 Environment.NewLine);
                             for (int i = 0; i < results.Length; i++)
                             {
 
@@ -961,25 +963,27 @@ namespace BillReportsGenerator
                                  string.Format("{0,-30}", results[i][3].ToString()) +
                                  string.Format("{0,-10}", results[i][10].ToString()) +
                                  string.Format("{0,-30}", results[i][21].ToString()) +
-                                 "\n"
+                                 Environment.NewLine
                                   );
                             }
-                            textBoxLog.AppendText("\n");
+                            textBoxLog.AppendText(Environment.NewLine);
                             textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
+                            textBoxLog.AppendText(Environment.NewLine);
                         }
 
                         /////////////////
                         results = dtMobile.Select("NumberNoBlock='False'", sortOrder, DataViewRowState.Added);
                         if (results.Length > 0)
                         {
-                            textBoxLog.AppendText("-= Список заблокированных контрактов =-\n");
+                            textBoxLog.AppendText("-= Список заблокированных контрактов =-");
+                            textBoxLog.AppendText(Environment.NewLine);
                             textBoxLog.AppendText(
                                  string.Format("{0,-40}", columnName1) +
                                  string.Format("{0,-15}", columnName2) +
                                  string.Format("{0,-30}", columnName3) +
                                  string.Format("{0,-10}", columnName4) +
                                  string.Format("{0,-30}", columnName5) +
-                                 "\n");
+                                 Environment.NewLine);
                             for (int i = 0; i < results.Length; i++)
                             {
                                 textBoxLog.AppendText(
@@ -988,15 +992,14 @@ namespace BillReportsGenerator
                                  string.Format("{0,-30}", results[i][3].ToString()) +
                                  string.Format("{0,-10}", results[i][10].ToString()) +
                                  string.Format("{0,-30}", results[i][21].ToString()) +
-                                 "\n"
+                                 Environment.NewLine
                                   );
                             }
-                            textBoxLog.AppendText("\n");
-                            textBoxLog.AppendText(Properties.Resources.RowDashedLinesBetween2NewLines);
+                            textBoxLog.AppendText(Environment.NewLine + Properties.Resources.RowDashedLinesBetween2NewLines);
                         }
 
                         /////////////////
-                        textBoxLog.AppendText("---= Все =---\n");
+                        textBoxLog.AppendText(Environment.NewLine + "---= Все =---" + Environment.NewLine);
                         results = dtMobile.Select(dtMobile.Columns[0].ColumnName.Length + " > 0", sortOrder, DataViewRowState.Added);
                         textBoxLog.AppendText(
                              string.Format("{0,-40}", columnName1) +
@@ -1007,7 +1010,7 @@ namespace BillReportsGenerator
                              string.Format("{0,-30}", columnName5) +
                              string.Format("{0,-12}", columnName10) +
                              string.Format("{0,-12}", columnName11) +
-                             "\n");
+                             Environment.NewLine);
                         for (int i = 0; i < results.Length; i++)
                         {
 
@@ -1021,11 +1024,11 @@ namespace BillReportsGenerator
                              string.Format("{0,-30}", results[i][21].ToString()) +
                              string.Format("{0,-12}", results[i][24].ToString()) +
                              string.Format("{0,-12}", results[i][25].ToString()) +
-                             "\n"
+                             Environment.NewLine
                               );
                         }
-                        textBoxLog.AppendText("\n");
-                        textBoxLog.AppendText("\n");
+                        textBoxLog.AppendText(Environment.NewLine);
+                        textBoxLog.AppendText(Environment.NewLine);
                         textBoxLog.AppendText(Properties.Resources.RowWithDozenEqualSymbols);
                         /////////////////
 
@@ -1038,17 +1041,17 @@ namespace BillReportsGenerator
                     }
                     else
                     {
-                        textBoxLog.AppendText("В базе найдены новые, не настроенные в данной программе на обработку,\n");
-                        textBoxLog.AppendText("модели тарификации компенсации затрат сотрудников:\n");
-                        textBoxLog.AppendText("\n");
+                        textBoxLog.AppendText("В базе найдены новые, не настроенные в данной программе на обработку,"+Environment.NewLine);
+                        textBoxLog.AppendText("модели тарификации компенсации затрат сотрудников:"+Environment.NewLine);
+                        textBoxLog.AppendText(Environment.NewLine);
                         int i = 0;
                         foreach (string str in listTarifData)
                         {
-                            textBoxLog.AppendText(++i + ". \"" + str + "\"\n");
+                            textBoxLog.AppendText(++i + ". \"" + str + Environment.NewLine);
                         }
-                        textBoxLog.AppendText("\n\n");
+                        textBoxLog.AppendText(Environment.NewLine+ Environment.NewLine);
                         textBoxLog.AppendText(Properties.Resources.RowWithDozenEqualSymbols);
-                        textBoxLog.AppendText("\n");
+                        textBoxLog.AppendText(Environment.NewLine);
                         textBoxLog.AppendText(sbError.ToString());
                     }
 
@@ -1184,11 +1187,11 @@ namespace BillReportsGenerator
 
                 if ((b1 && b2 == false) || (b2 && b1 == false))
                 {
-                    info += "Настройки из " + myFileVersionInfo.ProductName + ".ini проигнорированы. Изменен формат файла\n";
+                    info += "Настройки из " + myFileVersionInfo.ProductName + ".ini проигнорированы. Изменен формат файла"+Environment.NewLine;
                 }
                 else
                 {
-                    info += "Парсеры модифицированы настройками из " + myFileVersionInfo.ProductName + ".ini\n";
+                    info += "Парсеры модифицированы настройками из " + myFileVersionInfo.ProductName + ".ini"+Environment.NewLine;
                     groupBox1.BackColor = System.Drawing.Color.Tan;
                 }
 
@@ -1206,11 +1209,11 @@ namespace BillReportsGenerator
             if (!(pConnectionServer?.Length > 1 && pConnectionUserName?.Length > 1 && pConnectionUserPasswords?.Length > 1))
             {
                 infoStatusBar = "Строка подключения к базе со счетами Tfactura неверно сконфигурирована";
-                info +=  infoStatusBar + "\nПроверьте и добавьте в файл с настройками -\n\n" + 
-                    pathToIni + "\n\nотсутствующие данные, необходимые для подключения к базе данных:\n\n" +
-                      "pConnectionServer=" + pConnectionServer + 
-                      "\npConnectionUserName=" + pConnectionUserName + 
-                      "\npConnectionUserPasswords=" + pConnectionUserPasswords;
+                info +=  infoStatusBar + Environment.NewLine+"Проверьте и добавьте в файл с настройками - " +Environment.NewLine + 
+                    pathToIni + Environment.NewLine+"отсутствующие данные, необходимые для подключения к базе данных:" +Environment.NewLine + Environment.NewLine+
+                      "pConnectionServer=" + pConnectionServer + Environment.NewLine+
+                      "pConnectionUserName=" + pConnectionUserName + Environment.NewLine+
+                      "pConnectionUserPasswords=" + pConnectionUserPasswords;
                 MessageBox.Show(info, Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 StatusLabel1.Text = infoStatusBar;
@@ -1234,16 +1237,19 @@ namespace BillReportsGenerator
 
                     bool aliveServer = true;
                     await Task.Run(() => aliveServer = CheckAliveDbServer());
-                   
+
                     if (!aliveServer)
                     {
                         infoStatusBar = "БД сервера со счетами Tfactura не доступна";
-                        info += infoStatusBar + "\nПроверьте настройки в файле с настройками -\n\n" + pathToIni + "\nи исправьте не верные данные:\n\n" +
-                            "pConnectionServer=" + pConnectionServer + "\npConnectionUserName=" + pConnectionUserName + "\npConnectionUserPasswords=" + pConnectionUserPasswords;
+                        info += infoStatusBar + Environment.NewLine + "Проверьте настройки в файле с настройками -" + Environment.NewLine + 
+                            pathToIni + "и исправьте не верные данные:" + Environment.NewLine +
+                            "pConnectionServer=" + pConnectionServer + Environment.NewLine +
+                            "pConnectionUserName=" + pConnectionUserName + Environment.NewLine +
+                            "pConnectionUserPasswords=" + pConnectionUserPasswords;
                         MessageBox.Show(info, Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                         infoStatusTooltip = info;
-                        infoStatus=infoStatusBar;
+                        infoStatus = infoStatusBar;
                         infoStatusBackColor = System.Drawing.Color.SandyBrown;
                     }
                     else
@@ -1472,11 +1478,11 @@ namespace BillReportsGenerator
                         countParser[p[2]] == countParser[p[3]]))     //количеству номеров и наименованию тарифных пакетов
                     {
                         ChosenFile = false;
-                        string message = "Счет для анализа выбран с некорректными парсерами.\n" +
-                                         "Количество этих параметров должны быть одинаковое и больше нуля:" +
-                                         "\n'" + p[1] + @"' =  " + countParser[p[1]] +
-                                         "\n'" + p[2] + @"' =  " + countParser[p[2]] +
-                                         "\n'" + p[3] + @"' =  " + countParser[p[3]];
+                        string message = "Счет для анализа выбран с некорректными парсерами." + Environment.NewLine +
+                                         "Количество этих параметров должны быть одинаковое и больше нуля:" + Environment.NewLine +
+                                         "'" + p[1] + @"' =  " + countParser[p[1]] + Environment.NewLine +
+                                         "'" + p[2] + @"' =  " + countParser[p[2]] + Environment.NewLine +
+                                         "'" + p[3] + @"' =  " + countParser[p[3]];
                         MessageBox.Show(message);
                         StatusLabel1.ToolTipText = message;
                     }
@@ -2206,7 +2212,7 @@ namespace BillReportsGenerator
             ReleaseObject(workbooks);
             excel.Quit();
             ReleaseObject(excel);
-            MessageBox.Show("Отчет готов и сохранен:\n" + Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx");
+            MessageBox.Show("Отчет готов и сохранен:"+Environment.NewLine + Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx");
         }
 
         private void ReleaseObject(object obj)
@@ -2388,7 +2394,7 @@ namespace BillReportsGenerator
                         if (str?.Length > 0)
                         {
                             i++;
-                            strNewModels += i + ". \"" + str + "\"\n";
+                            strNewModels += i + ". \"" + str + Environment.NewLine;
                             sb.AppendLine(i + ". \"" + str + "\"");
                         }
                     }
@@ -2403,9 +2409,11 @@ namespace BillReportsGenerator
                 infoStatusBar = "В базе найдены новые, не добавленные ранее, модели компенсации затрат сотрудников!";
 
                 DialogResult result = MessageBox.Show(
-                    "В базе со счетами мобильного оператора на сервере " + pConnectionServer + " найдены не существующие в программе модели компенсации затрат сотрудников!\n\n" + strNewModels +
-                    "\n\nДля их учета необходимо, внести изменения в модели рассчета в программе!\n\n" +
-                    "Для прерывания дальнейших рассчетов нажмите кнопку\n\"Yes\"(Да)\nдля продолжения:\n\"No\"(Нет)",
+                    "В базе со счетами мобильного оператора на сервере " + pConnectionServer + " найдены не существующие в программе модели компенсации затрат сотрудников!" +
+                    Environment.NewLine + strNewModels + Environment.NewLine +
+                    "Для их учета необходимо, внести изменения в модели рассчета в программе!" + Environment.NewLine +
+                    "Для прерывания дальнейших рассчетов нажмите кнопку" + Environment.NewLine + "\"Yes\"(Да)" + Environment.NewLine +
+                    "для продолжения:" + Environment.NewLine + "\"No\"(Нет)",
                     "Внимание!",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Exclamation,
