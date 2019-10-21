@@ -649,7 +649,7 @@ namespace BillReportsGenerator
                 }
                 loadedBill = true;
                 {
-                    _TextboxAppendLine(textBoxLog, "Сформировано для генерации отчета " + countRowsInTable + " строк номерами мобильных подпадающими под фильтр.");
+                    _TextboxAppendLine(textBoxLog, "Сформировано для генерации отчета " + countRowsInTable + " строк c номерами мобильных подпадающими под фильтр.");
                 }
 
                 sb.ToString().WriteAtFile(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv");
