@@ -117,18 +117,18 @@ namespace BillReportsGenerator.Properties {
         /// <summary>
         ///   Looks up a localized string similar to --------------------------------------------.
         /// </summary>
-        internal static string RowDashedLinesBetween2NewLines {
+        internal static string RowDashedLines {
             get {
-                return ResourceManager.GetString("RowDashedLinesBetween2NewLines", resourceCulture);
+                return ResourceManager.GetString("RowDashedLines", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to ===================================================.
         /// </summary>
-        internal static string RowWithDozenEqualSymbols {
+        internal static string RowDozenOfEqualSymbols {
             get {
-                return ResourceManager.GetString("RowWithDozenEqualSymbols", resourceCulture);
+                return ResourceManager.GetString("RowDozenOfEqualSymbols", resourceCulture);
             }
         }
     }
