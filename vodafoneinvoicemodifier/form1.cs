@@ -332,11 +332,13 @@ namespace BillReportsGenerator
             dtMarket?.Dispose();
             dtMobile?.Dispose();
             dtOwnerOfMobileWithinSelectedPeriod?.Dispose();
+
             Application.Exit();
         }
 
         private void openBillItem_Click(object sender, EventArgs e)//Menu "Open"
         {
+            textBoxLog.Clear();
             OpenBill();
         }
 
@@ -359,10 +361,10 @@ namespace BillReportsGenerator
         { ApplicationExit(); }
 
         private void selectListNumbersItem_Click(object sender, EventArgs e)
-        { selectListNumbers(); }
+        { PrepareListNumbers(); }
 
         //limit of numbers <500
-        private void selectListNumbers() //Prepare list of numbers for the marketing report - listNumbers
+        private void PrepareListNumbers() //Prepare list of numbers for the marketing report - listNumbers
         {
             selectedNumbers = false;
             makeReportMarketingItem.Enabled = false;
@@ -387,10 +389,10 @@ namespace BillReportsGenerator
                     { listWrongString.Add(strTemp); }
                 }
 
-                if (0 < listWrongString.Count)
+                if (0 < listWrongString?.Count)
                 {
                     textBoxLog.AppendLine("List of first 300 wrong rows in the selected list:");
-                    textBoxLog.AppendText(Properties.Resources.RowDashedLines);
+                    textBoxLog.AppendLine(Properties.Resources.RowDashedLines);
                     int wrongRow = 0;
                     foreach (string s in listWrongString)
                     {
@@ -407,17 +409,15 @@ namespace BillReportsGenerator
                 {
                     selectedNumbers = true;
                     SaveListStringsInRegistry(Properties.Resources.ListOfNumbers, listNumbers);
-                    _ControlSetItsText(labelContracts, listNumbers.Count.ToString() + " шт.");
-                    _ControlVisibleEnabled(labelContracts, true);
 
-                    textBoxLog.AppendText(Properties.Resources.ListOfNumbers);
-                    textBoxLog.AppendText(Properties.Resources.RowDashedLines);
+                    textBoxLog.AppendLine(Properties.Resources.ListOfNumbers);
+                    textBoxLog.AppendLine(Properties.Resources.RowDashedLines);
 
                     foreach (string s in listNumbers)
-                    { textBoxLog.AppendText(s + Environment.NewLine); }
+                    { textBoxLog.AppendLine(s); }
                 }
                 else
-                { textBoxLog.AppendText("Check the list of numbers." + Environment.NewLine + "In the list was found: " + listNumbers.Count + " number(s)"); }
+                { textBoxLog.AppendLine("Check the list of numbers." + Environment.NewLine + "In the list was found: " + listNumbers.Count + " number(s)"); }
             }
             CheckConditionEnableMarketingReport();
         }
@@ -908,91 +908,73 @@ namespace BillReportsGenerator
 
                         string sortOrder = dtMobile.Columns[0].ColumnName + " ASC";
 
-
-                        textBoxLog.AppendText(Environment.NewLine);
-                        textBoxLog.AppendText("-= Дата счета:  " + dtMobile.Rows[1][16].ToString() + " =-"); //Дата счета
-                        textBoxLog.AppendText(Environment.NewLine);
-                        textBoxLog.AppendText(Properties.Resources.RowDozenOfEqualSymbols);
-                        textBoxLog.AppendText(Environment.NewLine);
-                        textBoxLog.AppendText(Environment.NewLine);
-
+                        textBoxLog.AppendLine("-= Дата счета:  " + dtMobile.Rows[1][16].ToString() + " =-"); //Дата счета
+                        textBoxLog.AppendLine(Properties.Resources.RowDozenOfEqualSymbols);
 
                         //////////////////////////////
                         if (listTarifData.Count > 0)
                         {
-                            textBoxLog.AppendText("-= Список тарифных схем, не существующих в программе =-");
-                            textBoxLog.AppendText(Environment.NewLine + "'" + columnName5 + "' - " + columnName1 + " (" + columnName2 + ")" + Environment.NewLine);
+                            textBoxLog.AppendLine("-= Список тарифных схем, не существующих в программе =-");
+                            textBoxLog.AppendLine("'" + columnName5 + "' - " + columnName1 + " (" + columnName2 + ")");
 
                             foreach (string str in listTarifData)
                             {
-                                textBoxLog.AppendText(str + Environment.NewLine);
+                                textBoxLog.AppendLine(str);
                             }
-                            textBoxLog.AppendText(Environment.NewLine);
-                            textBoxLog.AppendText(Properties.Resources.RowDashedLines);
+                            textBoxLog.AppendLine(Properties.Resources.RowDashedLines);
                         }
 
                         /////////////////
                         results = dtMobile.Select("NumberUsed='False' AND NumberNoBlock='True'", sortOrder, DataViewRowState.Added);
                         if (results.Length > 0)
                         {
-                            textBoxLog.AppendText(Environment.NewLine);
-                            textBoxLog.AppendText("-= Список контрактов, по которым не велась работа =-");
-                            textBoxLog.AppendText(Environment.NewLine);
-                            textBoxLog.AppendText(
+                            textBoxLog.AppendLine("-= Список контрактов, по которым не велась работа =-");
+                            textBoxLog.AppendLine(
                                  string.Format("{0,-40}", columnName1) +
                                  string.Format("{0,-15}", columnName2) +
                                  string.Format("{0,-30}", columnName3) +
                                  string.Format("{0,-10}", columnName4) +
-                                 string.Format("{0,-30}", columnName5) +
-                                 Environment.NewLine);
+                                 string.Format("{0,-30}", columnName5));
                             for (int i = 0; i < results.Length; i++)
                             {
 
-                                textBoxLog.AppendText(
+                                textBoxLog.AppendLine(
                                  string.Format("{0,-40}", results[i][0].ToString()) +
                                  string.Format("{0,-15}", results[i][2].ToString()) +
                                  string.Format("{0,-30}", results[i][3].ToString()) +
                                  string.Format("{0,-10}", results[i][10].ToString()) +
-                                 string.Format("{0,-30}", results[i][21].ToString()) +
-                                 Environment.NewLine
-                                  );
+                                 string.Format("{0,-30}", results[i][21].ToString()));
                             }
-                            textBoxLog.AppendText(Environment.NewLine);
-                            textBoxLog.AppendText(Properties.Resources.RowDashedLines);
-                            textBoxLog.AppendText(Environment.NewLine);
+                            textBoxLog.AppendLine(Properties.Resources.RowDashedLines);
                         }
 
                         /////////////////
                         results = dtMobile.Select("NumberNoBlock='False'", sortOrder, DataViewRowState.Added);
                         if (results.Length > 0)
                         {
-                            textBoxLog.AppendText("-= Список заблокированных контрактов =-");
-                            textBoxLog.AppendText(Environment.NewLine);
-                            textBoxLog.AppendText(
+                            textBoxLog.AppendLine("-= Список заблокированных контрактов =-");
+                            textBoxLog.AppendLine(
                                  string.Format("{0,-40}", columnName1) +
                                  string.Format("{0,-15}", columnName2) +
                                  string.Format("{0,-30}", columnName3) +
                                  string.Format("{0,-10}", columnName4) +
-                                 string.Format("{0,-30}", columnName5) +
-                                 Environment.NewLine);
+                                 string.Format("{0,-30}", columnName5));
                             for (int i = 0; i < results.Length; i++)
                             {
-                                textBoxLog.AppendText(
+                                textBoxLog.AppendLine(
                                  string.Format("{0,-40}", results[i][0].ToString()) +
                                  string.Format("{0,-15}", results[i][2].ToString()) +
                                  string.Format("{0,-30}", results[i][3].ToString()) +
                                  string.Format("{0,-10}", results[i][10].ToString()) +
-                                 string.Format("{0,-30}", results[i][21].ToString()) +
-                                 Environment.NewLine
-                                  );
+                                 string.Format("{0,-30}", results[i][21].ToString()));
                             }
-                            textBoxLog.AppendText(Environment.NewLine + Properties.Resources.RowDashedLines);
+                            textBoxLog.AppendLine(Properties.Resources.RowDashedLines);
                         }
 
                         /////////////////
-                        textBoxLog.AppendText(Environment.NewLine + "---= Все =---" + Environment.NewLine);
+                        textBoxLog.AppendLine( "---= Все =---" );
                         results = dtMobile.Select(dtMobile.Columns[0].ColumnName.Length + " > 0", sortOrder, DataViewRowState.Added);
-                        textBoxLog.AppendText(
+                        textBoxLog.AppendLine(
                              string.Format("{0,-40}", columnName1) +
                              string.Format("{0,-15}", columnName2) +
                              string.Format("{0,-30}", columnName3) +
@@ -1000,12 +982,11 @@ namespace BillReportsGenerator
                              string.Format("{0,-10}", columnName6) +
                              string.Format("{0,-30}", columnName5) +
                              string.Format("{0,-12}", columnName10) +
-                             string.Format("{0,-12}", columnName11) +
-                             Environment.NewLine);
+                             string.Format("{0,-12}", columnName11) );
                         for (int i = 0; i < results.Length; i++)
                         {
 
-                            textBoxLog.AppendText(
+                            textBoxLog.AppendLine(
                              string.Format("{0,-40}", results[i][0].ToString().Trim()) +
                              string.Format("{0,-15}", results[i][2].ToString()) +
                              string.Format("{0,-30}", results[i][3].ToString()) +
@@ -1014,15 +995,10 @@ namespace BillReportsGenerator
 
                              string.Format("{0,-30}", results[i][21].ToString()) +
                              string.Format("{0,-12}", results[i][24].ToString()) +
-                             string.Format("{0,-12}", results[i][25].ToString()) +
-                             Environment.NewLine
-                              );
+                             string.Format("{0,-12}", results[i][25].ToString()) );
                         }
-                        textBoxLog.AppendText(Environment.NewLine);
-                        textBoxLog.AppendText(Environment.NewLine);
-                        textBoxLog.AppendText(Properties.Resources.RowDozenOfEqualSymbols);
+                        textBoxLog.AppendLine(Properties.Resources.RowDozenOfEqualSymbols);
                         /////////////////
-
 
                         makeReportAccountantItem.Enabled = true;
                         makeFullReportItem.Enabled = true;
@@ -1032,18 +1008,16 @@ namespace BillReportsGenerator
                     }
                     else
                     {
-                        textBoxLog.AppendText("В базе найдены новые, не настроенные в данной программе на обработку," + Environment.NewLine);
-                        textBoxLog.AppendText("модели тарификации компенсации затрат сотрудников:" + Environment.NewLine);
-                        textBoxLog.AppendText(Environment.NewLine);
+                        textBoxLog.AppendLine("В базе найдены новые, не настроенные в данной программе на обработку,");
+                        textBoxLog.AppendLine("модели тарификации компенсации затрат сотрудников:");
+
                         int i = 0;
                         foreach (string str in listTarifData)
                         {
-                            textBoxLog.AppendText(++i + ". \"" + str + Environment.NewLine);
+                            textBoxLog.AppendLine(++i + ". \"" + str );
                         }
-                        textBoxLog.AppendText(Environment.NewLine + Environment.NewLine);
-                        textBoxLog.AppendText(Properties.Resources.RowDozenOfEqualSymbols);
-                        textBoxLog.AppendText(Environment.NewLine);
-                        textBoxLog.AppendText(sbError.ToString());
+                        textBoxLog.AppendLine(Properties.Resources.RowDozenOfEqualSymbols);
+                        textBoxLog.AppendLine(sbError.ToString());
                     }
 
                     if (infoStatusBar.Length > 1)
@@ -1331,7 +1305,7 @@ namespace BillReportsGenerator
                 sb.AppendLine(@"");
                 sb.AppendLine(@"; Дата обновления файла:  " + localDate.ToString());
 
-                File.WriteAllText(pathToIni, sb.ToString(), Encoding.GetEncoding(1251));
+                sb.ToString().WriteAtFile(pathToIni);
             }
             catch (Exception Expt)
             { MessageBox.Show(Expt.ToString(), Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error); }
@@ -2391,8 +2365,8 @@ namespace BillReportsGenerator
                     }
                     sb.AppendLine(@"");
 
-                    File.WriteAllText(pathToNewModels, sb.ToString(), Encoding.GetEncoding(1251));
-                    File.AppendAllText(pathToNewModels, sbError.ToString(), Encoding.GetEncoding(1251));
+                    sb.ToString().WriteAtFile(pathToNewModels);
+                    sbError.ToString().AppendAtFile(pathToNewModels);
                 }
                 catch (Exception e)
                 { MessageBox.Show(e.ToString(), e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error); }
@@ -2659,7 +2633,7 @@ namespace BillReportsGenerator
                 }
             }
 
-            textBoxLog.AppendText(sb.ToString());
+            textBoxLog.AppendLine(sb.ToString());
         }
 
         public void SaveListStringsInRegistry(string parameterName, List<string> list) //Save List <string> into Registry as 'parameterName'
@@ -2775,10 +2749,24 @@ namespace BillReportsGenerator
                 source,
                 Encoding.GetEncoding(1251));
         }
+        internal static void AppendAtFile(this string source, string filePath)
+        {
+            File.AppendAllText(
+                filePath,
+                source,
+                Encoding.GetEncoding(1251));
+        }
 
         internal static void WriteAtFile(this List<string> listStrings, string filePath)
         {
             File.WriteAllLines(
+                filePath,
+                listStrings,
+                Encoding.GetEncoding(1251));
+        }
+        internal static void AppendAtFile(this List<string> listStrings, string filePath)
+        {
+            File.AppendAllLines(
                 filePath,
                 listStrings,
                 Encoding.GetEncoding(1251));
