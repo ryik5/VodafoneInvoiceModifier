@@ -59,5 +59,86 @@ namespace BillReportsGenerator.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        internal static string About {
+            get {
+                return ResourceManager.GetString("About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ошибка!.
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exit.
+        /// </summary>
+        internal static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;Информация о программе&quot;.
+        /// </summary>
+        internal static string InfoApp {
+            get {
+                return ResourceManager.GetString("InfoApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to List of numbers.
+        /// </summary>
+        internal static string ListOfNumbers {
+            get {
+                return ResourceManager.GetString("ListOfNumbers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to List of services.
+        /// </summary>
+        internal static string ListOfServices {
+            get {
+                return ResourceManager.GetString("ListOfServices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to --------------------------------------------\n\n.
+        /// </summary>
+        internal static string RowDashedLinesBefore2NewLines {
+            get {
+                return ResourceManager.GetString("RowDashedLinesBefore2NewLines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to \n--------------------------------------------\n.
+        /// </summary>
+        internal static string RowDashedLinesBetween2NewLines {
+            get {
+                return ResourceManager.GetString("RowDashedLinesBetween2NewLines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ===================================================.
+        /// </summary>
+        internal static string RowWithDozenEqualSymbols {
+            get {
+                return ResourceManager.GetString("RowWithDozenEqualSymbols", resourceCulture);
+            }
+        }
     }
 }
