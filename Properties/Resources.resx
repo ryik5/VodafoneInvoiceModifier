@@ -143,7 +143,7 @@
   <data name="RowDashedLines" xml:space="preserve">
     <value>--------------------------------------------</value>
   </data>
-  <data name="RowWithDozenEqualSymbols" xml:space="preserve">
+  <data name="RowDozenOfEqualSymbols" xml:space="preserve">
     <value>===================================================</value>
   </data>
   <data name="SelectedInvoice" xml:space="preserve">
