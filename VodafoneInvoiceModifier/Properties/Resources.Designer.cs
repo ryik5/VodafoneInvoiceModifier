@@ -70,6 +70,15 @@ namespace BillReportsGenerator.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Внимание!.
+        /// </summary>
+        internal static string Attention {
+            get {
+                return ResourceManager.GetString("Attention", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ошибка!.
         /// </summary>
         internal static string Error {
@@ -115,29 +124,47 @@ namespace BillReportsGenerator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to --------------------------------------------\n\n.
+        ///   Looks up a localized string similar to Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*.
         /// </summary>
-        internal static string RowDashedLinesBefore2NewLines {
+        internal static string OpenDialogTextFiles {
             get {
-                return ResourceManager.GetString("RowDashedLinesBefore2NewLines", resourceCulture);
+                return ResourceManager.GetString("OpenDialogTextFiles", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \n--------------------------------------------\n.
+        ///   Looks up a localized string similar to --------------------------------------------.
         /// </summary>
-        internal static string RowDashedLinesBetween2NewLines {
+        internal static string RowDashedLines {
             get {
-                return ResourceManager.GetString("RowDashedLinesBetween2NewLines", resourceCulture);
+                return ResourceManager.GetString("RowDashedLines", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to ===================================================.
         /// </summary>
-        internal static string RowWithDozenEqualSymbols {
+        internal static string RowDozenOfEqualSymbols {
             get {
-                return ResourceManager.GetString("RowWithDozenEqualSymbols", resourceCulture);
+                return ResourceManager.GetString("RowDozenOfEqualSymbols", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Выбранный счет для обработки.
+        /// </summary>
+        internal static string SelectedInvoice {
+            get {
+                return ResourceManager.GetString("SelectedInvoice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Обрабатываю полученные данные....
+        /// </summary>
+        internal static string WorkingWithData {
+            get {
+                return ResourceManager.GetString("WorkingWithData", resourceCulture);
             }
         }
     }

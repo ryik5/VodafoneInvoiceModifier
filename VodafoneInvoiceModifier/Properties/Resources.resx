@@ -121,6 +121,9 @@
     <value>About</value>
     <comment>in Context Menu</comment>
   </data>
+  <data name="Attention" xml:space="preserve">
+    <value>Внимание!</value>
+  </data>
   <data name="Error" xml:space="preserve">
     <value>Ошибка!</value>
   </data>
@@ -137,13 +140,19 @@
   <data name="ListOfServices" xml:space="preserve">
     <value>List of services</value>
   </data>
-  <data name="RowDashedLinesBefore2NewLines" xml:space="preserve">
-    <value>--------------------------------------------\n\n</value>
+  <data name="OpenDialogTextFiles" xml:space="preserve">
+    <value>Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*</value>
   </data>
-  <data name="RowDashedLinesBetween2NewLines" xml:space="preserve">
-    <value>\n--------------------------------------------\n</value>
+  <data name="RowDashedLines" xml:space="preserve">
+    <value>--------------------------------------------</value>
   </data>
-  <data name="RowWithDozenEqualSymbols" xml:space="preserve">
+  <data name="RowDozenOfEqualSymbols" xml:space="preserve">
     <value>===================================================</value>
+  </data>
+  <data name="SelectedInvoice" xml:space="preserve">
+    <value>Выбранный счет для обработки</value>
+  </data>
+  <data name="WorkingWithData" xml:space="preserve">
+    <value>Обрабатываю полученные данные...</value>
   </data>
 </root>
