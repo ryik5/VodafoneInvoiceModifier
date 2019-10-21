@@ -59,5 +59,113 @@ namespace BillReportsGenerator.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        internal static string About {
+            get {
+                return ResourceManager.GetString("About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Внимание!.
+        /// </summary>
+        internal static string Attention {
+            get {
+                return ResourceManager.GetString("Attention", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ошибка!.
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exit.
+        /// </summary>
+        internal static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;Информация о программе&quot;.
+        /// </summary>
+        internal static string InfoApp {
+            get {
+                return ResourceManager.GetString("InfoApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to List of numbers.
+        /// </summary>
+        internal static string ListOfNumbers {
+            get {
+                return ResourceManager.GetString("ListOfNumbers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to List of services.
+        /// </summary>
+        internal static string ListOfServices {
+            get {
+                return ResourceManager.GetString("ListOfServices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*.
+        /// </summary>
+        internal static string OpenDialogTextFiles {
+            get {
+                return ResourceManager.GetString("OpenDialogTextFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to --------------------------------------------.
+        /// </summary>
+        internal static string RowDashedLines {
+            get {
+                return ResourceManager.GetString("RowDashedLines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ===================================================.
+        /// </summary>
+        internal static string RowDozenOfEqualSymbols {
+            get {
+                return ResourceManager.GetString("RowDozenOfEqualSymbols", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Выбранный счет для обработки.
+        /// </summary>
+        internal static string SelectedInvoice {
+            get {
+                return ResourceManager.GetString("SelectedInvoice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Обрабатываю полученные данные....
+        /// </summary>
+        internal static string WorkingWithData {
+            get {
+                return ResourceManager.GetString("WorkingWithData", resourceCulture);
+            }
+        }
     }
 }
