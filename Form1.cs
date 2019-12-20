@@ -27,7 +27,6 @@ namespace MobileNumbersDetailizationReportGenerator
         string pBillDeliveryCostDiscount = @"Знижка на суму особового рахунку"; //Скидка на стоимость услуги по доставке электронного счета
         double BillDeliveryCostDiscount = 0; //Скидка на стоимость услуги по доставке электронного счета
 
-        string about = "";
         string dataStart = ""; // дата начала периода счета
         string dataEnd = "";  // дата конца периода счета
         string periodInvoice = ""; //Период
@@ -261,19 +260,21 @@ namespace MobileNumbersDetailizationReportGenerator
             myRegKey = @"SOFTWARE\RYIK\" + myFileVersionInfo.ProductName;
             pathToIni = Application.StartupPath + @"\" + myFileVersionInfo.ProductName + ".ini"; //path to ini of tools
 
-            about = myFileVersionInfo.Comments + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
+          string  about = myFileVersionInfo.Comments + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
+            
             StatusLabel1.Text = myFileVersionInfo.ProductName + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
             StatusLabel1.Alignment = ToolStripItemAlignment.Right;
-
-            notifyIcon1.Text = myFileVersionInfo.ProductName + " " + myFileVersionInfo.LegalCopyright;
-            notifyIcon1.BalloonTipText = about;
-
+            
             contextMenu1 = new ContextMenu();  //Context Menu on notify Icon
-            notifyIcon1.ContextMenu = contextMenu1;
             contextMenu1.MenuItems.Add(Properties.Resources.About, AboutSoft);
             contextMenu1.MenuItems.Add(Properties.Resources.Exit, ApplicationExit);
-            notifyIcon1.Text = myFileVersionInfo.ProductName + Environment.NewLine + "v." + myFileVersionInfo.FileVersion + Environment.NewLine + myFileVersionInfo.CompanyName;
+
+             notifyIcon1.ContextMenu = contextMenu1;
+           notifyIcon1.BalloonTipText = about;
+            notifyIcon1.Text = myFileVersionInfo.ProductName + Environment.NewLine + "v." + myFileVersionInfo.FileVersion;
+            
             this.Text = myFileVersionInfo.Comments;
+            
             ProgressBar1.Value = 0;
 
             groupBox1.BackColor = System.Drawing.Color.Ivory;
