@@ -12,8 +12,8 @@
     <ProjectGuid>{EE2E919C-DD0E-4986-A46C-BF9E65001CE7}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BillReportsGenerator</RootNamespace>
-    <AssemblyName>BillReportsGenerator</AssemblyName>
+    <RootNamespace>MobileNumbersDetailizationReportGenerator</RootNamespace>
+    <AssemblyName>MobileNumbersDetailizationReportGenerator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -88,7 +88,8 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>BillReportsGenerator.Program</StartupObject>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
@@ -140,6 +141,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\CalculateData.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
