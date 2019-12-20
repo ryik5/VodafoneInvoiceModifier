@@ -10,7 +10,7 @@ using System.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Drawing;
 
-namespace BillReportsGenerator
+namespace MobileNumbersDetailizationReportGenerator
 {
     public partial class Form1 : Form
     {
@@ -460,7 +460,7 @@ namespace BillReportsGenerator
         private async void prepareBillItem_Click(object sender, EventArgs e)
         {
             dtMarket.Rows.Clear();
-            await Task.Run(() => LoadBillIntoMemoryToFilter());
+            await Task.Run(() => LoadBillIntoMemoryToFilter()).ConfigureAwait(false);
         }
 
         private void LoadBillIntoMemoryToFilter()
@@ -540,14 +540,16 @@ namespace BillReportsGenerator
                             else
                             { numberMobile = "+" + tempRow; } //set format number like '+380...'
                         }
-                        catch
+                        catch(Exception err)
                         {
                             MessageBox.Show("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
                                 "Возможно поменялся формат." + Environment.NewLine +
-                                "Правильный формат начала каждого контракта:" + Environment.NewLine +
-                                NUMBER_OF_CONTRACT + " 000000000  _номер_: 380000000000" + Environment.NewLine +
-                                "Данная же строка с началом разбираемого контракта имеет другую форму:" + Environment.NewLine +
-                                sRowBill
+                                "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
+                                NUMBER_OF_CONTRACT + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
+                                "Ціновий Пакет: название_пакета" + Environment.NewLine +"далее - детализацией разговоров контракта"+ Environment.NewLine +
+                                "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
+                                sRowBill + Environment.NewLine +
+                                "Ошибка: "+err.ToString()
                                 );
                         }
                     }
@@ -591,7 +593,7 @@ namespace BillReportsGenerator
 
                                     }
 
-                                    tempRow = numberMobile + "\t" + fio + "\t" + nav + "\t" + department + "\t" + serviceName + "\t" + numberB + "\t" + date + "\t" + time + "\t" + durationA + "\t" + durationB + "\t" + cost;
+                                    tempRow = $"{numberMobile}\t{fio}\t{nav}\t{department}\t{serviceName}\t{numberB}\t{date}\t{time}\t{durationA}\t{durationB}\t{cost}";
 
                                     DataRow rowMarket = dtMarket.NewRow(); //for Market
                                     rowMarket["Контракт"] = kontrakt;
@@ -608,7 +610,6 @@ namespace BillReportsGenerator
                                     rowMarket["NAV"] = nav;
                                     rowMarket["Подразделение"] = department;
 
-                                    dtMarket.Rows.Add(rowMarket);
                                     /*
                                     listParsedStrings.Add(
                                         new ParsedStringOfBillWithContractOwner
@@ -628,6 +629,7 @@ namespace BillReportsGenerator
                                             }
                                         ); 
                                     */
+                                    dtMarket.Rows.Add(rowMarket);
                                     countRowsInTable++;
                                     sb.AppendLine(tempRow);
                                     break;
@@ -636,14 +638,15 @@ namespace BillReportsGenerator
                                 countStepProgressBar--;
                                 if (countStepProgressBar <= 0)
                                 {
-                                    string s = String.Format("В отчет добавлено {0,20 }, строк из {1,15}", countRowsInTable, loadedBillWithServicesFiltered.Count);
+                                    string s = $"В отчет добавлено {countRowsInTable,20 }, строк из {loadedBillWithServicesFiltered.Count,15}";
                                     _ProgressWork1Step(s);
                                     countStepProgressBar = counterstep;
                                 }
                             }
 
                         }
-                        catch (Exception expt) { MessageBox.Show(sRowBill + Environment.NewLine + expt.ToString(), expt.Message); }
+                        catch (Exception err)
+                        { MessageBox.Show($"Во время парсинга счета возникла ошибка на данной строке:{Environment.NewLine}{sRowBill}{Environment.NewLine}{err.ToString()}", err.Message); }
 
                     }
                 }
@@ -671,7 +674,9 @@ namespace BillReportsGenerator
         private void ExportMarketReport()
         {
             ExportDatatableToExcel(dtMarket, "_Marketing.xlsx");
+
         }
+
 
         private void CheckConditionEnableMarketingReport() //enableing Marketing report if load data is correct
         {
@@ -1827,7 +1832,7 @@ namespace BillReportsGenerator
                     stepCount--;
                     if (stepCount == 0)
                     {
-                        _ProgressWork1Step(string.Format("Обработано {0,20 }, строк из {1,15}", rows, rowsInTable));
+                        _ProgressWork1Step($"Обработано {rows,20 }, строк из {rowsInTable,15}");
                         stepCount = stepOfProgressCount;
                     }
                     //  sheet.Columns[column.Ordinal + 1].AutoFit();

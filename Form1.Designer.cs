@@ -1,4 +1,4 @@
-﻿namespace BillReportsGenerator
+﻿namespace MobileNumbersDetailizationReportGenerator
 {
     partial class Form1
     {
