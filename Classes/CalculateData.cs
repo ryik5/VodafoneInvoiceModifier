@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-   abstract public class CalculatePivotData
+  public interface CalculatePivotData
     {
-        public virtual void CalculateData()
-        {
-
-        }
+        SetDataTable(DataTable dataTable) {
     }
 
-   public class CalculateData
+   public class CalculateData: CalculatePivotData
     {
+        public CalculateData(DataTable dataTable) : base(DataTable dataTable);
     }
 }
