@@ -32,11 +32,11 @@ namespace MobileNumbersDetailizationReportGenerator
         //DoPivotTable
         public DataTable DoTableUniqKeyRows(DataTable collection)
         {
-            DataColumnCollection col = collection.Columns;
+            DataColumnCollection colulmns = collection.Columns;
             List<string> columnNames = new List<string>();
-            foreach (DataColumn dc in col)
+            foreach (DataColumn dc in colulmns)
             {
-                columnName.Add(dc.ColumnName);
+                columnNames.Add(dc.ColumnName);
             }
 
             // System.Collections.IEnumerable 
@@ -53,7 +53,14 @@ namespace MobileNumbersDetailizationReportGenerator
                     {
                         if (_condition.KeyColumnName.Equals(dc.ColumnName))
                         { row[dc.ColumnName] = g.Key; }
+                        else if (_condition.NameColumnWithFilteringServiceValue.Equals(dc.ColumnName))
+                        {
+                            row[dc.ColumnName] = g.Sum(r => r.Field<int>(dc.ColumnName));//???
+                        }
                         else
+                        {
+                            row[dc.ColumnName] = g.Cast(r => r.Field<string>("Amount 1"));
+                        }
                     }
 
                   //  row["Id"] = g.Key;
