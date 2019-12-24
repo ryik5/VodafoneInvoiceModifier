@@ -32,8 +32,15 @@ namespace MobileNumbersDetailizationReportGenerator
         //DoPivotTable
         public DataTable DoTableUniqKeyRows(DataTable collection)
         {
-           // System.Collections.IEnumerable 
-           DataTable     result = collection.AsEnumerable()
+            DataColumnCollection col = collection.Columns;
+            List<string> columnNames = new List<string>();
+            foreach (DataColumn dc in col)
+            {
+                columnName.Add(dc.ColumnName);
+            }
+
+            // System.Collections.IEnumerable 
+            DataTable     result = collection.AsEnumerable()
             //    .SelectMany(row => collection.AsEnumerable().Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue)
               // .Contains(_condition.FilteringService)))
                 .GroupBy(row => row.Field<string>(_condition.KeyColumnName))
@@ -42,12 +49,14 @@ namespace MobileNumbersDetailizationReportGenerator
                     var row = collection.NewRow();
                     DataColumnCollection col = collection.Columns;
 
-                    foreach (DataColumn kk in col)
+                    foreach (DataColumn dc in col)
                     {
-                        row[kk.ColumnName] = g.Key;
+                        if (_condition.KeyColumnName.Equals(dc.ColumnName))
+                        { row[dc.ColumnName] = g.Key; }
+                        else
                     }
 
-                    row["Id"] = g.Key;
+                  //  row["Id"] = g.Key;
                     row["Amount 1"] = g.Sum(r => r.Field<int>("Amount 1"));
                     row["Amount 2"] = g.Sum(r => r.Field<int>("Amount 2"));
                     row["Amount 3"] = g.Sum(r => r.Field<int>("Amount 3"));
