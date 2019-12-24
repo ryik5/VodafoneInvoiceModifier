@@ -675,7 +675,6 @@ namespace MobileNumbersDetailizationReportGenerator
         private void ExportMarketReport()
         {
             ExportDatatableToExcel(dtMarket, "_Marketing.xlsx");
-
         }
 
 
