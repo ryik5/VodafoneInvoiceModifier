@@ -8,20 +8,41 @@ using System.Threading.Tasks;
 namespace MobileNumbersDetailizationReportGenerator
 {
 
-
-    public class FilteredRowsCollection : AbstractDataTable, IFilterableRowsCollection
+    public class MakingPivotDataTable : AbstractDataTable, IFilterableDataTable
     {
         ConditionForMakingPivotTable _condition;
 
-        public FilteredRowsCollection(DataTable dataTable, ConditionForMakingPivotTable condition)
+        public MakingPivotDataTable() { }
+
+        public MakingPivotDataTable(DataTable dataTable)
         {
-            Source = dataTable;
+            SetDataTable(dataTable);
+        }
+
+        public MakingPivotDataTable(ConditionForMakingPivotTable condition)
+        {
+            SetFilter(condition);
+        }
+
+        public MakingPivotDataTable(DataTable dataTable, ConditionForMakingPivotTable condition)
+        {
+            SetDataTable(dataTable);
+            SetFilter(condition);
+        }
+
+        public void SetFilter(ConditionForMakingPivotTable condition)
+        {
             _condition = condition;
         }
 
-        public virtual DataTable FilterSource(DataTable collection)
+        public void SetDataTable(DataTable dataTable)
         {
-            DataTable result = collection
+            Source = dataTable;
+        }
+
+        public virtual DataTable MakePivotDataTable1()
+        {
+            DataTable result = Source
                 .AsEnumerable()
                 .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue)
                 .Contains(_condition.FilteringService)).CopyToDataTable();
@@ -30,24 +51,15 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
         //DoPivotTable
-        public DataTable DoTableUniqKeyRows(DataTable collection)
+        public DataTable MakePivotDataTable2()
         {
-            DataColumnCollection colulmns = collection.Columns;
-            List<string> columnNames = new List<string>();
-            foreach (DataColumn dc in colulmns)
-            {
-                columnNames.Add(dc.ColumnName);
-            }
-
-            // System.Collections.IEnumerable 
-            DataTable     result = collection.AsEnumerable()
-            //    .SelectMany(row => collection.AsEnumerable().Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue)
-              // .Contains(_condition.FilteringService)))
+            DataTable result = Source.AsEnumerable()
+                .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue) == _condition.FilteringService)
                 .GroupBy(row => row.Field<string>(_condition.KeyColumnName))
                 .Select(g =>
                 {
-                    var row = collection.NewRow();
-                    DataColumnCollection col = collection.Columns;
+                    var row = Source.NewRow();
+                    DataColumnCollection col = Source.Columns;
 
                     foreach (DataColumn dc in col)
                     {
@@ -55,18 +67,18 @@ namespace MobileNumbersDetailizationReportGenerator
                         { row[dc.ColumnName] = g.Key; }
                         else if (_condition.NameColumnWithFilteringServiceValue.Equals(dc.ColumnName))
                         {
-                            row[dc.ColumnName] = g.Sum(r => r.Field<int>(dc.ColumnName));//???
+                            row[_condition.FilteringService] = g.Sum(r => Int32.Parse(r.Field<string>(dc.ColumnName)));//???
                         }
                         else
                         {
-                            row[dc.ColumnName] = g.Cast(r => r.Field<string>("Amount 1"));
+                            row[dc.ColumnName] = g.Key;
                         }
                     }
 
-                  //  row["Id"] = g.Key;
-                    row["Amount 1"] = g.Sum(r => r.Field<int>("Amount 1"));
-                    row["Amount 2"] = g.Sum(r => r.Field<int>("Amount 2"));
-                    row["Amount 3"] = g.Sum(r => r.Field<int>("Amount 3"));
+                    //  row["Id"] = g.Key;
+                    //  row["Amount 1"] = g.Sum(r => r.Field<int>("Amount 1"));
+                    //  row["Amount 2"] = g.Sum(r => r.Field<int>("Amount 2"));
+                    //  row["Amount 3"] = g.Sum(r => r.Field<int>("Amount 3"));
 
                     return row;
                 }).CopyToDataTable();
@@ -85,14 +97,13 @@ namespace MobileNumbersDetailizationReportGenerator
         }
     }
 
-    public interface IFilterableRowsCollection
+    public interface IFilterableDataTable
     {
-        DataTable FilterSource(DataTable source);
+        DataTable MakePivotDataTable1();
     }
 
     public class ConditionForMakingPivotTable
     {
-
         public string KeyColumnName { get; set; }
 
         public string FilteringService { get; set; }
