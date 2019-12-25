@@ -461,7 +461,40 @@ namespace MobileNumbersDetailizationReportGenerator
         private async void prepareBillItem_Click(object sender, EventArgs e)
         {
             dtMarket.Rows.Clear();
-            await Task.Run(() => LoadBillIntoMemoryToFilter()).ConfigureAwait(false);
+            await Task.Run(() => LoadBillIntoMemoryToFilter());
+
+            DataColumn[] dcFullBill ={
+                                  new DataColumn("Контракт",typeof(string)),
+                                  new DataColumn("Номер телефона",typeof(string)),
+                                  new DataColumn("ФИО",typeof(string)),
+                                  new DataColumn("NAV",typeof(string)),
+                                  new DataColumn("Подразделение",typeof(string)),
+                                  new DataColumn("Имя сервиса",typeof(string)),
+                                  new DataColumn("Номер В",typeof(string)),
+                                  new DataColumn("Дата",typeof(string)),
+                                  new DataColumn("Время",typeof(string)),
+                                  new DataColumn("Длительность А",typeof(string)),
+                                  new DataColumn("Длительность В",typeof(string)),
+                                  new DataColumn("Стоимость",typeof(string))
+                              };
+
+            //test
+            ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
+            {
+                FilteringService =,
+                FilteringServiceValue =,
+                NameColumnWithFilteringService = "Имя сервиса",
+                NameColumnWithFilteringServiceValue =
+            };
+
+            MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
+            
+            DataTable dt = makingPivotData.MakePivotDataTable1();
+            await Task.Run(() => dt.DataTableToText().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot1.csv")));
+
+
+            dt = makingPivotData.MakePivotDataTable2();
+            await Task.Run(() => dt.DataTableToText().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv")));
         }
 
         private void LoadBillIntoMemoryToFilter()
@@ -497,9 +530,11 @@ namespace MobileNumbersDetailizationReportGenerator
             p[1] = _ControlReturnText(textBoxP1);
             p[2] = _ControlReturnText(textBoxP2);
 
-            List<string> filterBill = new List<string>();
-            filterBill.Add(p[1]);
-            filterBill.Add(p[2]);
+            List<string> filterBill = new List<string>
+            {
+                p[1],
+                p[2]
+            };
 
             if (listServices.Count == 0)
             { listServices = listSavedServices; }
@@ -509,9 +544,7 @@ namespace MobileNumbersDetailizationReportGenerator
             _ProgressWork1Step();
 
             foreach (string service in listServices)
-            {
-                filterBill.Add(service);
-            }
+            {                filterBill.Add(service);            }
 
             _ProgressWork1Step();
 
@@ -653,10 +686,10 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
                 loadedBill = true;
                 {
-                    _TextboxAppendLine(textBoxLog, "Сформировано для генерации отчета " + countRowsInTable + " строк c номерами мобильных подпадающими под фильтр.");
+                    _TextboxAppendLine(textBoxLog, $"Сформировано для генерации отчета {countRowsInTable} строк c номерами мобильных подпадающими под фильтр.");
                 }
 
-                sb.ToString().WriteAtFile(Path.GetDirectoryName(filepathLoadedData) + @"\listMarketingCollectRows.csv");
+                sb.ToString().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "listMarketingCollectRows.csv"));
             }
             else
             { _TextboxAppendLine(textBoxLog, "В выборке нет ничего для указанных номеров!"); }
@@ -2650,108 +2683,6 @@ namespace MobileNumbersDetailizationReportGenerator
                 foundSavedData = true;
             }
             catch(Exception expt) { _ = MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.", expt.Message); }
-        }
-    }
-
-    public class MobileContractPerson
-    {
-        internal string ownerName = "";
-        internal string contractName = "";
-        internal string mobNumberName = "";
-        internal string tarifPackageName = "";
-        internal double monthCost = 0;
-        internal double roming = 0;
-        internal double discount = 0;
-        internal double totalCost = 0;
-        internal double tax = 0;
-        internal double pF = 0;
-        internal double totalCostWithTax = 0;
-        internal double totalCostWithoutTaxBeforDiscount = 0;
-        internal double romingData = 0;
-        internal double extraServiceOrdered = 0;
-        internal double extraInternetOrdered = 0;
-        internal double outToCity = 0;
-        internal double extraService = 0;
-        internal double content = 0;
-        internal string dateBillStart = "";
-        internal string dateBillEnd = "";
-
-        internal string NAV = "";
-        internal string orgUnit = "";
-        internal string startDate;
-        internal string modelCompensation = "";
-        internal double payOwner = 0;
-        internal bool isUsed = false;
-        internal bool isUnblocked = false;
-    }
-
-    internal class ParsedStringOfBillWithContractOwner
-    {
-        internal string contract = "";
-        internal string numberOwner = "";
-        internal string serviceName = "";
-        internal string numberTarget = "";
-        internal string date = "";
-        internal string time = "";
-        internal string durationA = "";
-        internal string durationB = "";
-        internal string cost = "";
-
-        internal string fio = "";
-        internal string nav = "";
-        internal string department = "";
-    }
-
-    internal class Invoice
-    {
-        internal string invoiceFileName; // путь до текстового файла с детализацией
-        internal string invoicePathToFile; // путь до текстового файла с детализацией
-        internal string invoiceInternalHoldingNumber; //"Особовий рахунок"
-        internal string invoiceNumber; //"Номер рахунку"
-        internal string invoicePeriod; //"Розрахунковий період"
-
-        internal double invoiceDeliveryCost; // Скидка навесь счет
-        internal double invoiceDeliveryCostDiscount; // скидка на услугу детализ.счет в электронном виде
-    }
-
-    internal static class WinFormsExtensions
-    {
-        internal static void AppendLine(this TextBox source, string value = "\r\n")
-        {
-            if (source?.Text?.Length == 0)
-                source.Text = value;
-            else
-                source.AppendText("\r\n" + value);
-        }
-
-        internal static void WriteAtFile(this string source, string filePath)
-        {
-            File.WriteAllText(
-                filePath,
-                source,
-                Encoding.GetEncoding(1251));
-        }
-        internal static void AppendAtFile(this string source, string filePath)
-        {
-            File.AppendAllText(
-                filePath,
-                source,
-                Encoding.GetEncoding(1251));
-        }
-
-        internal static void WriteAtFile(this List<string> listStrings, string filePath)
-        {
-            File.WriteAllLines(
-                filePath,
-                listStrings,
-                Encoding.GetEncoding(1251));
-        }
-        internal static void AppendAtFile(this List<string> listStrings, string filePath)
-        {
-            File.AppendAllLines(
-                filePath,
-                listStrings,
-                Encoding.GetEncoding(1251));
         }
     }
 }
