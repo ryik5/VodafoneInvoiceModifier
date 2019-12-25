@@ -115,6 +115,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\CalculateData.cs" />
+    <Compile Include="Classes\DataTableExtensions.cs" />
+    <Compile Include="Classes\Invoice.cs" />
+    <Compile Include="Classes\MobileContractPerson.cs" />
+    <Compile Include="Classes\ParsedStringOfBillWithContractOwner.cs" />
+    <Compile Include="Classes\WinFormsExtensions.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
