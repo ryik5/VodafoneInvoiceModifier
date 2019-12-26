@@ -54,7 +54,7 @@ namespace MobileNumbersDetailizationReportGenerator
         public DataTable MakePivotDataTable2()
         {
             DataTable result = Source.AsEnumerable()
-                .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue).Contains(_condition.FilteringService))
+                .Where(row => row.Field<string>(_condition.NameColumnWithFilteringServiceValue).Contains(_condition.FilteringService))
                 .GroupBy(row => row.Field<string>(_condition.KeyColumnName))
                 .Select(g =>
                 {
@@ -69,8 +69,18 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                         else if (dc.ColumnName.Equals(_condition.NameColumnWithFilteringServiceValue))
                         {
-                            row[_condition.FilteringService] =
-                            g.Sum(r => Int32.Parse(r.Field<string>(dc.ColumnName)));
+                            if ((_condition.TypeResultCalcultedData & TypeData.DataStringMb) == TypeData.DataStringMb)
+                            {
+                                // Doing as MB ...
+                            }
+                            else if ((_condition.TypeResultCalcultedData & TypeData.DataStringkB) == TypeData.DataStringkB)
+                            {
+                                // Doing as kB ...
+                            }
+
+                            row[$"{_condition.FilteringService}, Sum"] = g.Sum(r => Int32.Parse(r.Field<string>(dc.ColumnName)));
+
+                            row[$"{_condition.FilteringService}, Count"] = g.Count();
                         }
                         else
                         {
@@ -107,14 +117,31 @@ namespace MobileNumbersDetailizationReportGenerator
 
     public class ConditionForMakingPivotTable
     {
+        /// <summary>
+        /// name of Column which will be used for 'Group by'
+        /// </summary>
         public string KeyColumnName { get; set; }
 
+        /// <summary>
+        /// service which will be used for 'Filtering'
+        /// </summary>
         public string FilteringService { get; set; }
+
+        /// <summary>
+        /// name of Column in which the service for 'Filtering' is stored
+        /// </summary>
         public string NameColumnWithFilteringService { get; set; }
 
-        public string FilteringServiceValue { get; set; }
+        /// <summary>
+        /// name of Column in which are the calculating data
+        /// </summary>
         public string NameColumnWithFilteringServiceValue { get; set; }
 
+        public string FilteringServiceValue { get; set; }
+       
+        /// <summary>
+        /// Type of calculated data
+        /// </summary>
         public TypeData TypeResultCalcultedData { get; set; }
     }
 
@@ -124,8 +151,11 @@ namespace MobileNumbersDetailizationReportGenerator
         None = 0,
         DataBool = 1,
         DataInt = 2,
-        DataLong = 3,
-        DataDouble = 4,
-        DataString = 8
+        DataLong = 4,
+        DataDouble = 8,
+        DataString = 16,
+        DataStringMb = 32,
+        DataStringkB = 64,
+        DataStringB = 128,
     }
 }
