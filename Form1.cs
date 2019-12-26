@@ -481,10 +481,11 @@ namespace MobileNumbersDetailizationReportGenerator
             //test
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
             {
-                FilteringService =,
-                FilteringServiceValue =,
+                FilteringService = "Передача даних",
+                FilteringServiceValue ="Mb",
                 NameColumnWithFilteringService = "Имя сервиса",
-                NameColumnWithFilteringServiceValue =
+                NameColumnWithFilteringServiceValue = "Длительность А"
+
             };
 
             MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
