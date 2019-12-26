@@ -479,12 +479,14 @@ namespace MobileNumbersDetailizationReportGenerator
                               };
 
             //test
+            var typeResult = TypeData.DataStringB | TypeData.DataStringkB | TypeData.DataStringMb;
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
             {
-                FilteringService = "Передача даних",
-                FilteringServiceValue ="Mb",
-                NameColumnWithFilteringService = "Имя сервиса",
-                NameColumnWithFilteringServiceValue = "Длительность А"
+                KeyColumnName= "ФИО",
+                FilteringService = "internet",  // "Передача даних",  
+                NameColumnWithFilteringService = "Номер В",//"Имя сервиса",
+                NameColumnWithFilteringServiceValue = "Длительность А",
+                TypeResultCalcultedData= typeResult
 
             };
 
