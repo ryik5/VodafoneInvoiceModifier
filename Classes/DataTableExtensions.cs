@@ -9,21 +9,33 @@ namespace MobileNumbersDetailizationReportGenerator
 {
   public static  class DataTableExtensions
     {
-        public static List<string> DataTableToText(this DataTable dataTable)
+        public static List<string> DataTableToText(this DataTable table)
         {
             List<string> result=new List<string>();
 
-            foreach (DataRow dr in dataTable.Rows)
+            foreach (DataRow dr in table.Rows)
             {
                 result.Add(string.Join("\t", dr.ItemArray));
 
-                //foreach (DataColumn dc in dataTable.Columns)
-                //{
-                //    dr[dc.ColumnName].ToString()
-                //}
             }
 
             return result;
         }
+
+        public static string PrintDataTableColumnInfo(this DataTable table)
+        {
+            string result = string.Empty;
+
+            // Use a DataTable object's DataColumnCollection.
+            DataColumnCollection columns = table.Columns;
+
+            // Print the ColumnName and DataType for each column.
+            foreach (DataColumn column in columns)
+            {
+                result += $"Name: {column.ColumnName}\tType: {column.DataType}{Environment.NewLine}";
+            }
+
+            return result;
+        }    
     }
 }
