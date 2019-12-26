@@ -54,7 +54,7 @@ namespace MobileNumbersDetailizationReportGenerator
         public DataTable MakePivotDataTable2()
         {
             DataTable result = Source.AsEnumerable()
-                .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue) == _condition.FilteringService)
+                .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue).Contains(_condition.FilteringService))
                 .GroupBy(row => row.Field<string>(_condition.KeyColumnName))
                 .Select(g =>
                 {
@@ -63,11 +63,14 @@ namespace MobileNumbersDetailizationReportGenerator
 
                     foreach (DataColumn dc in col)
                     {
-                        if (_condition.KeyColumnName.Equals(dc.ColumnName))
-                        { row[dc.ColumnName] = g.Key; }
-                        else if (_condition.NameColumnWithFilteringServiceValue.Equals(dc.ColumnName))
+                        if (dc.ColumnName.Equals(_condition.KeyColumnName))
                         {
-                            row[_condition.FilteringService] = g.Sum(r => Int32.Parse(r.Field<string>(dc.ColumnName)));//???
+                            row[dc.ColumnName] = g.Key;
+                        }
+                        else if (dc.ColumnName.Equals(_condition.NameColumnWithFilteringServiceValue))
+                        {
+                            row[_condition.FilteringService] =
+                            g.Sum(r => Int32.Parse(r.Field<string>(dc.ColumnName)));
                         }
                         else
                         {
