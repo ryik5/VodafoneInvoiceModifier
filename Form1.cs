@@ -463,23 +463,23 @@ namespace MobileNumbersDetailizationReportGenerator
             dtMarket.Rows.Clear();
             await Task.Run(() => LoadBillIntoMemoryToFilter());
 
-            DataColumn[] dcFullBill ={
-                                  new DataColumn("Контракт",typeof(string)),
-                                  new DataColumn("Номер телефона",typeof(string)),
-                                  new DataColumn("ФИО",typeof(string)),
-                                  new DataColumn("NAV",typeof(string)),
-                                  new DataColumn("Подразделение",typeof(string)),
-                                  new DataColumn("Имя сервиса",typeof(string)),
-                                  new DataColumn("Номер В",typeof(string)),
-                                  new DataColumn("Дата",typeof(string)),
-                                  new DataColumn("Время",typeof(string)),
-                                  new DataColumn("Длительность А",typeof(string)),
-                                  new DataColumn("Длительность В",typeof(string)),
-                                  new DataColumn("Стоимость",typeof(string))
-                              };
+            //DataColumn[] dcFullBill ={
+            //                      new DataColumn("Контракт",typeof(string)),
+            //                      new DataColumn("Номер телефона",typeof(string)),
+            //                      new DataColumn("ФИО",typeof(string)),
+            //                      new DataColumn("NAV",typeof(string)),
+            //                      new DataColumn("Подразделение",typeof(string)),
+            //                      new DataColumn("Имя сервиса",typeof(string)),
+            //                      new DataColumn("Номер В",typeof(string)),
+            //                      new DataColumn("Дата",typeof(string)),
+            //                      new DataColumn("Время",typeof(string)),
+            //                      new DataColumn("Длительность А",typeof(string)),
+            //                      new DataColumn("Длительность В",typeof(string)),
+            //                      new DataColumn("Стоимость",typeof(string))
+            //                  };
 
             //test
-            var typeResult = TypeData.DataStringB | TypeData.DataStringkB | TypeData.DataStringMb;
+            var typeResult = TypeData.DataStringMb;
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
             {
                 KeyColumnName= "ФИО",
@@ -487,16 +487,15 @@ namespace MobileNumbersDetailizationReportGenerator
                 NameColumnWithFilteringService = "Номер В",//"Имя сервиса",
                 NameColumnWithFilteringServiceValue = "Длительность А",
                 TypeResultCalcultedData= typeResult
-
             };
 
             MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
             
+        //    DataTable dt = makingPivotData.MakePivotDataTable1();
+         //   await Task.Run(() => dt.DataTableToText().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot1.csv")));
+
+
             DataTable dt = makingPivotData.MakePivotDataTable1();
-            await Task.Run(() => dt.DataTableToText().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot1.csv")));
-
-
-            dt = makingPivotData.MakePivotDataTable2();
             await Task.Run(() => dt.DataTableToText().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv")));
         }
 
