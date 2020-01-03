@@ -463,30 +463,15 @@ namespace MobileNumbersDetailizationReportGenerator
             dtMarket.Rows.Clear();
             await Task.Run(() => LoadBillIntoMemoryToFilter());
 
-            //DataColumn[] dcFullBill ={
-            //                      new DataColumn("Контракт",typeof(string)),
-            //                      new DataColumn("Номер телефона",typeof(string)),
-            //                      new DataColumn("ФИО",typeof(string)),
-            //                      new DataColumn("NAV",typeof(string)),
-            //                      new DataColumn("Подразделение",typeof(string)),
-            //                      new DataColumn("Имя сервиса",typeof(string)),
-            //                      new DataColumn("Номер В",typeof(string)),
-            //                      new DataColumn("Дата",typeof(string)),
-            //                      new DataColumn("Время",typeof(string)),
-            //                      new DataColumn("Длительность А",typeof(string)),
-            //                      new DataColumn("Длительность В",typeof(string)),
-            //                      new DataColumn("Стоимость",typeof(string))
-            //                  };
-
             //test
             var typeResult = TypeData.DataStringMb;
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
-            {
-                KeyColumnName= "ФИО",
-                FilteringService = "internet",  // "Передача даних",  
-                NameColumnWithFilteringService = "Номер В",//"Имя сервиса",
-                NameColumnWithFilteringServiceValue = "Длительность А",
-                TypeResultCalcultedData= typeResult
+            {                                                           // columns 'dcFullBill' in the table 'dtMarket'
+                KeyColumnName = "ФИО",                                  // column - "ФИО"
+                FilteringService = "internet",                          // used by column - "Передача даних",  
+                NameColumnWithFilteringService = "Номер В",             // cloumn - "Имя сервиса",
+                NameColumnWithFilteringServiceValue = "Длительность А", // column - "Длительность А"
+                TypeResultCalcultedData = typeResult                    // result data format
             };
 
             MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
