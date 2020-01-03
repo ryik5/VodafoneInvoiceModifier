@@ -14,16 +14,6 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public MakingPivotDataTable() { }
 
-        public MakingPivotDataTable(DataTable dataTable)
-        {
-            SetDataTable(dataTable);
-        }
-
-        public MakingPivotDataTable(ConditionForMakingPivotTable condition)
-        {
-            SetFilter(condition);
-        }
-
         public MakingPivotDataTable(DataTable dataTable, ConditionForMakingPivotTable condition)
         {
             SetDataTable(dataTable);
@@ -88,13 +78,9 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                     }
 
-                    //  row["Id"] = g.Key;
-                    //  row["Amount 1"] = g.Sum(r => r.Field<int>("Amount 1"));
-                    //  row["Amount 2"] = g.Sum(r => r.Field<int>("Amount 2"));
-                    //  row["Amount 3"] = g.Sum(r => r.Field<int>("Amount 3"));
-
                     return row;
-                }).CopyToDataTable();
+                })
+                .CopyToDataTable();
 
             return result;
         }

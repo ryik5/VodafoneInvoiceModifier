@@ -16,7 +16,6 @@ namespace MobileNumbersDetailizationReportGenerator
             foreach (DataRow dr in table.Rows)
             {
                 result.Add(string.Join("\t", dr.ItemArray));
-
             }
 
             return result;
