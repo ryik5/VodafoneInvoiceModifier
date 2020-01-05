@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-    internal class Invoice
+    public struct Invoice
     {
-        internal string invoiceFileName; // путь до текстового файла с детализацией
-        internal string invoicePathToFile; // путь до текстового файла с детализацией
-        internal string invoiceInternalHoldingNumber; //"Особовий рахунок"
-        internal string invoiceNumber; //"Номер рахунку"
-        internal string invoicePeriod; //"Розрахунковий період"
+        public string invoiceFileName { get; set; }//; // путь до текстового файла с детализацией
+        public string invoicePathToFile { get; set; }//; // путь до текстового файла с детализацией
+        public string invoiceInternalHoldingNumber { get; set; }//; //"Особовий рахунок"
+        public string invoiceNumber { get; set; }//; //"Номер рахунку"
+        public string invoicePeriod { get; set; }//; //"Розрахунковий період"
 
-        internal double invoiceDeliveryCost; // Скидка навесь счет
-        internal double invoiceDeliveryCostDiscount; // скидка на услугу детализ.счет в электронном виде
+        public double invoiceDeliveryCost { get; set; }//; // Скидка навесь счет
+        public double invoiceDeliveryCostDiscount { get; set; }//; // скидка на услугу детализ.счет в электронном виде
     }
 }
