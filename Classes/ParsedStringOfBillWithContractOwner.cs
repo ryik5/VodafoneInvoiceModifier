@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-    internal class ParsedStringOfBillWithContractOwner
-    {
-        internal string contract = "";
-        internal string numberOwner = "";
-        internal string serviceName = "";
-        internal string numberTarget = "";
-        internal string date = "";
-        internal string time = "";
-        internal string durationA = "";
-        internal string durationB = "";
-        internal string cost = "";
+    //internal class ParsedStringOfBillWithContractOwner
+    //{
+    //    public string contract = "";
+    //    public string numberOwner = "";
+    //    public string serviceName = "";
+    //    public string numberTarget = "";
+    //    public string date = "";
+    //    public string time = "";
+    //    public string durationA = "";
+    //    public string durationB = "";
+    //    public string cost = "";
 
-        internal string fio = "";
-        internal string nav = "";
-        internal string department = "";
-    }
+    //    public string fio = "";
+    //    public string nav = "";
+    //    public string department = "";
+    //}
 }
