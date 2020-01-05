@@ -30,15 +30,17 @@ namespace MobileNumbersDetailizationReportGenerator
             Source = dataTable;
         }
 
-        //public virtual DataTable MakePivotDataTable1()
-        //{
-        //    DataTable result = Source
-        //        .AsEnumerable()
-        //        .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue))
-        //        .Contains(_condition.FilteringService)).CopyToDataTable();
+        public virtual DataTable MakePivotDataTable2()
+        {
+            DataTable result = Source
+                .AsEnumerable()
+                .Where(myRow => myRow
+                        .Field<string>(_condition.NameColumnWithFilteringServiceValue)
+                        .Contains(_condition.FilteringService))
+                .CopyToDataTable();
 
-        //    return result;
-        //}
+            return result;
+        }
 
         //DoPivotTable
         public DataTable MakePivotDataTable1()
