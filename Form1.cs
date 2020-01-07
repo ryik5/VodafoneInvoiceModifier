@@ -475,18 +475,18 @@ namespace MobileNumbersDetailizationReportGenerator
             };
 
             MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
-            
-            string pathToFile= Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv");
-           
-        //    DataTable dt = makingPivotData.MakePivotDataTable1();
-         //   await Task.Run(() => dt.DataTableToText().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot1.csv")));
 
-            DataTable dt = makingPivotData.MakePivotDataTable1();
+            DataTable dt1 = makingPivotData.MakePivotDataTable1();
+            string pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot1.csv");
+            await Task.Run(() => dt1.ExportToList().WriteAtFile(pathToFile));
+
+            DataTable dt = makingPivotData.MakePivotDataTable2();
+            pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv");
             await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFile));
 
             pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
             //check export!!!!
-              dt.ExportToExcelOpenXML(pathToFile);
+            dt.ExportToExcelOpenXML(pathToFile);
 
             pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP.xlsx");
             makingPivotData.ExportDataTableToPExcelPivot(pathToFile);
