@@ -487,6 +487,9 @@ namespace MobileNumbersDetailizationReportGenerator
             pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
             //check export!!!!
               dt.ExportToExcelOpenXML(pathToFile);
+
+            pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP.xlsx");
+            makingPivotData.ExportDataTableToPExcelPivot(pathToFile);
         }
 
         private void LoadBillIntoMemoryToFilter()
