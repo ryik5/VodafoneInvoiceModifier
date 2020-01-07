@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,11 +36,13 @@ namespace MobileNumbersDetailizationReportGenerator
         {
             DataTable result = Source
                 .AsEnumerable()
-                .Where(myRow => myRow[_condition.NameColumnWithFilteringServiceValue].ToString()
+                .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue).ToString()
                         .Contains(_condition.FilteringService))
                 .CopyToDataTable();
 
-
+            //var results = from myRow in Source.AsEnumerable()
+            //              where myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue) == _condition.FilteringService
+            //              select myRow;
 
             return result;
         }
