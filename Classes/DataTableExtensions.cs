@@ -10,7 +10,7 @@ namespace MobileNumbersDetailizationReportGenerator
 {
   public static  class DataTableExtensions
     {
-        public static List<string> DataTableToList(this DataTable table)
+        public static List<string> ExportToList(this DataTable table)
         {
             List<string> result = new List<string>();
 
@@ -22,7 +22,7 @@ namespace MobileNumbersDetailizationReportGenerator
             return result;
         }
 
-        public static string DataTableToText(this DataTable table)
+        public static string ExportToText(this DataTable table)
         {
             string result = string.Empty;
 
@@ -34,7 +34,7 @@ namespace MobileNumbersDetailizationReportGenerator
             return result;
         }
 
-        public static string DataTableColumnInfoToText(this DataTable table)
+        public static string ExportColumnInfoToText(this DataTable table)
         {
             string result = string.Empty;
 
@@ -57,7 +57,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// </summary>
         /// <param name="ds"></param>
         /// <param name="pathToFile"></param>
-        public static void DataSetToExcelOpenXML(this DataSet ds, string pathToFile)
+        public static void ExportToExcelOpenXML(this DataSet ds, string pathToFile)
         {
             using (var workbook = SpreadsheetDocument.Create(pathToFile, DocumentFormat.OpenXml.SpreadsheetDocumentType.Workbook))
             {
@@ -124,7 +124,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// </summary>
         /// <param name="table"></param>
         /// <param name="pathToFile"></param>
-        public static void DataTableToExcelOpenXML(this DataTable table, string pathToFile)
+        public static void ExportToExcelOpenXML(this DataTable table, string pathToFile)
         {
             using (var workbook = SpreadsheetDocument.Create(pathToFile, DocumentFormat.OpenXml.SpreadsheetDocumentType.Workbook))
             {

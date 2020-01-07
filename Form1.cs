@@ -476,12 +476,17 @@ namespace MobileNumbersDetailizationReportGenerator
 
             MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
             
+            string pathToFile= Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv");
+           
         //    DataTable dt = makingPivotData.MakePivotDataTable1();
          //   await Task.Run(() => dt.DataTableToText().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot1.csv")));
 
-
             DataTable dt = makingPivotData.MakePivotDataTable1();
-            await Task.Run(() => dt.DataTableToList().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv")));
+            await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFile));
+
+            pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
+            //check export!!!!
+              dt.ExportToExcelOpenXML(pathToFile);
         }
 
         private void LoadBillIntoMemoryToFilter()
@@ -495,19 +500,19 @@ namespace MobileNumbersDetailizationReportGenerator
 
             dtOwnerOfMobileWithinSelectedPeriod = GetDataWithModel();
 
-            string kontrakt = "";
+            string contract = "";
             string numberMobile = "";
-            string fio = "";
-            string nav = "";
-            string department = "";
-            string tempRow = "";
-            string serviceName = "";
-            string numberB = "";
-            string date = "";
-            string time = "";
-            string durationA = "";
-            string durationB = "";
-            string cost = "";
+            //string fio = "";
+            //string nav = "";
+            //string department = "";
+            //string serviceName = "";
+            //string numberB = "";
+            //string date = "";
+            //string time = "";
+            //string durationA = "";
+            //string durationB = "";
+            //string cost = "";
+            string tempRow ;
 
             string exceptedStringContains = @". . .";
             // NUMBER_OF_CONTRACT,       //1     //number of contract
@@ -531,7 +536,7 @@ namespace MobileNumbersDetailizationReportGenerator
             _ProgressWork1Step();
 
             foreach (string service in listServices)
-            {                filterBill.Add(service);            }
+            { filterBill.Add(service); }
 
             _ProgressWork1Step();
 
@@ -553,7 +558,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     {
                         try
                         {
-                            kontrakt = Regex.Split(sRowBill.Substring(sRowBill.IndexOf('№') + 1).Trim(), " ")[0].Trim();
+                            contract = Regex.Split(sRowBill.Substring(sRowBill.IndexOf('№') + 1).Trim(), " ")[0].Trim();
                             tempRow = sRowBill.Substring(sRowBill.IndexOf(':') + 1).Trim();
 
                             if (tempRow.StartsWith("+"))
@@ -561,16 +566,16 @@ namespace MobileNumbersDetailizationReportGenerator
                             else
                             { numberMobile = "+" + tempRow; } //set format number like '+380...'
                         }
-                        catch(Exception err)
+                        catch (Exception err)
                         {
                             MessageBox.Show("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
                                 "Возможно поменялся формат." + Environment.NewLine +
                                 "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
                                 NUMBER_OF_CONTRACT + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
-                                "Ціновий Пакет: название_пакета" + Environment.NewLine +"далее - детализацией разговоров контракта"+ Environment.NewLine +
+                                "Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
                                 "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
                                 sRowBill + Environment.NewLine +
-                                "Ошибка: "+err.ToString()
+                                "Ошибка: " + err.ToString()
                                 );
                         }
                     }
@@ -587,6 +592,8 @@ namespace MobileNumbersDetailizationReportGenerator
                         85-95	учтенная длительность оператором (для биллинга)
                         96-106	стоимость
                         */
+                        ParsingStringDetalizationOfBill parsing = new ParsingStringDetalizationOfBill();
+                        ParsedStringOfBill parsed;
 
                         try
                         {
@@ -594,62 +601,49 @@ namespace MobileNumbersDetailizationReportGenerator
                             {
                                 if (numberMobile.StartsWith(sNumber))
                                 {
-                                    serviceName = sRowBill?.Substring(0, 38)?.Trim();
-                                    numberB = sRowBill?.Substring(38, 13)?.Trim();
-                                    date = sRowBill?.Substring(52, 10)?.Trim();
-                                    time = sRowBill?.Substring(65, 8)?.Trim();
-                                    durationA = sRowBill?.Substring(74, 9)?.Trim();
-                                    durationB = sRowBill?.Substring(84, 9)?.Trim();
-                                    cost = sRowBill?.Substring(95)?.Trim();
+                                    //serviceName = sRowBill?.Substring(0, 38)?.Trim();
+                                    //numberB = sRowBill?.Substring(38, 13)?.Trim();
+                                    //date = sRowBill?.Substring(52, 10)?.Trim();
+                                    //time = sRowBill?.Substring(65, 8)?.Trim();
+                                    //durationA = sRowBill?.Substring(74, 9)?.Trim();
+                                    //durationB = sRowBill?.Substring(84, 9)?.Trim();
+                                    //cost = sRowBill?.Substring(95)?.Trim();
+
+                                    parsing.SetString(sRowBill);
+                                    parsed = parsing.ParseString();
+
+                                    parsed.contract= contract;
+                                    parsed.numberOwner = sNumber;
 
                                     foreach (DataRow rowTarif in dtOwnerOfMobileWithinSelectedPeriod.Rows)
                                     {
-                                        if (rowTarif["Номер телефона"].ToString().Contains(numberMobile))
+                                        if (rowTarif["Номер телефона"].ToString().Contains(sNumber))
                                         {
-                                            fio = rowTarif["ФИО"].ToString();
-                                            nav = rowTarif["NAV"].ToString();
-                                            department = rowTarif["Подразделение"].ToString();
+                                            parsed.fio = rowTarif["ФИО"].ToString();
+                                            parsed.nav = rowTarif["NAV"].ToString();
+                                            parsed.department = rowTarif["Подразделение"].ToString();
                                             break;
                                         }
-
                                     }
 
-                                    tempRow = $"{numberMobile}\t{fio}\t{nav}\t{department}\t{serviceName}\t{numberB}\t{date}\t{time}\t{durationA}\t{durationB}\t{cost}";
+                                    //for dump
+                                    tempRow = $"{parsed.numberOwner}\t{parsed.fio}\t{parsed.nav}\t{parsed.department}\t{parsed.serviceName}\t" +
+                                        $"{parsed.numberTarget}\t{parsed.date}\t{parsed.time}\t{parsed.durationA}\t{parsed.durationB}\t{parsed.cost}";
 
                                     DataRow rowMarket = dtMarket.NewRow(); //for Market
-                                    rowMarket["Контракт"] = kontrakt;
-                                    rowMarket["Номер телефона"] = numberMobile;
-                                    rowMarket["Имя сервиса"] = serviceName;
-                                    rowMarket["Номер В"] = numberB;
-                                    rowMarket["Дата"] = date;
-                                    rowMarket["Время"] = time;
-                                    rowMarket["Длительность А"] = durationA;
-                                    rowMarket["Длительность В"] = durationB;
-                                    rowMarket["Стоимость"] = cost;
+                                    rowMarket["Контракт"] = parsed.contract;
+                                    rowMarket["Номер телефона"] = parsed.numberOwner;
+                                    rowMarket["Имя сервиса"] = parsed.serviceName;
+                                    rowMarket["Номер В"] = parsed.numberTarget;
+                                    rowMarket["Дата"] = parsed.date;
+                                    rowMarket["Время"] = parsed.time;
+                                    rowMarket["Длительность А"] = parsed.durationA;
+                                    rowMarket["Длительность В"] = parsed.durationB;
+                                    rowMarket["Стоимость"] = parsed.cost;
+                                    rowMarket["ФИО"] = parsed.fio;
+                                    rowMarket["NAV"] = parsed.nav;
+                                    rowMarket["Подразделение"] = parsed.department;
 
-                                    rowMarket["ФИО"] = fio;
-                                    rowMarket["NAV"] = nav;
-                                    rowMarket["Подразделение"] = department;
-
-                                    /*
-                                    listParsedStrings.Add(
-                                        new ParsedStringOfBillWithContractOwner
-                                            {
-                                            contract = kontrakt,
-                                            numberOwner = numberMobile,
-                                            serviceName = serviceName,
-                                            numberTarget = numberB,
-                                            date = date,
-                                            time = time,
-                                            durationA = durationA,
-                                            durationB = durationB,
-                                            cost = cost,
-                                            fio = fio,
-                                            nav = nav,
-                                            department = department
-                                            }
-                                        ); 
-                                    */
                                     dtMarket.Rows.Add(rowMarket);
                                     countRowsInTable++;
                                     sb.AppendLine(tempRow);
@@ -664,19 +658,16 @@ namespace MobileNumbersDetailizationReportGenerator
                                     countStepProgressBar = counterstep;
                                 }
                             }
-
                         }
                         catch (Exception err)
-                        { MessageBox.Show($"Во время парсинга счета возникла ошибка на данной строке:{Environment.NewLine}{sRowBill}{Environment.NewLine}{err.ToString()}", err.Message); }
-
+                        { MessageBox.Show($"Во время парсинга счета возникла ошибка в строке:{Environment.NewLine}{sRowBill}{Environment.NewLine}{err.ToString()}", err.Message); }
                     }
                 }
                 loadedBill = true;
-                {
-                    _TextboxAppendLine(textBoxLog, $"Сформировано для генерации отчета {countRowsInTable} строк c номерами мобильных подпадающими под фильтр.");
-                }
+                { _TextboxAppendLine(textBoxLog, $"Сформировано для генерации отчета {countRowsInTable} строк c номерами мобильных подпадающими под фильтр."); }
 
-                sb.ToString().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "listMarketingCollectRows.csv"));
+                sb.ToString()
+                    .WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "listMarketingCollectRows.csv"));
             }
             else
             { _TextboxAppendLine(textBoxLog, "В выборке нет ничего для указанных номеров!"); }
