@@ -481,7 +481,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
 
             DataTable dt = makingPivotData.MakePivotDataTable1();
-            await Task.Run(() => dt.DataTableToText().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv")));
+            await Task.Run(() => dt.DataTableToList().WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv")));
         }
 
         private void LoadBillIntoMemoryToFilter()
