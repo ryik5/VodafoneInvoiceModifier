@@ -493,8 +493,8 @@ namespace MobileNumbersDetailizationReportGenerator
             pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv");
             try
             {
-            //    DataTable dt = makingPivotData.MakePivotDataTable2();
-             //   await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFile));
+                DataTable dt = makingPivotData.MakePivotDataTable2();
+                await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFile));
             }
             catch (Exception err) { MessageShow(err.ToString()); }
 
@@ -503,7 +503,7 @@ namespace MobileNumbersDetailizationReportGenerator
             // dt1.ExportToExcelOpenXML(pathToFile);
 
             pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP.xlsx");
-            //  makingPivotData.ExportDataTableToPExcelPivot(pathToFile);
+              makingPivotData.ExportDataTableToPExcelPivot(pathToFile);
             makingPivotData.Status -= MessageShow;
         }
 
