@@ -239,7 +239,8 @@ namespace MobileNumbersDetailizationReportGenerator
                                   new DataColumn("Время",typeof(string)),
                                   new DataColumn("Длительность А",typeof(string)),
                                   new DataColumn("Длительность В",typeof(string)),
-                                  new DataColumn("Стоимость",typeof(string))
+                                  new DataColumn("Стоимость",typeof(string)),
+                                  new DataColumn("Результат",typeof(decimal)),
                               };
         DataTable dtMarket = new DataTable("MarketReport");
 
@@ -473,24 +474,44 @@ namespace MobileNumbersDetailizationReportGenerator
                 NameColumnWithFilteringServiceValue = "Длительность А", // column - "Длительность А"
                 TypeResultCalcultedData = typeResult                    // result data format
             };
-
             MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
+            makingPivotData.Status += MessageShow;
+            string pathToFile;
 
-            DataTable dt1 = makingPivotData.MakePivotDataTable1();
-            string pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot1.csv");
-            await Task.Run(() => dt1.ExportToList().WriteAtFile(pathToFile));
+            pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
+            try
+            {
+                DataTable dt1 = makingPivotData.MakePivotDataTable1();
+                await Task.Run(() => dt1.ExportToExcelOpenXML(pathToFile));
 
-            DataTable dt = makingPivotData.MakePivotDataTable2();
+              //  await Task.Run(() => makingPivotData.ExportDataTableToPExcelPivot(pathToFile)); 
+              //  textBoxLog.AppendLine( dt1.ExportToText());
+                
+            }
+            catch (Exception err) { MessageShow(err.ToString()); }
+
             pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv");
-            await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFile));
+            try
+            {
+            //    DataTable dt = makingPivotData.MakePivotDataTable2();
+             //   await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFile));
+            }
+            catch (Exception err) { MessageShow(err.ToString()); }
 
             pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
             //check export!!!!
-            dt.ExportToExcelOpenXML(pathToFile);
+            // dt1.ExportToExcelOpenXML(pathToFile);
 
             pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP.xlsx");
-            makingPivotData.ExportDataTableToPExcelPivot(pathToFile);
+            //  makingPivotData.ExportDataTableToPExcelPivot(pathToFile);
+            makingPivotData.Status -= MessageShow;
         }
+
+        private void MessageShow(object sender, TextEventArgs e)
+        {MessageBox.Show(e.Message); }
+
+        private void MessageShow(string text)
+        { MessageBox.Show(text); }
 
         private void LoadBillIntoMemoryToFilter()
         {
@@ -1618,7 +1639,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         //перед началов учета парсеров этого контракта сначала записываем все собранные данные по предыдущему контракту
                         //для последнего в счете контракта маркером окночания данных является ключевое слово в переменной 'pStop'
                         isCheckFinishedTitles = false;
-                        if (mcpCurrent.contractName.Length > 1)
+                        if (mcpCurrent.contractName?.Length > 1)
                         {
                             mcpCurrent.dateBillStart = dataStart;
                             mcpCurrent.dateBillEnd = dataEnd;
