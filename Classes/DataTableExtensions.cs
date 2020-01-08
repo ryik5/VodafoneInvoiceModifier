@@ -63,8 +63,10 @@ namespace MobileNumbersDetailizationReportGenerator
             using (var workbook = SpreadsheetDocument.Create(pathToFile, DocumentFormat.OpenXml.SpreadsheetDocumentType.Workbook))
             {
                 var workbookPart = workbook.AddWorkbookPart();
-                workbook.WorkbookPart.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook();
-                workbook.WorkbookPart.Workbook.Sheets = new DocumentFormat.OpenXml.Spreadsheet.Sheets();
+                workbook.WorkbookPart.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook
+                {
+                    Sheets = new DocumentFormat.OpenXml.Spreadsheet.Sheets()
+                };
 
                 uint sheetId = 1;
 
@@ -93,9 +95,11 @@ namespace MobileNumbersDetailizationReportGenerator
                     {
                         columns.Add(column.ColumnName);
 
-                        DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell();
-                        cell.DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String;
-                        cell.CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(column.ColumnName);
+                        DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell
+                        {
+                            DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String,
+                            CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(column.ColumnName)
+                        };
                         headerRow.AppendChild(cell);
                     }
 
@@ -106,9 +110,11 @@ namespace MobileNumbersDetailizationReportGenerator
                         DocumentFormat.OpenXml.Spreadsheet.Row newRow = new DocumentFormat.OpenXml.Spreadsheet.Row();
                         foreach (String col in columns)
                         {
-                            DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell();
-                            cell.DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String;
-                            cell.CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(dsrow[col].ToString()); //
+                            DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell
+                            {
+                                DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String,
+                                CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(dsrow[col].ToString()) //
+                            };
                             newRow.AppendChild(cell);
                         }
 
@@ -165,9 +171,11 @@ namespace MobileNumbersDetailizationReportGenerator
                     {
                         columns.Add(column.ColumnName);
 
-                        DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell();
-                        cell.DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String;
-                        cell.CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(column.ColumnName);
+                        DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell
+                        {
+                            DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String,
+                            CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(column.ColumnName)
+                        };
                         headerRow.AppendChild(cell);
                     }
 
@@ -178,9 +186,11 @@ namespace MobileNumbersDetailizationReportGenerator
                         DocumentFormat.OpenXml.Spreadsheet.Row newRow = new DocumentFormat.OpenXml.Spreadsheet.Row();
                         foreach (String col in columns)
                         {
-                            DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell();
-                            cell.DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String;
-                            cell.CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(dsrow[col].ToString()); //
+                            DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell
+                            {
+                                DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String,
+                                CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(dsrow[col].ToString()) //
+                            };
                             newRow.AppendChild(cell);
                         }
 
@@ -190,6 +200,11 @@ namespace MobileNumbersDetailizationReportGenerator
             }
         }
 
+        /// <summary>
+        /// Used EPPlus
+        /// https://stackoverrun.com/ru/q/3109752
+        /// </summary>
+        /// <param name="path"></param>
         public static void ExportToExcelEPPlus(this DataTable table, string path)
         {
             using (DataTable dt = table)

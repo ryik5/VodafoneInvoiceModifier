@@ -1,5 +1,6 @@
 ﻿using OfficeOpenXml;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 namespace MobileNumbersDetailizationReportGenerator
 {
 
-    public class MakingPivotDataTable : AbstractDataTable, IFilterableDataTable
+    public class MakingPivotDataTable : Datatable, IFilterableDataTable
     {
         public delegate void MessageStatus(object sender, TextEventArgs e);
 
@@ -36,6 +37,40 @@ namespace MobileNumbersDetailizationReportGenerator
             Source.Columns.Add("Результат", typeof(decimal));
         }
 
+        public void LaverageTable(Datatable dt)
+        {
+            foreach (DataRow dr in dt.Source.Rows)
+            {
+                if (dr[_condition.NameColumnWithFilteringService].ToString().Trim().ToUpper().Contains("INTERNET"))
+                {
+
+                }
+            }
+        }
+
+
+        public DataTable GroupBy(string i_sGroupByColumn, string i_sAggregateColumn, DataTable i_dSourceTable)
+        {
+            using (DataView dv = new DataView(i_dSourceTable))
+            {
+                //getting distinct values for group column
+                using (DataTable dtGroup = dv.ToTable(true, new string[] { i_sGroupByColumn }))
+                {
+                    //adding column for the row count
+                    dtGroup.Columns.Add("Sum", typeof(decimal));
+
+                    //looping thru distinct values for the group, counting
+                    foreach (DataRow dr in dtGroup.Rows)
+                    {
+                        dr["Sum"] = i_dSourceTable.Compute("Sum(" + i_sAggregateColumn + ")", i_sGroupByColumn + " = '" + dr[i_sGroupByColumn] + "'");
+                    }
+
+                    //returning grouped/counted result
+                    return dtGroup;
+                }
+            }
+        }
+
         private DataColumnCollection SourceDataTableInfo(string calledByMethod)
         {
             Status?.Invoke(this, new TextEventArgs($"Calling method: {calledByMethod}"));
@@ -58,10 +93,27 @@ namespace MobileNumbersDetailizationReportGenerator
         {
             SourceDataTableInfo(nameof(MakePivotDataTable4));
 
+            DataTable desiredResult = GroupBy("TeamID", "MemberID", Source);
+
             var result = Source.AsEnumerable()
                         .GroupBy(r => new { Col1 = r[_condition.KeyColumnName], Col2 = _condition.GroupByOrderColumns })
                         .Select(g => g.OrderBy(x => x.ItemArray = _condition.GroupByOrderColumns).First())
                         .CopyToDataTable();
+            return result;
+        }
+
+        public virtual IEnumerable MakePivotDataTable3()
+        {
+            SourceDataTableInfo(nameof(MakePivotDataTable4));
+
+            var result = from row in Source.AsEnumerable()
+                         group row by row.Field<string>(_condition.NameColumnWithFilteringServiceValue).ToInternetTrafic("Mb") into grp
+                         select new
+                         {
+                             TeamID = grp.Key,
+                             MemberCount = grp.Count()
+                         };
+
             return result;
         }
 
@@ -217,7 +269,7 @@ namespace MobileNumbersDetailizationReportGenerator
     /// <summary>
     /// It will always return a copy of DataTable
     /// </summary>
-    public abstract class AbstractDataTable
+    public abstract class Datatable
     {
         DataTable _source;
         public DataTable Source

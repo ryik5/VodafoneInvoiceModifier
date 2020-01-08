@@ -120,12 +120,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ListExtensions.cs" />
     <Compile Include="Classes\MakingPivotTable.cs" />
     <Compile Include="Classes\DataTableExtensions.cs" />
     <Compile Include="Classes\Invoice.cs" />
     <Compile Include="Classes\MobileContractPerson.cs" />
     <Compile Include="Classes\MultiplierInternetTrafic.cs" />
     <Compile Include="Classes\ParsedStringOfBillWithContractOwner.cs" />
+    <Compile Include="Classes\StringExtensions.cs" />
     <Compile Include="Classes\TextEventArgs.cs" />
     <Compile Include="Classes\WinFormsExtensions.cs" />
     <Compile Include="Form1.cs">
