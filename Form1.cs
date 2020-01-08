@@ -185,8 +185,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                   new DataColumn("Модель компенсации",typeof(string)),
                                   new DataColumn("Тарифный пакет",typeof(string))
                               };
-
-
+        
         HashSet<string> listTarifData = new HashSet<string>(); //will write models in modelToPayment()
 
         readonly string[] arrayTarif = new string[] {
@@ -240,7 +239,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                   new DataColumn("Длительность А",typeof(string)),
                                   new DataColumn("Длительность В",typeof(string)),
                                   new DataColumn("Стоимость",typeof(string)),
-                                  new DataColumn("Результат",typeof(decimal)),
+                              //    new DataColumn("Результат",typeof(decimal)),
                               };
         DataTable dtMarket = new DataTable("MarketReport");
 
@@ -465,45 +464,75 @@ namespace MobileNumbersDetailizationReportGenerator
             await Task.Run(() => LoadBillIntoMemoryToFilter());
 
             //test
-            var typeResult = TypeData.DataStringMb;
+          //  var typeResult = TypeData.DataStringMb;
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
             {                                                           // columns 'dcFullBill' in the table 'dtMarket'
-                KeyColumnName = "ФИО",                                  // column - "ФИО"
-                FilteringService = "internet",                          // used by column - "Передача даних",  
-                NameColumnWithFilteringService = "Номер В",             // cloumn - "Имя сервиса",
-                NameColumnWithFilteringServiceValue = "Длительность А", // column - "Длительность А"
-                TypeResultCalcultedData = typeResult                    // result data format
+                KeyColumnName = "Номер телефона",                       // column "ФИО" //groupby
+                FilteringService = "internet",                          // it is used by column - "Номер В", //Передача даних  
+                NameColumnWithFilteringService = "Номер В",             // column "Номер В",
+                NameColumnWithFilteringServiceValue = "Длительность А", // column "Длительность А", it is used by column 'Summary'
+              //  TypeResultCalcultedData = typeResult,                   // column 'Summary' - result data format for column Summary
+                GroupByOrderColumns = new string[] { "Номер телефона", "ФИО", "NAV", "Подразделение", "Номер В" }
             };
+
+                                  //new DataColumn("Номер телефона", typeof(string)),
+                                  //new DataColumn("ФИО", typeof(string)),
+                                  //new DataColumn("NAV", typeof(string)),
+                                  //new DataColumn("Подразделение", typeof(string)),
+                                  //new DataColumn("Имя сервиса", typeof(string)),
+                                  //new DataColumn("Номер В", typeof(string)),
+                                  //new DataColumn("Дата", typeof(string)),
+                                  //new DataColumn("Время", typeof(string)),
+                                  //new DataColumn("Длительность А", typeof(string)),
+                                  //new DataColumn("Длительность В", typeof(string)),
+                                  //new DataColumn("Стоимость", typeof(string)),
+
+
             MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
             makingPivotData.Status += MessageShow;
-            string pathToFile;
 
-            pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
+            string pathToFileOpenXML;
+            string pathToFileEPPlus;
+            string pathToFileCSV;
+
+            pathToFileOpenXML = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
+            pathToFileEPPlus = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP.xlsx");
+            pathToFileCSV = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot.csv");
             try
             {
-                DataTable dt1 = makingPivotData.MakePivotDataTable1();
-                await Task.Run(() => dt1.ExportToExcelOpenXML(pathToFile));
+                DataTable dt = makingPivotData.MakePivotDataTable1();
 
-              //  await Task.Run(() => makingPivotData.ExportDataTableToPExcelPivot(pathToFile)); 
-              //  textBoxLog.AppendLine( dt1.ExportToText());
-                
+                await Task.Run(() => dt.ExportToExcelOpenXML(pathToFileOpenXML));
+                await Task.Run(() => dt.ExportToExcelEPPlus(pathToFileEPPlus));
+                await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFileCSV));
+                //  textBoxLog.AppendLine( dt1.ExportToText());
             }
             catch (Exception err) { MessageShow(err.ToString()); }
 
-            pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv");
+            pathToFileOpenXML = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML2.xlsx");
+            pathToFileEPPlus = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP2.xlsx");
+            pathToFileCSV = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot2.csv");
             try
             {
                 DataTable dt = makingPivotData.MakePivotDataTable2();
-                await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFile));
+                await Task.Run(() => dt.ExportToExcelOpenXML(pathToFileOpenXML));
+                await Task.Run(() => dt.ExportToExcelEPPlus(pathToFileEPPlus));
+                await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFileCSV));
             }
             catch (Exception err) { MessageShow(err.ToString()); }
 
-            pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
-            //check export!!!!
-            // dt1.ExportToExcelOpenXML(pathToFile);
+            pathToFileOpenXML = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML4.xlsx");
+            pathToFileEPPlus = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP4.xlsx");
+            pathToFileCSV = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot4.csv");
+            try
+            {
+                DataTable dt = makingPivotData.MakePivotDataTable4();
+                await Task.Run(() => dt.ExportToExcelOpenXML(pathToFileOpenXML));
+                await Task.Run(() => dt.ExportToExcelEPPlus(pathToFileEPPlus));
+                await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFileCSV));
+            }
+            catch (Exception err) { MessageShow(err.ToString()); }
 
-            pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP.xlsx");
-              makingPivotData.ExportDataTableToPExcelPivot(pathToFile);
             makingPivotData.Status -= MessageShow;
         }
 
