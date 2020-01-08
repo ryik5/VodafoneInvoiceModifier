@@ -35,9 +35,9 @@ namespace MobileNumbersDetailizationReportGenerator
             Source = dataTable.Copy();
         }
 
-        private void SourceInfo()
+        private void SourceInfo(string method)
         {
-            Status?.Invoke(this, new TextEventArgs($"Таблица: {Source.TableName}"));
+            Status?.Invoke(this, new TextEventArgs($"Method: {method}"));
             Status?.Invoke(this, new TextEventArgs($"Колонок в таблице: {Source.Columns.Count}"));
             List<string> columnsName = new List<string>();
             DataColumnCollection columns = Source.Columns;
@@ -52,12 +52,11 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public virtual DataTable MakePivotDataTable2()
         {
-            SourceInfo();
-            Status?.Invoke(this, new TextEventArgs($"Method: {nameof(MakePivotDataTable2)}"));
+            SourceInfo(nameof(MakePivotDataTable2));
 
             DataTable result = Source
                 .AsEnumerable()
-                .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringServiceValue)
+                .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringService)
                         .Contains(_condition.FilteringService))
                 ?.CopyToDataTable();
 
@@ -71,8 +70,7 @@ namespace MobileNumbersDetailizationReportGenerator
         //Do PivotTable
         public virtual DataTable MakePivotDataTable1()
         {
-            //   SourceInfo();
-            // Status?.Invoke(this, new TextEventArgs($"Method: {nameof(MakePivotDataTable1)}"));
+            SourceInfo(nameof(MakePivotDataTable1));
 
             var result = from myRow in Source.AsEnumerable()
                          where myRow.Field<String>(_condition.NameColumnWithFilteringService) == _condition.FilteringService
@@ -141,7 +139,18 @@ namespace MobileNumbersDetailizationReportGenerator
                  return row;
              })
              ?.CopyToDataTable();*/
-            Status?.Invoke(this, new TextEventArgs($"Finished: {nameof(MakePivotDataTable1)}"));
+
+            return result.CopyToDataTable();
+        }
+
+        public virtual DataTable FilterDataTable()
+        {
+            //SourceInfo();
+            Status?.Invoke(this, new TextEventArgs($"Method: {nameof(FilterDataTable)}"));
+
+            var result = from myRow in Source.AsEnumerable()
+                         where myRow.Field<String>(_condition.NameColumnWithFilteringService) == _condition.FilteringService
+                         select myRow;
 
             return result.CopyToDataTable();
         }
