@@ -17,58 +17,65 @@ namespace MobileNumbersDetailizationReportGenerator
             else
                 source.AppendText($"{Environment.NewLine} {value}");
         }
-        
 
         /// <summary>
-        /// waiting string as '200 Mb'
+        /// waiting source as '20 Gb' or '20 Mb' or '20 Kb' or '20 b' 
+        /// formResult as 'Gb' or 'Mb' or 'Kb' or 'b'
         /// </summary>
         /// <param name="source"></param>
         /// <param name="formResult"></param>
         /// <returns></returns>
         public static decimal ToInternetTrafic(this string source, string formResult)
         {
-
             string text = source?.Trim()?.ToUpper();
 
-            if (text?.Length < 1 || !text.Contains(' '))
+            if (!(text?.Length > 0))
                 return 0;
 
             string end = string.Empty;
 
-            if (text.EndsWith("MB"))
+            if (text.EndsWith("GB"))
             {
-                end = "Mb";
+                end = "GB";
+            }
+            else if (text.EndsWith("MB"))
+            {
+                end = "MB";
             }
             else if (text.EndsWith("KB"))
             {
-                end = "Kb";
+                end = "KB";
             }
             else if (text.EndsWith("B"))
             {
-                end = "b";
+                end = "B";
             }
 
-            int.TryParse(text?.Remove(text.IndexOf(' ')), out int parsed);
+            decimal parsed;
+            decimal.TryParse(text.Replace(end, "").Trim(), out parsed);
 
             decimal result;
+
             switch (end)
             {
-                case ("Mb"):
-                    result = parsed * 1024 * 1024 / MultiplierInternetTrafic.MultiplierInB(formResult);
+                case ("GB"):
+                    result = parsed * 1024 * 1024 * 1024 / MultiplierInternetTrafic.Multiplier(formResult);
                     break;
-                case ("Kb"):
-                    result = parsed * 1024 / MultiplierInternetTrafic.MultiplierInB(formResult);
+                case ("MB"):
+                    result = parsed * 1024 * 1024 / MultiplierInternetTrafic.Multiplier(formResult);
                     break;
-                case ("b"):
-                    result = parsed / MultiplierInternetTrafic.MultiplierInB(formResult);
+                case ("KB"):
+                    result = parsed * 1024 / MultiplierInternetTrafic.Multiplier(formResult);
+                    break;
+                case ("B"):
+                    result = parsed / MultiplierInternetTrafic.Multiplier(formResult);
                     break;
                 default:
                     result = 0;
                     break;
             }
 
-            return Math.Round(result, 2);
+            return Math.Round(result, 3);
         }
-
     }
 }
