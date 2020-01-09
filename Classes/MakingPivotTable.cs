@@ -245,27 +245,19 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
 
-        //Do Filter and ReOrder Table
+        /// <summary>
+        /// Filter data, Set collection columns and columns' order
+        /// </summary>
+        /// <param name="source">DataTable with Data</param>
+        /// <returns></returns>
         public virtual DataTable MakePivotDataTable2(DataTable source)
         {
             //SourceDataTableInfo(nameof(MakePivotDataTable2));
 
-            List<string> removeColumns  = source.ExportColumnNameToList().Except(_condition.GroupByOrderColumns.ToList()).ToList();
-            
-            //Status?.Invoke(this, new TextEventArgs($"List from DB:{Environment.NewLine}{source.ExportColumnNameToList().AsString(Environment.NewLine)}"));
-            //Status?.Invoke(this, new TextEventArgs($"List from condition:{Environment.NewLine}{_condition.GroupByOrderColumns.ToList().AsString(Environment.NewLine)}"));
-             
-            //Status?.Invoke(this, new TextEventArgs($"List need to remove:{Environment.NewLine}{removeColumns.AsString(Environment.NewLine)}"));
-           foreach (var col in removeColumns)
-            {
-                try { source.RemoveColumn(col); }
-                catch (Exception err)
-                {
-                    Status?.Invoke(this, new TextEventArgs($"{col}\n{err.ToString()}"));
-                }
-            }
-            
-            DataTable result = source.AsEnumerable()
+            DataTable _source = source;
+            ChangeColumnsCollection(ref _source);
+                       
+            DataTable result = _source.AsEnumerable()
                 .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringService)
                         .Contains(_condition.FilteringService))
                 ?.CopyToDataTable();
@@ -273,6 +265,33 @@ namespace MobileNumbersDetailizationReportGenerator
             return result;
         }
 
+        private void ChangeColumnsCollection(ref DataTable source)
+        {
+            List<string> removeColumns = ListRemovingColumnsFromDataTable(source, _condition.GroupByOrderColumns);
+            foreach (var col in removeColumns)
+            {
+                try { source.RemoveColumn(col); }
+                catch (Exception err)
+                {
+                    Status?.Invoke(this, new TextEventArgs($"{col}\n{err.ToString()}"));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reorder columns' collection in DataTable
+        /// </summary>
+        /// <param name="source">DataTable which columns' collection is going to change</param>
+        /// <param name="columnsAlive">columns' collection which has to put into or stay in DataTable</param>
+        /// <returns></returns>
+        private List<string> ListRemovingColumnsFromDataTable(DataTable source, string[] columnsAlive)
+        {
+            List<string> columns  = source
+                .ExportColumnNameToList()
+                .Except(columnsAlive.ToList())
+                .ToList();
+            return columns;
+        }
 
 
         //public virtual DataTable FilterDataTable(DataTable source)
