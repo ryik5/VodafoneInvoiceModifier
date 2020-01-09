@@ -463,6 +463,7 @@ namespace MobileNumbersDetailizationReportGenerator
             dtMarket.Rows.Clear();
             await Task.Run(() => LoadBillIntoMemoryToFilter());
 
+            
             //test
           //  var typeResult = TypeData.DataStringMb;
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
@@ -471,7 +472,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 FilteringService = "internet",                          // it is used by column - "Номер В", //Передача даних  
                 NameColumnWithFilteringService = "Номер В",             // column "Номер В",
                 NameColumnWithFilteringServiceValue = "Длительность А", // column "Длительность А", it is used by column 'Summary'
-                NameColumnWithResult= "Результат",
+                NameNewColumnWithResult= "Результат",
               //  TypeResultCalcultedData = typeResult,                   // column 'Summary' - result data format for column Summary
                 GroupByOrderColumns = new string[] { "Номер телефона", "ФИО", "NAV", "Подразделение", "Номер В" }
             };
