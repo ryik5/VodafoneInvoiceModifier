@@ -10,96 +10,125 @@ using System.Threading.Tasks;
 namespace MobileNumbersDetailizationReportGenerator
 {
 
-    public class MakingPivotDataTable : Datatable, IFilterableDataTable
+    public class MakingPivotDataTable :  IFilterableDataTable
     {
         public delegate void MessageStatus(object sender, TextEventArgs e);
-
         public event MessageStatus Status;
 
         ConditionForMakingPivotTable _condition;
+
+        DataTable _source;
 
         public MakingPivotDataTable() { }
 
         public MakingPivotDataTable(DataTable dataTable, ConditionForMakingPivotTable condition)
         {
-            SetDataTable(dataTable);
-            SetFilter(condition);
-        }
-
-        public void SetFilter(ConditionForMakingPivotTable condition)
-        {
+            _source = dataTable;
             _condition = condition;
+
+            PrepareTable(ref _source, ref _condition);
         }
 
-        public void SetDataTable(DataTable dataTable)
+        public void PrepareTable(ref DataTable dataTable, ref ConditionForMakingPivotTable condition)
         {
-            Source = dataTable.Copy();
-            Source.Columns.Add("Результат", typeof(decimal));
-        }
+            DataColumn column = dataTable.Columns.Add("Результат", System.Type.GetType("System.Decimal"));
+            foreach (System.Data.DataColumn col in dataTable.Columns)
+            { col.ReadOnly = false; }
 
-        public void LaverageTable(Datatable dt)
-        {
-            foreach (DataRow dr in dt.Source.Rows)
+            //column.Expression = $"{_condition.NameColumnWithFilteringServiceValue } * Quantity";            
+
+            foreach (DataRow row in dataTable.Rows)
             {
-                if (dr[_condition.NameColumnWithFilteringService].ToString().Trim().ToUpper().Contains("INTERNET"))
+                string cell = row[condition.NameColumnWithFilteringService]?.ToString()?.Trim()?.ToUpper();
+                if (cell != null && cell.Contains("INTERNET"))
                 {
-
+                    row["Результат"] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb");
                 }
+                else
+                    row["Результат"] = 0;
             }
+            dataTable.AcceptChanges();
+
+           string[] orderColumns = EnlargeArray(condition.GroupByOrderColumns, "Результат");
+            dataTable.SetColumnsOrder(orderColumns);
+            condition.GroupByOrderColumns = orderColumns;
+          //  _source.AcceptChanges();
+
+            Status?.Invoke(this, new TextEventArgs($"ColumnNames new: {dataTable.ExportColumnInfoToText()}"));
+            Status?.Invoke(this, new TextEventArgs($"{condition.GroupByOrderColumns.ToList().AsString(Environment.NewLine).ToString()}"));
         }
 
 
-        public DataTable GroupBy(string i_sGroupByColumn, string i_sAggregateColumn, DataTable i_dSourceTable)
+        public string[] EnlargeArray(string[] array, string addToList)
         {
-            using (DataView dv = new DataView(i_dSourceTable))
+            if (addToList == null || addToList.Length == 0)
+                return array;
+
+            List<string> columns = array.ToList();
+            columns.Add(addToList);
+            string[] temp = columns.ToArray();
+
+            return temp;
+        }
+
+
+        public DataTable GroupBy(DataTable source, string groupByColumn)
+        {
+            DataView dv = new DataView(source);
+
+            //getting distinct values for group column
+            DataTable dtGroup = dv.ToTable(true, new string[] { groupByColumn });
+
+            //returning grouped/counted result
+            return dtGroup;
+        }
+        public DataTable ComputeAndGroupBy(string i_sGroupByColumn, string i_sAggregateColumn, DataTable i_dSourceTable)
+        {
+            DataView dv = new DataView(i_dSourceTable);
+
+            //getting distinct values for group column
+            DataTable dtGroup = dv.ToTable(true, new string[] { i_sGroupByColumn });
+
+            //adding column for the row count
+            //   dtGroup.Columns.Add("Sum", typeof(decimal));
+
+            //looping thru distinct values for the group, counting
+            foreach (DataRow dr in dtGroup.Rows)
             {
-                //getting distinct values for group column
-                using (DataTable dtGroup = dv.ToTable(true, new string[] { i_sGroupByColumn }))
-                {
-                    //adding column for the row count
-                    dtGroup.Columns.Add("Sum", typeof(decimal));
-
-                    //looping thru distinct values for the group, counting
-                    foreach (DataRow dr in dtGroup.Rows)
-                    {
-                        dr["Sum"] = i_dSourceTable.Compute("Sum(" + i_sAggregateColumn + ")", i_sGroupByColumn + " = '" + dr[i_sGroupByColumn] + "'");
-                    }
-
-                    //returning grouped/counted result
-                    return dtGroup;
-                }
+                //     dr["Sum"] = i_dSourceTable.Compute("Sum(" + i_sAggregateColumn + ")", i_sGroupByColumn + " = '" + dr[i_sGroupByColumn] + "'");
             }
+
+            //returning grouped/counted result
+            return dtGroup;
         }
 
         private DataColumnCollection SourceDataTableInfo(string calledByMethod)
         {
             Status?.Invoke(this, new TextEventArgs($"Calling method: {calledByMethod}"));
-            Status?.Invoke(this, new TextEventArgs($"Колонок в таблице: {Source.Columns.Count}"));
+            Status?.Invoke(this, new TextEventArgs($"Колонок в таблице: {_source.Columns.Count}"));
 
             //List<string> columnsName = new List<string>();
-            DataColumnCollection columns = Source.Columns;
+            DataColumnCollection columns = _source.Columns;
             foreach (DataColumn dc in columns)
             {
                 //columnsName.Add(dc.ColumnName);
             }
             //Status?.Invoke(this, new TextEventArgs($"Колонки в таблице:{Environment.NewLine}{columnsName.AsString(Environment.NewLine)}"));
             
-            Status?.Invoke(this, new TextEventArgs($"Строк в таблице: {Source.Rows.Count}"));
+            Status?.Invoke(this, new TextEventArgs($"Строк в таблице: {_source.Rows.Count}"));
 
             return columns;
         }
 
-        public virtual DataTable MakePivotDataTable4()
+
+        public virtual DataTable MakePivotDataTable6() //Doesn't correct
         {
-            SourceDataTableInfo(nameof(MakePivotDataTable4));
-
-            DataTable desiredResult = GroupBy("TeamID", "MemberID", Source);
-
-            var newDt = dt.AsEnumerable()
+            //SourceDataTableInfo(nameof(MakePivotDataTable6));
+            var result = _source.AsEnumerable()
               .GroupBy(r => r.Field<int>("Id"))
               .Select(g =>
               {
-                  var row = dt.NewRow();
+                  var row = _source.NewRow();
 
                   row["Id"] = g.Key;
                   row["Amount 1"] = g.Sum(r => r.Field<int>("Amount 1"));
@@ -109,56 +138,83 @@ namespace MobileNumbersDetailizationReportGenerator
                   return row;
               }).CopyToDataTable();
 
-            var result = Source.AsEnumerable()
-                        .GroupBy(r => new { Col1 = r[_condition.KeyColumnName], Col2 = _condition.GroupByOrderColumns })
-                        .Select(g => g.OrderBy(x => x.ItemArray = _condition.GroupByOrderColumns).First())
-                        .CopyToDataTable();
             return result;
         }
 
-        public virtual IEnumerable MakePivotDataTable3()
+        public virtual IEnumerable MakePivotDataTable5() //Doesn't correct
         {
-            SourceDataTableInfo(nameof(MakePivotDataTable4));
-
-            var result = from row in Source.AsEnumerable()
-                         group row by row.Field<string>(_condition.NameColumnWithFilteringServiceValue).ToInternetTrafic("Mb") into grp
+            //SourceDataTableInfo(nameof(MakePivotDataTable5));
+            var result = from row in _source.AsEnumerable()
+                         group row by row.Field<string>(_condition.NameColumnWithFilteringServiceValue).ToInternetTrafic("Mb") 
+                         into grp
                          select new
                          {
-                             TeamID = grp.Key,
+                             TeamID = grp.Key, //not exist
                              MemberCount = grp.Count()
-                         };
+                         }
+                         ;
 
             return result;
         }
 
+
+        public virtual DataTable MakePivotDataTable4()
+        {
+            //SourceDataTableInfo(nameof(MakePivotDataTable4));
+            DataTable result = _source.AsEnumerable()
+                        .GroupBy(r =>  r.Field<string>(_condition.KeyColumnName) )//, Col2 = _condition.GroupByOrderColumns
+                        .Select(g => g.OrderBy(x => x.ItemArray = _condition.GroupByOrderColumns).First())
+                        .CopyToDataTable();
+            
+            return result;
+        }
+
+        public virtual DataTable MakePivotDataTable3()
+        {
+          //SourceDataTableInfo(nameof(MakePivotDataTable3));
+            DataTable result = GroupBy(_source,_condition.KeyColumnName);
+            
+            return result;
+        }
 
         public virtual DataTable MakePivotDataTable2()
         {
-            SourceDataTableInfo(nameof(MakePivotDataTable2));
+            //SourceDataTableInfo(nameof(MakePivotDataTable2));
 
-            return Source.AsEnumerable()
+          //   _condition.GroupByOrderColumns.
+           Status?.Invoke(this, new TextEventArgs($"{_condition.GroupByOrderColumns.ToList().AsString(Environment.NewLine).ToString()}"));
+
+            Status?.Invoke(this, new TextEventArgs($"Real table:{Environment.NewLine}{_source.ExportColumnNameToText()}"));
+            List<string> removeColumns = _source.ExportColumnNameToList();
+            removeColumns.Except(_condition.GroupByOrderColumns.ToList());
+            foreach (var col in removeColumns)
+            {
+              //  try { _source.RemoveColumn(col); }
+              //  catch (Exception err)
+                {
+              //      Status?.Invoke(this, new TextEventArgs($"{col}\n{err.ToString()}"));
+                }
+            }
+                Status?.Invoke(this, new TextEventArgs($"{removeColumns.AsString(Environment.NewLine)}"));
+            
+            DataTable result = _source.AsEnumerable()
                 .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringService)
                         .Contains(_condition.FilteringService))
                 ?.CopyToDataTable();
+           
+            return result;
         }
 
         //Do PivotTable
         public virtual DataTable MakePivotDataTable1()
         {
-            SourceDataTableInfo(nameof(MakePivotDataTable1));
-
-            var result1 =
-                from student in Source.AsEnumerable()
-                group student
-                by new { Col1 = student.Field<string>(_condition.KeyColumnName) };
-
-
-            var result = Source.AsEnumerable()
-                        .GroupBy(r => new { Col1 = r[_condition.KeyColumnName], Col2 = _condition.GroupByOrderColumns })
-                        .Select(g => g.OrderBy(x => x.ItemArray = _condition.GroupByOrderColumns).First())
+            //SourceDataTableInfo(nameof(MakePivotDataTable1));
+            var result = _source.AsEnumerable()
+                        .GroupBy(r => r[_condition.KeyColumnName])
+                        .Select(g => g).FirstOrDefault()
                         ;
 
-            //var result = Source.AsEnumerable()
+            //var result = _source.AsEnumerable()
             //    .Select(a => new
             //    {
             //        keyColumn = a.Field<String>(_condition.KeyColumnName),
@@ -169,7 +225,7 @@ namespace MobileNumbersDetailizationReportGenerator
             //    .GroupBy(r => new { r.keyColumn, r.filteringServiceValue, r.filteringService, r.Value })
             //    .Select(g =>
             //        {
-            //            var row = Source.NewRow();
+            //            var row = _source.NewRow();
 
             //            row[_condition.KeyColumnName] = g.Key.keyColumn;
             //            row[_condition.NameColumnWithFilteringService] = g.Key.filteringService;
@@ -186,112 +242,27 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public virtual DataTable FilterDataTable()
         {
-            SourceDataTableInfo(nameof(FilterDataTable));
-
-            return (from myRow in Source.AsEnumerable()
+            //SourceDataTableInfo(nameof(FilterDataTable));
+            DataTable result = (from myRow in _source.AsEnumerable()
                     where myRow.Field<String>(_condition.NameColumnWithFilteringService) == _condition.FilteringService
                     select myRow).CopyToDataTable();
+
+            return result;
         }
-
-        /// <summary>
-        /// Used EPPlus
-        /// https://stackoverrun.com/ru/q/3109752
-        /// </summary>
-        /// <param name="path"></param>
-        //public void ExportDataTableToPExcelPivot(string path)
-        //{
-        //    using (DataTable table = Source)
-        //    {
-        //        System.IO.FileInfo fileInfo = new System.IO.FileInfo(path);
-        //        using (var excel = new ExcelPackage(fileInfo))
-        //        {
-        //            using (var wsData = excel.Workbook.Worksheets.Add("Data-Worksheetname"))
-        //            {
-        //                wsData.Cells["A1"].LoadFromDataTable(table, true, OfficeOpenXml.Table.TableStyles.Medium6);
-        //                if (table.Rows.Count != 0)
-        //                {
-        //                    foreach (DataColumn col in table.Columns)
-        //                    {
-        //                        // format all dates in german format (adjust accordingly) 
-        //                        if (col.DataType == typeof(System.DateTime))
-        //                        {
-        //                            var colNumber = col.Ordinal + 1;
-        //                            var range = wsData.Cells[2, colNumber, table.Rows.Count + 1, colNumber];
-        //                            range.Style.Numberformat.Format = "dd.MM.yyyy";
-        //                        }
-        //                    }
-        //                }
-
-        //                using (var dataRange = wsData.Cells[wsData.Dimension.Address.ToString()])
-        //                {
-        //                    dataRange.AutoFitColumns();
-
-        //                    using (var wsPivot = excel.Workbook.Worksheets.Add("Pivot-Worksheetname"))
-        //                    {
-        //                    //    var pivotTable = wsPivot.PivotTables.Add(wsPivot.Cells["A3"], dataRange, "Pivotname");
-        //                    //    pivotTable.MultipleFieldFilters = true;
-        //                    //    pivotTable.RowGrandTotals = true;
-        //                    //    pivotTable.ColumGrandTotals = true;
-        //                    //    pivotTable.Compact = true;
-        //                    //    pivotTable.CompactData = true;
-        //                    //    pivotTable.GridDropZones = false;
-        //                    //    pivotTable.Outline = false;
-        //                    //    pivotTable.OutlineData = false;
-        //                    //    pivotTable.ShowError = true;
-        //                    //    pivotTable.ErrorCaption = "[error]";
-        //                    //    pivotTable.ShowHeaders = true;
-        //                    //    pivotTable.UseAutoFormatting = true;
-        //                    //    pivotTable.ApplyWidthHeightFormats = true;
-        //                    //    pivotTable.ShowDrill = true;
-        //                    //    pivotTable.FirstDataCol = 3;
-        //                    //    pivotTable.RowHeaderCaption = "Claims";
-
-        //                    //    var modelField = pivotTable.Fields["Model"];
-        //                    //    pivotTable.PageFields.Add(modelField);
-        //                    //    modelField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
-
-        //                    //    var countField = pivotTable.Fields["Claims"];
-        //                    //    pivotTable.DataFields.Add(countField);
-
-        //                    //    var countryField = pivotTable.Fields["Country"];
-        //                    //    pivotTable.RowFields.Add(countryField);
-        //                    //    var gspField = pivotTable.Fields["GSP/DRSL"];
-        //                    //    pivotTable.RowFields.Add(gspField);
-
-        //                    //    var oldStatusField = pivotTable.Fields["Old Status"];
-        //                    //    pivotTable.ColumnFields.Add(oldStatusField);
-        //                    //    var newStatusField = pivotTable.Fields["New Status"];
-        //                    //    pivotTable.ColumnFields.Add(newStatusField);
-
-        //                    //    var submittedDateField = pivotTable.Fields["Claim Submitted Date"];
-        //                    //    pivotTable.RowFields.Add(submittedDateField);
-        //                    //    submittedDateField.AddDateGrouping(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Months | OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
-        //                    //    var monthGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Months);
-        //                    //    monthGroupField.ShowAll = false;
-        //                    //    var dayGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
-        //                    //    dayGroupField.ShowAll = false;
-        //                    }
-        //                }
-        //            }
-
-        //            excel.Save();
-        //        }
-        //    }
-        //}
     }
 
     /// <summary>
     /// It will always return a copy of DataTable
     /// </summary>
-    public abstract class Datatable
-    {
-        DataTable _source;
-        public DataTable Source
-        {
-            get { return _source.Copy(); }
-            set { _source = value; }
-        }
-    }
+    //public abstract class Datatable
+    //{
+    //    DataTable _source;
+    //    public DataTable Source
+    //    {
+    //        get { return _source.Copy(); }
+    //        set { _source = value; }
+    //    }
+    //}
 
     public interface IFilterableDataTable
     {

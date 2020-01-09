@@ -120,6 +120,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ColumnInfo.cs" />
     <Compile Include="Classes\ListExtensions.cs" />
     <Compile Include="Classes\MakingPivotTable.cs" />
     <Compile Include="Classes\DataTableExtensions.cs" />
