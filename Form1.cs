@@ -471,8 +471,9 @@ namespace MobileNumbersDetailizationReportGenerator
                 FilteringService = "internet",                          // it is used by column - "Номер В", //Передача даних  
                 NameColumnWithFilteringService = "Номер В",             // column "Номер В",
                 NameColumnWithFilteringServiceValue = "Длительность А", // column "Длительность А", it is used by column 'Summary'
+                NameColumnWithResult= "Результат",
               //  TypeResultCalcultedData = typeResult,                   // column 'Summary' - result data format for column Summary
-                GroupByOrderColumns = new string[] { "Номер телефона", "ФИО", "NAV", "Подразделение", "Номер В", "Длительность А" }
+                GroupByOrderColumns = new string[] { "Номер телефона", "ФИО", "NAV", "Подразделение", "Номер В" }
             };
 
                                   //new DataColumn("Номер телефона", typeof(string)),
@@ -500,11 +501,11 @@ namespace MobileNumbersDetailizationReportGenerator
          //   pathToFileCSV = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot.csv");
             try
             {
-              //  DataTable dt = makingPivotData.MakePivotDataTable1();
+                //  DataTable dt = makingPivotData.MakePivotDataTable1();
 
-             //   await Task.Run(() => dt.ExportToExcelOpenXML(pathToFileOpenXML));
-              //  await Task.Run(() => dt.ExportToExcelEPPlus(pathToFileEPPlus));
-               // await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFileCSV));
+                //   await Task.Run(() => dt.ExportToExcelOpenXML(pathToFileOpenXML));
+                await Task.Run(() => makingPivotData.MakePivotDataTable1().ExportToExcelEPPlus(pathToFileEPPlus));
+                // await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFileCSV));
                 //  textBoxLog.AppendLine( dt1.ExportToText());
             }
             catch (Exception err) { MessageShow(err.ToString()); }
