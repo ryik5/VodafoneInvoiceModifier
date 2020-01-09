@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-  public static  class DataTableExtensions
+    public static class DataTableExtensions
     {
-        public static List<string> ExportToList(this DataTable table)
+        public static List<string> ExportRowsToList(this DataTable table)
         {
             List<string> result = new List<string>();
 
@@ -23,16 +23,47 @@ namespace MobileNumbersDetailizationReportGenerator
             return result;
         }
 
-        public static string ExportToText(this DataTable table)
+        public static string ExportRowsToText(this DataTable table)
         {
             string result = string.Empty;
 
             foreach (DataRow dr in table.Rows)
             {
-                result += (string.Join("\t", dr.ItemArray)+ Environment.NewLine);
+                result += (string.Join("\t", dr.ItemArray) + Environment.NewLine);
             }
 
             return result;
+        }
+
+        public static List<ColumnInfo> ExportColumnInfoToList(this DataTable table)
+        {
+            List<ColumnInfo> list = new List<ColumnInfo>();
+
+            // Use a DataTable object's DataColumnCollection.
+            DataColumnCollection columns = table.Columns;
+
+            // Print the ColumnName and DataType for each column.
+            foreach (DataColumn column in columns)
+            {
+                list.Add(new ColumnInfo{ColumnName=column.ColumnName, ColumnType=column.DataType.FullName});
+            }
+
+            return list;
+        }
+        public static List<string> ExportColumnNameToList(this DataTable table)
+        {
+            List<string> list = new List<string>();
+
+            // Use a DataTable object's DataColumnCollection.
+            DataColumnCollection columns = table.Columns;
+
+            // Print the ColumnName and DataType for each column.
+            foreach (DataColumn column in columns)
+            {
+                list .Add(column.Caption);
+            }
+
+            return list;
         }
 
         public static string ExportColumnInfoToText(this DataTable table)
@@ -49,6 +80,76 @@ namespace MobileNumbersDetailizationReportGenerator
             }
 
             return result;
+        }
+        public static string ExportColumnNameToText(this DataTable table)
+        {
+            string result = string.Empty;
+
+            // Use a DataTable object's DataColumnCollection.
+            DataColumnCollection columns = table.Columns;
+
+            // Print the ColumnName and DataType for each column.
+            foreach (DataColumn column in columns)
+            {
+                result += $"{column.ColumnName}{Environment.NewLine}";
+            }
+
+            return result;
+        }
+
+        public static void SetColumnsOrder(this DataTable table, params string[] columnNames)
+        {
+            List<string> listColNames = columnNames.ToList();
+            List<string> listColNamesOfTable = table.ExportColumnNameToList();
+
+            listColNamesOfTable.Except(columnNames.ToList());
+
+            //Remove invalid column names.
+            foreach (string colName in columnNames)
+            {
+                if (!table.Columns.Contains(colName))
+                {
+                    listColNames.Remove(colName);
+                }
+            }
+
+            int columnIndex = 0;
+            foreach (var columnName in listColNames)
+            {
+                table.Columns[columnName].SetOrdinal(columnIndex);
+                columnIndex++;
+            }
+
+            //foreach (string ColName in listColNamesOfTable)
+            //{
+            //    if (table.Columns.Contains(ColName))
+            //        table.Columns.Remove(ColName);
+            //}
+        }
+        public static void RemoveColumn(this DataTable table, string columnName)
+        {
+            if (table.Columns.Contains(columnName))
+                table.Columns.Remove(columnName);
+        }
+
+        /// <summary>
+        /// 'queryOrder' as form: "DEPARTMENT, FIO , DATE_REGISTRATION  ASC"
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="queryOrder"></param>
+        /// <returns></returns>
+        public static DataTable ChangeDataTableScheme(this DataTable dataTable, string queryOrder)
+        {
+            //  dataTable.SetColumnsOrder(Names.orderColumnsFinacialReport);
+            DataTable dtExport;
+
+            // Sort order of collumns
+            using (DataView dv = dataTable.DefaultView)
+            {
+                dv.Sort = queryOrder;
+                dtExport = dv.ToTable();
+            }
+            return dtExport;
         }
 
         /// <summary>
@@ -204,86 +305,77 @@ namespace MobileNumbersDetailizationReportGenerator
         /// Used EPPlus
         /// https://stackoverrun.com/ru/q/3109752
         /// </summary>
-        /// <param name="path"></param>
-        public static void ExportToExcelEPPlus(this DataTable table, string path)
+        /// <param name="pathToFile"></param>
+        public static void ExportToExcelEPPlus(this DataTable source, string pathToFile)
         {
-            using (DataTable dt = table)
+            DataTable table = source;
+            System.IO.FileInfo fileInfo = new System.IO.FileInfo(pathToFile);
+            if (fileInfo.Exists)
+                fileInfo.Delete();
+            var excel = new ExcelPackage(fileInfo);
+            var wsData = excel.Workbook.Worksheets.Add("Data-Worksheetname");
+            //var wsPivot = excel.Workbook.Worksheets.Add("Pivot-Worksheetname");
+            wsData.Cells["A2"].LoadFromDataTable(table, true, OfficeOpenXml.Table.TableStyles.Medium6);
+            if (table.Rows.Count != 0)
             {
-                System.IO.FileInfo fileInfo = new System.IO.FileInfo(path);
-                using (var excel = new ExcelPackage(fileInfo))
+                foreach (DataColumn col in table.Columns)
                 {
-                    using (var wsData = excel.Workbook.Worksheets.Add("Data-Worksheetname"))
+                    // format all dates in german format (adjust accordingly)
+                    if (col.DataType == typeof(System.DateTime))
                     {
-                        wsData.Cells["A1"].LoadFromDataTable(dt, true, OfficeOpenXml.Table.TableStyles.Medium6);
-                        if (dt.Rows.Count != 0)
-                        {
-                            foreach (DataColumn col in dt.Columns)
-                            {
-                                // format all dates in german format (adjust accordingly) 
-                                if (col.DataType == typeof(System.DateTime))
-                                {
-                                    var colNumber = col.Ordinal + 1;
-                                    var range = wsData.Cells[2, colNumber, dt.Rows.Count + 1, colNumber];
-                                    range.Style.Numberformat.Format = "dd.MM.yyyy";
-                                }
-                            }
-                        }
-
-                        using (var dataRange = wsData.Cells[wsData.Dimension.Address.ToString()])
-                        {
-                            dataRange.AutoFitColumns();
-
-                            using (var wsPivot = excel.Workbook.Worksheets.Add("Pivot-Worksheetname"))
-                            {
-                                //    var pivotTable = wsPivot.PivotTables.Add(wsPivot.Cells["A3"], dataRange, "Pivotname");
-                                //    pivotTable.MultipleFieldFilters = true;
-                                //    pivotTable.RowGrandTotals = true;
-                                //    pivotTable.ColumGrandTotals = true;
-                                //    pivotTable.Compact = true;
-                                //    pivotTable.CompactData = true;
-                                //    pivotTable.GridDropZones = false;
-                                //    pivotTable.Outline = false;
-                                //    pivotTable.OutlineData = false;
-                                //    pivotTable.ShowError = true;
-                                //    pivotTable.ErrorCaption = "[error]";
-                                //    pivotTable.ShowHeaders = true;
-                                //    pivotTable.UseAutoFormatting = true;
-                                //    pivotTable.ApplyWidthHeightFormats = true;
-                                //    pivotTable.ShowDrill = true;
-                                //    pivotTable.FirstDataCol = 3;
-                                //    pivotTable.RowHeaderCaption = "Claims";
-
-                                //    var modelField = pivotTable.Fields["Model"];
-                                //    pivotTable.PageFields.Add(modelField);
-                                //    modelField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
-
-                                //    var countField = pivotTable.Fields["Claims"];
-                                //    pivotTable.DataFields.Add(countField);
-
-                                //    var countryField = pivotTable.Fields["Country"];
-                                //    pivotTable.RowFields.Add(countryField);
-                                //    var gspField = pivotTable.Fields["GSP/DRSL"];
-                                //    pivotTable.RowFields.Add(gspField);
-
-                                //    var oldStatusField = pivotTable.Fields["Old Status"];
-                                //    pivotTable.ColumnFields.Add(oldStatusField);
-                                //    var newStatusField = pivotTable.Fields["New Status"];
-                                //    pivotTable.ColumnFields.Add(newStatusField);
-
-                                //    var submittedDateField = pivotTable.Fields["Claim Submitted Date"];
-                                //    pivotTable.RowFields.Add(submittedDateField);
-                                //    submittedDateField.AddDateGrouping(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Months | OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
-                                //    var monthGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Months);
-                                //    monthGroupField.ShowAll = false;
-                                //    var dayGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
-                                //    dayGroupField.ShowAll = false;
-                            }
-                        }
+                        var colNumber = col.Ordinal + 1;
+                        var range = wsData.Cells[2, colNumber, table.Rows.Count + 1, colNumber];
+                        range.Style.Numberformat.Format = "yyyy.MM.dd"; //"dd.MM.yyyy"
                     }
-
-                    excel.Save();
                 }
             }
+
+            var dataRange = wsData.Cells[wsData.Dimension.Address.ToString()];
+            dataRange.AutoFitColumns();
+            //var pivotTable = wsPivot.PivotTables.Add(wsPivot.Cells["A3"], dataRange, "Pivotname");
+            //pivotTable.MultipleFieldFilters = true;
+            //pivotTable.RowGrandTotals = true;
+            //pivotTable.ColumGrandTotals = true;
+            //pivotTable.Compact = true;
+            //pivotTable.CompactData = true;
+            //pivotTable.GridDropZones = false;
+            //pivotTable.Outline = false;
+            //pivotTable.OutlineData = false;
+            //pivotTable.ShowError = true;
+            //pivotTable.ErrorCaption = "[error]";
+            //pivotTable.ShowHeaders = true;
+            //pivotTable.UseAutoFormatting = true;
+            //pivotTable.ApplyWidthHeightFormats = true;
+            //pivotTable.ShowDrill = true;
+            //pivotTable.FirstDataCol = 3;
+            //pivotTable.RowHeaderCaption = "Claims";
+
+            //var modelField = pivotTable.Fields["Model"];
+            //pivotTable.PageFields.Add(modelField);
+            //modelField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+
+            //var countField = pivotTable.Fields["Claims"];
+            //pivotTable.DataFields.Add(countField);
+
+            //var countryField = pivotTable.Fields["Country"];
+            //pivotTable.RowFields.Add(countryField);
+            //var gspField = pivotTable.Fields["GSP / DRSL"];
+            //pivotTable.RowFields.Add(gspField);
+
+            //var oldStatusField = pivotTable.Fields["Old Status"];
+            //pivotTable.ColumnFields.Add(oldStatusField);
+            //var newStatusField = pivotTable.Fields["New Status"];
+            //pivotTable.ColumnFields.Add(newStatusField);
+
+            //var submittedDateField = pivotTable.Fields["Claim Submitted Date"];
+            //pivotTable.RowFields.Add(submittedDateField);
+            //submittedDateField.AddDateGrouping(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Months | OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
+            //var monthGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Months);
+            //monthGroupField.ShowAll = false;
+            //var dayGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
+            //dayGroupField.ShowAll = false;
+
+            excel.Save();
         }
     }
 }
