@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace MobileNumbersDetailizationReportGenerator
 {
 
-    public class MakingPivotDataTable :  IFilterableDataTable
+    public class MakingPivotDataTable //:  IFilterableDataTable
     {
         public delegate void MessageStatus(object sender, TextEventArgs e);
         public event MessageStatus Status;
@@ -31,7 +31,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public void PrepareTable(ref DataTable dataTable, ref ConditionForMakingPivotTable condition)
         {
-            DataColumn column = dataTable.Columns.Add("Результат", System.Type.GetType("System.Decimal"));
+            DataColumn column = dataTable.Columns.Add(condition.NameColumnWithResult, System.Type.GetType("System.Decimal"));
             foreach (System.Data.DataColumn col in dataTable.Columns)
             { col.ReadOnly = false; }
 
@@ -42,14 +42,14 @@ namespace MobileNumbersDetailizationReportGenerator
                 string cell = row[condition.NameColumnWithFilteringService]?.ToString()?.Trim()?.ToUpper();
                 if (cell != null && cell.Contains("INTERNET"))
                 {
-                    row["Результат"] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb");
+                    row[condition.NameColumnWithResult] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb");
                 }
                 else
-                    row["Результат"] = 0;
+                    row[condition.NameColumnWithResult] = 0;
             }
             dataTable.AcceptChanges();
 
-           string[] orderColumns = EnlargeArray(condition.GroupByOrderColumns, "Результат");
+           string[] orderColumns = EnlargeArray(condition.GroupByOrderColumns, condition.NameColumnWithResult);
             dataTable.SetColumnsOrder(orderColumns);
             condition.GroupByOrderColumns = orderColumns;
           //  _source.AcceptChanges();
@@ -179,25 +179,30 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public virtual DataTable MakePivotDataTable2()
         {
+
+          return  MakePivotDataTable2(_source);
+        }
+
+        public virtual DataTable MakePivotDataTable2(DataTable source)
+        {
             //SourceDataTableInfo(nameof(MakePivotDataTable2));
 
-          //   _condition.GroupByOrderColumns.
-           Status?.Invoke(this, new TextEventArgs($"{_condition.GroupByOrderColumns.ToList().AsString(Environment.NewLine).ToString()}"));
-
-            Status?.Invoke(this, new TextEventArgs($"Real table:{Environment.NewLine}{_source.ExportColumnNameToText()}"));
-            List<string> removeColumns = _source.ExportColumnNameToList();
-            removeColumns.Except(_condition.GroupByOrderColumns.ToList());
-            foreach (var col in removeColumns)
+            List<string> removeColumns  = source.ExportColumnNameToList().Except(_condition.GroupByOrderColumns.ToList()).ToList();
+            
+            //Status?.Invoke(this, new TextEventArgs($"List from DB:{Environment.NewLine}{source.ExportColumnNameToList().AsString(Environment.NewLine)}"));
+            //Status?.Invoke(this, new TextEventArgs($"List from condition:{Environment.NewLine}{_condition.GroupByOrderColumns.ToList().AsString(Environment.NewLine)}"));
+             
+            //Status?.Invoke(this, new TextEventArgs($"List need to remove:{Environment.NewLine}{removeColumns.AsString(Environment.NewLine)}"));
+           foreach (var col in removeColumns)
             {
-              //  try { _source.RemoveColumn(col); }
-              //  catch (Exception err)
+                try { source.RemoveColumn(col); }
+                catch (Exception err)
                 {
-              //      Status?.Invoke(this, new TextEventArgs($"{col}\n{err.ToString()}"));
+                    Status?.Invoke(this, new TextEventArgs($"{col}\n{err.ToString()}"));
                 }
             }
-                Status?.Invoke(this, new TextEventArgs($"{removeColumns.AsString(Environment.NewLine)}"));
             
-            DataTable result = _source.AsEnumerable()
+            DataTable result = source.AsEnumerable()
                 .Where(myRow => myRow.Field<string>(_condition.NameColumnWithFilteringService)
                         .Contains(_condition.FilteringService))
                 ?.CopyToDataTable();
@@ -208,42 +213,46 @@ namespace MobileNumbersDetailizationReportGenerator
         //Do PivotTable
         public virtual DataTable MakePivotDataTable1()
         {
+            return MakePivotDataTable1(MakePivotDataTable2());
+        }
+        public virtual DataTable MakePivotDataTable1(DataTable source)
+        {
             //SourceDataTableInfo(nameof(MakePivotDataTable1));
-            var result = _source.AsEnumerable()
-                        .GroupBy(r => r[_condition.KeyColumnName])
-                        .Select(g => g).FirstOrDefault()
-                        ;
+            //var result = source.AsEnumerable()
+            //            .GroupBy(r => r[_condition.KeyColumnName])
+            //            .Select(g => g)
+            //            ;
 
-            //var result = _source.AsEnumerable()
-            //    .Select(a => new
-            //    {
-            //        keyColumn = a.Field<String>(_condition.KeyColumnName),
-            //        filteringService = a.Field<String>(_condition.NameColumnWithFilteringService),
-            //        filteringServiceValue = a.Field<String>(_condition.NameColumnWithFilteringServiceValue),
-            //        Value = a.Field<String>(_condition.NameColumnWithFilteringServiceValue).TryParseAsInternetTrafic("Mb"),
-            //    })
-            //    .GroupBy(r => new { r.keyColumn, r.filteringServiceValue, r.filteringService, r.Value })
-            //    .Select(g =>
-            //        {
-            //            var row = _source.NewRow();
+            var result = source.AsEnumerable()
+                .Select(a => new
+                {
+                    keyColumn = a.Field<string>(_condition.KeyColumnName),
+                    filteringService = a.Field<string>(_condition.NameColumnWithFilteringService),
+                  //  filteringServiceValue = a.Field<string>(_condition.NameColumnWithResult),
+                    Value = a.Field<decimal>(_condition.NameColumnWithResult),
+                })
+                .GroupBy(r => new { r.keyColumn,  r.filteringService, r.Value })
+                .Select(g =>
+                    {
+                        var row = source.NewRow();
 
-            //            row[_condition.KeyColumnName] = g.Key.keyColumn;
-            //            row[_condition.NameColumnWithFilteringService] = g.Key.filteringService;
-            //            row[_condition.NameColumnWithFilteringServiceValue] = g.Key.filteringServiceValue;
-            //            row["Результат"] = g.Sum(r => r.Value);
+                        row[_condition.KeyColumnName] = g.Key.keyColumn;
+                        row[_condition.NameColumnWithFilteringService] = g.Key.filteringService;
+                       // row[_condition.NameColumnWithFilteringServiceValue] = g.Key.filteringServiceValue;
+                        row[_condition.NameColumnWithResult] = g.Sum(r => r.Value);
 
-            //            // Status?.Invoke(this, new TextEventArgs($"Method: {nameof(MakePivotDataTable1)}"));
+                        // Status?.Invoke(this, new TextEventArgs($"Method: {nameof(MakePivotDataTable1)}"));
 
-            //            return row;
-            //        });
+                        return row;
+                    });
 
             return result.CopyToDataTable();
         }
 
-        public virtual DataTable FilterDataTable()
+        public virtual DataTable FilterDataTable(DataTable source)
         {
             //SourceDataTableInfo(nameof(FilterDataTable));
-            DataTable result = (from myRow in _source.AsEnumerable()
+            DataTable result = (from myRow in source.AsEnumerable()
                     where myRow.Field<String>(_condition.NameColumnWithFilteringService) == _condition.FilteringService
                     select myRow).CopyToDataTable();
 
@@ -264,11 +273,11 @@ namespace MobileNumbersDetailizationReportGenerator
     //    }
     //}
 
-    public interface IFilterableDataTable
-    {
-        DataTable MakePivotDataTable1();
-        DataTable MakePivotDataTable2();
-    }
+    //public interface IFilterableDataTable
+    //{
+    //    DataTable MakePivotDataTable1(DataTable source);
+    //    DataTable MakePivotDataTable2(DataTable source);
+    //}
 
     public class ConditionForMakingPivotTable
     {
@@ -297,7 +306,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// </summary>
         public string[] GroupByOrderColumns { get; set; }
         
-      //  public string FilteringServiceValue { get; set; }
+        public string NameColumnWithResult { get; set; }
 
         /// <summary>
         /// Type of calculated data
