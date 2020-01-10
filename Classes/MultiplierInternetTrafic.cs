@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace MobileNumbersDetailizationReportGenerator
 {
 
-        /// <summary>
-        /// Gb,Mb, Kb, b ot GB,MB, KB, B
-        /// </summary>
-        /// <param name=""></param>
-        /// <returns></returns>
+    /// <summary>
+    /// Gb,Mb, Kb, b ot GB,MB, KB, B
+    /// </summary>
+    /// <param name="dataMesurementTrafic">as Gb,Mb, Kb, b ot GB,MB, KB, B</param>
+    /// <returns name="result">1024 * 1024 * 1024</returns>
     internal static class MultiplierInternetTrafic
     {
         public static int Multiplier(string dataMesurementTrafic)
