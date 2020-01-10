@@ -22,8 +22,8 @@ namespace MobileNumbersDetailizationReportGenerator
         /// waiting source as '20 Gb' or '20 Mb' or '20 Kb' or '20 b' 
         /// formResult as 'Gb' or 'Mb' or 'Kb' or 'b'
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="formResult"></param>
+        /// <param name="source">as '20 Gb' or '20 Mb' or '20 Kb' or '20 b'</param>
+        /// <param name="formResult">as 'Gb' or 'Mb' or 'Kb' or 'b'</param>
         /// <returns></returns>
         public static decimal ToInternetTrafic(this string source, string formResult)
         {

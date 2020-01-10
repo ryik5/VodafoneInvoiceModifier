@@ -26,6 +26,7 @@ namespace MobileNumbersDetailizationReportGenerator
     /// <summary>
     /// inline string of detalization Bill must be a char position
     /// /                        
+    /// <param name="detalizationString">
     /// 1-39	наименование услуги /
     /// 40-52	номер(целевой) /
     /// 53-63	дата /
@@ -33,7 +34,7 @@ namespace MobileNumbersDetailizationReportGenerator
     /// 75-84	длительность /
     /// 85-95	учтенная длительность оператором(для биллинга) /
     /// 96-106	стоимость /
-    ///
+    ///</param>>
     /// </summary>
     public class ParsingStringDetalizationOfBill
     {

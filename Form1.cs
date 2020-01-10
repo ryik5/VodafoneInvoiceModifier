@@ -7,7 +7,6 @@ using System.IO;
 using System.Data;
 using System.Threading.Tasks;
 using System.Linq;
-using Excel = Microsoft.Office.Interop.Excel;
 using System.Drawing;
 
 namespace MobileNumbersDetailizationReportGenerator
@@ -185,7 +184,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                   new DataColumn("Модель компенсации",typeof(string)),
                                   new DataColumn("Тарифный пакет",typeof(string))
                               };
-        
+
         HashSet<string> listTarifData = new HashSet<string>(); //will write models in modelToPayment()
 
         readonly string[] arrayTarif = new string[] {
@@ -210,7 +209,7 @@ namespace MobileNumbersDetailizationReportGenerator
         bool newModels = false; //stop calculating data
         string strNewModels = "";
 
-        string filePathTxt; //path to the selected bill
+        string filePathSourceTxt; //path to the selected bill
 
         List<string> listNumbers = new List<string>(); //list of numbers for the marketing report
         List<string> listServices = new List<string>();//list of services for the marketing report
@@ -260,21 +259,21 @@ namespace MobileNumbersDetailizationReportGenerator
             myRegKey = @"SOFTWARE\RYIK\" + myFileVersionInfo.ProductName;
             pathToIni = Application.StartupPath + @"\" + myFileVersionInfo.ProductName + ".ini"; //path to ini of tools
 
-          string  about = myFileVersionInfo.Comments + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
-            
+            string about = myFileVersionInfo.Comments + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
+
             StatusLabel1.Text = myFileVersionInfo.ProductName + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
             StatusLabel1.Alignment = ToolStripItemAlignment.Right;
-            
+
             contextMenu1 = new ContextMenu();  //Context Menu on notify Icon
             contextMenu1.MenuItems.Add(Properties.Resources.About, AboutSoft);
             contextMenu1.MenuItems.Add(Properties.Resources.Exit, ApplicationExit);
 
-             notifyIcon1.ContextMenu = contextMenu1;
-           notifyIcon1.BalloonTipText = about;
+            notifyIcon1.ContextMenu = contextMenu1;
+            notifyIcon1.BalloonTipText = about;
             notifyIcon1.Text = myFileVersionInfo.ProductName + Environment.NewLine + "v." + myFileVersionInfo.FileVersion;
-            
+
             this.Text = myFileVersionInfo.Comments;
-            
+
             ProgressBar1.Value = 0;
 
             groupBox1.BackColor = System.Drawing.Color.Ivory;
@@ -287,7 +286,6 @@ namespace MobileNumbersDetailizationReportGenerator
 
             makeReportAccountantItem.Enabled = false;
             makeFullReportItem.Enabled = false;
-            makeReportMarketingItem.Enabled = false;
             prepareBillItem.Enabled = false;
 
 
@@ -344,10 +342,51 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
         private void makeFullReportItem_Click(object sender, EventArgs e)
-        { MakeExcelReport(ExportFullDataTableToExcel); }
+        { ExportDataTableToExcelForAccount(true); }
 
         private void makeReportAccountantToolItem_Click(object sender, EventArgs e)
-        { MakeExcelReport(ExportDataTableToExcelForAccount); }
+        { ExportDataTableToExcelForAccount(); }
+
+        private void ExportDataTableToExcelForAccount(bool pivot = false)
+        {
+            string[] columnsCollection = new string[]      // для бухгалтерии
+                       {
+                        "Дата счета",
+                        "Номер телефона абонента",
+                        "ФИО сотрудника",
+                        "Затраты по номеру, грн",
+                        "НДС, грн",
+                        "ПФ, грн",
+                        "Итого по контракту, грн",
+                        "Общая сумма в роуминге, грн",
+                        "Подразделение",
+                        "Табельный номер",
+                        "ТАРИФНАЯ МОДЕЛЬ",
+                        "К оплате владельцем номера, грн"
+                   };
+
+            string pathToFile = Path.Combine(Path.GetDirectoryName(filePathSourceTxt), $"{Path.GetFileNameWithoutExtension(filePathSourceTxt)}.xlsx");
+            string nameSheet = Path.GetFileNameWithoutExtension(filePathSourceTxt);
+
+            DataTable dt = dtMobile.Copy();
+            if (pivot)
+            {
+                pathToFile = Path.Combine(Path.GetDirectoryName(filePathSourceTxt), $"{Path.GetFileNameWithoutExtension(filePathSourceTxt)} pivot.xlsx");
+                dt.EnableEditTable()
+                         .SetColumnsOrder(columnsCollection)
+                         .SeteColumnsCollectionInDataTable(columnsCollection)
+                         .ExportToExcelPivotTable(pathToFile, nameSheet, "К оплате владельцем номера, грн");
+            }
+            else
+            {
+                dt.EnableEditTable()
+                    .SetColumnsOrder(columnsCollection)
+                    .SeteColumnsCollectionInDataTable(columnsCollection)
+                    .ExportToExcel(pathToFile, nameSheet, "К оплате владельцем номера, грн");
+            }
+
+            MessageShow($"Отчет готов и сохранен:{Environment.NewLine}{pathToFile}");
+        }
 
         private void clearTextBoxItem_Click(object sender, EventArgs e)
         { textBoxLog.Clear(); }
@@ -368,7 +407,6 @@ namespace MobileNumbersDetailizationReportGenerator
         private void PrepareListNumbers() //Prepare list of numbers for the marketing report - listNumbers
         {
             selectedNumbers = false;
-            makeReportMarketingItem.Enabled = false;
             string strTemp;
             List<string> listWrongString = new List<string>();
             List<string> tempListString = LoadDataIntoList();
@@ -430,7 +468,6 @@ namespace MobileNumbersDetailizationReportGenerator
         private void PrepareListServicesToMakeReport() //Prepare list of services for the marketing report - listServices
         {
             selectedServices = false;
-            makeReportMarketingItem.Enabled = false;
             textBoxLog.Clear();
 
             listServices.Clear();
@@ -461,92 +498,50 @@ namespace MobileNumbersDetailizationReportGenerator
         private async void prepareBillItem_Click(object sender, EventArgs e)
         {
             dtMarket.Rows.Clear();
+            string pathToFileMarketPivotTable;
+            string pathToFileMarketTable;
             await Task.Run(() => LoadBillIntoMemoryToFilter());
 
-            
             //test
-          //  var typeResult = TypeData.DataStringMb;
+            //  var typeResult = TypeData.DataStringMb;
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
             {                                                           // columns 'dcFullBill' in the table 'dtMarket'
                 KeyColumnName = "Номер телефона",                       // column "ФИО" //groupby
                 FilteringService = "internet",                          // it is used by column - "Номер В", //Передача даних  
                 NameColumnWithFilteringService = "Номер В",             // column "Номер В",
                 NameColumnWithFilteringServiceValue = "Длительность А", // column "Длительность А", it is used by column 'Summary'
-                NameNewColumnWithResult= "Результат",
-              //  TypeResultCalcultedData = typeResult,                   // column 'Summary' - result data format for column Summary
-                GroupByOrderColumns = new string[] { "Номер телефона", "ФИО", "NAV", "Подразделение", "Номер В" }
+                NameNewColumnWithSummary = "Суммарно, МБ",              // column 'Summary' - result data format for column Summary
+                NameNewColumnWithCount = "Количество",
+                //  TypeResultCalcultedData = typeResult,                   
+                ColumnsCollectionAtRightOrder = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В" }
             };
 
-                                  //new DataColumn("Номер телефона", typeof(string)),
-                                  //new DataColumn("ФИО", typeof(string)),
-                                  //new DataColumn("NAV", typeof(string)),
-                                  //new DataColumn("Подразделение", typeof(string)),
-                                  //new DataColumn("Имя сервиса", typeof(string)),
-                                  //new DataColumn("Номер В", typeof(string)),
-                                  //new DataColumn("Дата", typeof(string)),
-                                  //new DataColumn("Время", typeof(string)),
-                                  //new DataColumn("Длительность А", typeof(string)),
-                                  //new DataColumn("Длительность В", typeof(string)),
-                                  //new DataColumn("Стоимость", typeof(string)),
 
+            MakerPivotTable makingPivotData = new MakerPivotTable(dtMarket, condition);
 
-            MakingPivotDataTable makingPivotData = new MakingPivotDataTable(dtMarket, condition);
-            makingPivotData.Status += MessageShow;
+            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketPivotTable.xlsx");
+            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketTable.xlsx");
 
-            string pathToFileEPPlus;
-           // string pathToFileOpenXML;
-          //  string pathToFileCSV;
-
-            pathToFileEPPlus = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP1.xlsx");
-          //  pathToFileOpenXML = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotOpenXML.xlsx");
-         //   pathToFileCSV = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivot.csv");
-            try
-            {
-                //  DataTable dt = makingPivotData.MakePivotDataTable1();
-
-                //   await Task.Run(() => dt.ExportToExcelOpenXML(pathToFileOpenXML));
-                await Task.Run(() => makingPivotData.MakePivotDataTable1().ExportToExcelEPPlus(pathToFileEPPlus));
-                // await Task.Run(() => dt.ExportToList().WriteAtFile(pathToFileCSV));
-                //  textBoxLog.AppendLine( dt1.ExportToText());
-            }
+            try { await Task.Run(() => dtMarket.ExportToExcel(pathToFileMarketTable, "Selected data")); }
             catch (Exception err) { MessageShow(err.ToString()); }
 
-            pathToFileEPPlus = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP2.xlsx");
-            try
-            {
-                await Task.Run(() => makingPivotData.MakePivotDataTable2().ExportToExcelEPPlus(pathToFileEPPlus));
-            }
+            try { await Task.Run(() => makingPivotData.MakePivot().ExportToExcel(pathToFileMarketPivotTable, "PivotTable")); }
             catch (Exception err) { MessageShow(err.ToString()); }
 
-          //  pathToFileEPPlus = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP3.xlsx");
-            try
-            {
-      //          DataTable dt = makingPivotData.MakePivotDataTable3();
-        //        await Task.Run(() => dt.ExportToExcelEPPlus(pathToFileEPPlus));
-            }
-            catch (Exception err) { MessageShow(err.ToString()); }
-
-        //    pathToFileEPPlus = Path.Combine(Path.GetDirectoryName(filepathLoadedData), "testPivotEPP4.xlsx");
-            try
-            {
-          //      DataTable dt = makingPivotData.MakePivotDataTable4();
-         //       await Task.Run(() => dt.ExportToExcelEPPlus(pathToFileEPPlus));
-            }
-            catch (Exception err) { MessageShow(err.ToString()); }
-
-            makingPivotData.Status -= MessageShow;
+            textBoxLog.AppendLine("Генерация завершена");
+            MessageShow("Готово!");
         }
 
         private void MessageShow(object sender, TextEventArgs e)
-        {Task.Run(()=> MessageBox.Show(e.Message)); }
+        { Task.Run(() => MessageBox.Show(e.Message)); }
 
         private void MessageShow(string text)
-        { MessageBox.Show(text); }
+        { Task.Run(() => MessageBox.Show(text)); }
 
         private void LoadBillIntoMemoryToFilter()
         {
             _ProgressBar1Start();
-            _TextboxClear(textBoxLog);
+            textBoxLog.Clear();
             _ToolStripMenuItemEnabled(fileMenuItem, false);
             _ControlVisibleEnabled(labelPeriod, true);
 
@@ -566,7 +561,7 @@ namespace MobileNumbersDetailizationReportGenerator
             //string durationA = "";
             //string durationB = "";
             //string cost = "";
-            string tempRow ;
+            string tempRow;
 
             string exceptedStringContains = @". . .";
             // NUMBER_OF_CONTRACT,       //1     //number of contract
@@ -666,7 +661,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     parsing.SetString(sRowBill);
                                     parsed = parsing.ParseString();
 
-                                    parsed.contract= contract;
+                                    parsed.contract = contract;
                                     parsed.numberOwner = sNumber;
 
                                     foreach (DataRow rowTarif in dtOwnerOfMobileWithinSelectedPeriod.Rows)
@@ -718,13 +713,13 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                 }
                 loadedBill = true;
-                { _TextboxAppendLine(textBoxLog, $"Сформировано для генерации отчета {countRowsInTable} строк c номерами мобильных подпадающими под фильтр."); }
+                { textBoxLog.AppendLine($"Сформировано для генерации отчета {countRowsInTable} строк c номерами мобильных подпадающими под фильтр."); }
 
                 sb.ToString()
                     .WriteAtFile(Path.Combine(Path.GetDirectoryName(filepathLoadedData), "listMarketingCollectRows.csv"));
             }
             else
-            { _TextboxAppendLine(textBoxLog, "В выборке нет ничего для указанных номеров!"); }
+            { textBoxLog.AppendLine("В выборке нет ничего для указанных номеров!"); }
 
             CheckConditionEnableMarketingReport();
             _ToolStripStatusLabelSetText(StatusLabel1, "Файл сохранен в папку: " + Path.GetDirectoryName(filepathLoadedData));
@@ -733,14 +728,12 @@ namespace MobileNumbersDetailizationReportGenerator
             _ProgressBar1Stop();
         }
 
-        private void makeReportMarketingItem_Click(object sender, EventArgs e)
-        { MakeExcelReport(ExportMarketReport); }
+        //  private void makeReportMarketingItem_Click(object sender, EventArgs e)
+        //   { MakeExcelReport(ExportMarketReport); }
 
         //Заполнение таблицы в Excel  данными
-        private void ExportMarketReport()
-        {
-            ExportDatatableToExcel(dtMarket, "_Marketing.xlsx");
-        }
+        //        private void ExportMarketReport()
+        //      { ExportDatatableToExcel(dtMarket, "_Marketing.xlsx"); }
 
 
         private void CheckConditionEnableMarketingReport() //enableing Marketing report if load data is correct
@@ -748,7 +741,6 @@ namespace MobileNumbersDetailizationReportGenerator
             if (selectedServices && selectedNumbers && loadedBill)
             {
                 _ToolStripMenuItemEnabled(prepareBillItem, true);
-                _ToolStripMenuItemEnabled(makeReportMarketingItem, true);
             }
             else if (selectedServices && selectedNumbers)
             {
@@ -887,9 +879,9 @@ namespace MobileNumbersDetailizationReportGenerator
                             ParameterLastInvoiceRegistrySave();
                         }
                         catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row" + Environment.NewLine + expt.ToString()); }
-                        _TextboxAppendLine(textBoxLog, "Из файла-счета: " + Environment.NewLine);
-                        _TextboxAppendLine(textBoxLog, filepathLoadedData);
-                        _TextboxAppendLine(textBoxLog, "отобрано для построения отчета " + counter + " строк с требуемыми сервисами");
+                        textBoxLog.AppendLine("Из файла-счета: " + Environment.NewLine);
+                        textBoxLog.AppendLine(filepathLoadedData);
+                        textBoxLog.AppendLine("отобрано для построения отчета " + counter + " строк с требуемыми сервисами");
                         if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
                         { MessageBox.Show("Error was happened on " + (listRows.Count) + " row" + Environment.NewLine + " You've been chosen the long file!"); }
                     }
@@ -919,7 +911,7 @@ namespace MobileNumbersDetailizationReportGenerator
         private async void OpenBill()
         {
             dtMobile?.Rows?.Clear();
-            filePathTxt = null;
+            filePathSourceTxt = null;
             sbError = new StringBuilder();
             StatusLabel1.BackColor = System.Drawing.SystemColors.Control;
 
@@ -1042,7 +1034,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
 
                         /////////////////
-                        textBoxLog.AppendLine( "---= Все =---" );
+                        textBoxLog.AppendLine("---= Все =---");
                         results = dtMobile.Select(dtMobile.Columns[0].ColumnName.Length + " > 0", sortOrder, DataViewRowState.Added);
                         textBoxLog.AppendLine(
                              string.Format("{0,-40}", columnName1) +
@@ -1052,7 +1044,7 @@ namespace MobileNumbersDetailizationReportGenerator
                              string.Format("{0,-10}", columnName6) +
                              string.Format("{0,-30}", columnName5) +
                              string.Format("{0,-12}", columnName10) +
-                             string.Format("{0,-12}", columnName11) );
+                             string.Format("{0,-12}", columnName11));
                         for (int i = 0; i < results.Length; i++)
                         {
 
@@ -1065,7 +1057,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
                              string.Format("{0,-30}", results[i][21].ToString()) +
                              string.Format("{0,-12}", results[i][24].ToString()) +
-                             string.Format("{0,-12}", results[i][25].ToString()) );
+                             string.Format("{0,-12}", results[i][25].ToString()));
                         }
                         textBoxLog.AppendLine(Properties.Resources.RowDozenOfEqualSymbols);
                         /////////////////
@@ -1073,7 +1065,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         makeReportAccountantItem.Enabled = true;
                         makeFullReportItem.Enabled = true;
 
-                        StatusLabel1.Text = "Предварительная обработка счета из файла " + Path.GetFileName(filePathTxt) + " завершена!";
+                        StatusLabel1.Text = "Предварительная обработка счета из файла " + Path.GetFileName(filePathSourceTxt) + " завершена!";
                         StatusLabel1.ToolTipText = "Данные для генерации отчета для бухгалтерии подготовлены";
                     }
                     else
@@ -1084,7 +1076,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         int i = 0;
                         foreach (string str in listTarifData)
                         {
-                            textBoxLog.AppendLine(++i + ". \"" + str );
+                            textBoxLog.AppendLine(++i + ". \"" + str);
                         }
                         textBoxLog.AppendLine(Properties.Resources.RowDozenOfEqualSymbols);
                         textBoxLog.AppendLine(sbError.ToString());
@@ -1099,7 +1091,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     makeFullReportItem.Enabled = true;
                 }
 
-                filepathLoadedData = filePathTxt;
+                filepathLoadedData = filePathSourceTxt;
 
                 if (listSavedNumbers.Count > 0)
                 { listNumbers = listSavedNumbers; }
@@ -1133,7 +1125,7 @@ namespace MobileNumbersDetailizationReportGenerator
             openBillItem.Enabled = true;
             makeReportMarketingMenuItem.Enabled = true;
 
-            StatusLabel1.Text = @"Формирование отчета завершено. Файл сохранен в папку:  " + Path.GetDirectoryName(filePathTxt);
+            StatusLabel1.Text = @"Формирование отчета завершено. Файл сохранен в папку:  " + Path.GetDirectoryName(filePathSourceTxt);
         }
 
         private string ParseParameterNameAndValueFromReadString(string delimeter, string parameter, string defaultValue = null)
@@ -1391,15 +1383,15 @@ namespace MobileNumbersDetailizationReportGenerator
             bool ChosenFile = false;
             int i = 0; //amount contracts in the current bill
             listTempContract.Clear();
-            filePathTxt = _OpenFileDialogReturnPath(openFileDialog1);
+            filePathSourceTxt = _OpenFileDialogReturnPath(openFileDialog1);
 
-            if (filePathTxt?.Length > 3)
+            if (filePathSourceTxt?.Length > 3)
             {
                 try
                 {
                     Invoice invoice = new Invoice();
-                    invoice.invoicePathToFile = filePathTxt;
-                    invoice.invoiceFileName = Path.GetFileName(filePathTxt);
+                    invoice.invoicePathToFile = filePathSourceTxt;
+                    invoice.invoiceFileName = Path.GetFileName(filePathSourceTxt);
 
                     _ControlSetItsText(labelFile, invoice.invoiceFileName);
                     toolTip1.SetToolTip(labelFile, Properties.Resources.SelectedInvoice);
@@ -1649,7 +1641,7 @@ namespace MobileNumbersDetailizationReportGenerator
             dataStart = labelPeriod.Text.Split('-')[0].Trim(); // дата начала периода счета
             dataEnd = labelPeriod.Text.Split('-')[1].Trim();  // дата конца периода счета
 
-            DataRow row ;
+            DataRow row;
             bool isUsedCurrent = false;
             bool isCheckFinishedTitles = false;
 
@@ -1838,390 +1830,393 @@ namespace MobileNumbersDetailizationReportGenerator
             listTempContract.Clear();
         }
 
-        private void ExportDatatableToExcel(DataTable dt, string sufixExportFile) //Заполнение таблицы в Excel  данными
-        {
-            _ProgressBar1Start();
-            int rows = 1;
-            int rowsInTable = dt.Rows.Count;
-            int columnsInTable = dt.Columns.Count; // p.Length;
+        /* add link at Microsoft.Office.Interop.Excel
+         * and using Excel = Microsoft.Office.Interop.Excel;
+         * private void ExportDatatableToExcel(DataTable dt, string sufixExportFile) //Заполнение таблицы в Excel  данными
+          {
+              _ProgressBar1Start();
+              int rows = 1;
+              int rowsInTable = dt.Rows.Count;
+              int columnsInTable = dt.Columns.Count; // p.Length;
 
-            int stepOfProgressCount = (rowsInTable * columnsInTable) / 100;
+              int stepOfProgressCount = (rowsInTable * columnsInTable) / 100;
 
-            string lastCell = GetColumnName(columnsInTable) + rowsInTable;
-            _ProgressWork1Step();
-            Excel.Application excel = new Excel.Application
+              string lastCell = GetColumnName(columnsInTable) + rowsInTable;
+              _ProgressWork1Step();
+              Excel.Application excel = new Excel.Application
+              {
+                  Visible = false, //делаем объект не видимым
+                  SheetsInNewWorkbook = 1//количество листов в книге
+              };
+
+              Excel.Workbooks workbooks = excel.Workbooks;
+              excel.Workbooks.Add(); //добавляем книгу
+              Excel.Workbook workbook = workbooks[1];
+              Excel.Sheets sheets = workbook.Worksheets;
+              Excel.Worksheet sheet = sheets.get_Item(1);
+              sheet.Name = Path.GetFileNameWithoutExtension(filepathLoadedData);
+              _ProgressWork1Step();
+
+              for (int k = 1; k < columnsInTable; k++)
+              {
+                  sheet.Cells[k].WrapText = true;
+                  sheet.Cells[1, k].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                  sheet.Cells[1, k].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
+                  sheet.Cells[1, k + 1].Value = dt.Columns[k].ColumnName;
+                  //string columnName = dt.Columns[0].Caption;
+
+                  sheet.Columns[k].Font.Size = 8;
+                  sheet.Columns[k].Font.Name = "Tahoma";
+
+                  //colourize of collumns
+                  sheet.Cells[1, k].Interior.Color = System.Drawing.Color.Silver;
+                  _ProgressWork1Step();
+              }
+
+              //input data and set type of cells - numbers /text
+              int stepCount = stepOfProgressCount;
+              foreach (DataRow row in dt.Rows)
+              {
+                  rows++;
+                  foreach (DataColumn column in dt.Columns)
+                  {
+                      if (rows > 1)
+                      {
+                          if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
+                          { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
+                          else
+                          { sheet.Columns[column.Ordinal + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
+                      }
+                      sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
+                      stepCount--;
+                      if (stepCount == 0)
+                      {
+                          _ProgressWork1Step($"Обработано {rows,20 }, строк из {rowsInTable,15}");
+                          stepCount = stepOfProgressCount;
+                      }
+                      //  sheet.Columns[column.Ordinal + 1].AutoFit();
+                  }
+              }
+
+              //Autofilter                
+              Excel.Range range = sheet.UsedRange;  //sheet.Cells.Range["A1", lastCell];
+
+              //ширина колонок - авто
+              range.Cells.EntireColumn.AutoFit();
+              _ProgressWork1Step();
+
+              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideHorizontal].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideVertical].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideVertical].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+
+              range.Select();
+              _ProgressWork1Step();
+
+              range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
+
+              workbook.SaveAs(
+                  Path.GetDirectoryName(filepathLoadedData) + @"\" + Path.GetFileNameWithoutExtension(filepathLoadedData) + sufixExportFile,
+                  Excel.XlFileFormat.xlOpenXMLWorkbook,
+                  System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                  Excel.XlSaveAsAccessMode.xlExclusive, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+
+              workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+              workbooks.Close();
+              _ProgressWork1Step(" ");
+
+              lastCell = null;
+              ReleaseObject(range);
+              ReleaseObject(sheet);
+              ReleaseObject(sheets);
+              ReleaseObject(workbook);
+              ReleaseObject(workbooks);
+              excel.Quit();
+              ReleaseObject(excel);
+              _ProgressBar1Stop();
+          }*/
+
+        /*  private void ExportFullDataTableToExcel() //Заполнение таблицы в Excel всеми данными
+          {
+              int rows = 1;
+              int rowsInTable = dtMobile.Rows.Count;
+              int columnsInTable = p.Length; // p.Length;
+              string lastCell = GetColumnName(columnsInTable) + rowsInTable;
+
+              Excel.Application excel = new Excel.Application
+              {
+                  Visible = false, //делаем объект не видимым
+                  SheetsInNewWorkbook = 1//количество листов в книге
+              };
+
+              Excel.Workbooks workbooks = excel.Workbooks;
+              excel.Workbooks.Add(); //добавляем книгу
+              Excel.Workbook workbook = workbooks[1];
+              Excel.Sheets sheets = workbook.Worksheets;
+              Excel.Worksheet sheet = sheets.get_Item(1);
+              sheet.Name = Path.GetFileNameWithoutExtension(filePathTxt);
+              // sheet.Names.Add("next", "=" + Path.GetFileNameWithoutExtension(filePathTxt) + "!$A$1", true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+
+              HashSet<string> listCollumnsHide = new HashSet<string>(pTranslate);
+              listCollumnsHide.ExceptWith(new HashSet<string>(pToAccount));
+
+              for (int k = 0; k < columnsInTable; k++)
+              {
+                  sheet.Cells[k + 1].WrapText = true;
+                  sheet.Cells[1, k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                  sheet.Cells[1, k + 1].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
+                  sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
+                  sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
+                  sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
+                  sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
+
+                  sheet.Cells[1, k + 1].Value = pTranslate[k];
+
+                  sheet.Columns[k + 1].Font.Size = 8;
+                  sheet.Columns[k + 1].Font.Name = "Tahoma";
+
+                  //colourize of collumns
+                  if (pTranslate[k].Equals("Итого по контракту, грн"))
+                  { sheet.Columns[k + 1].Interior.Color = System.Drawing.Color.DarkSeaGreen; }
+                  else if (pTranslate[k].Equals("К оплате владельцем номера, грн"))
+                  { sheet.Columns[k + 1].Interior.Color = System.Drawing.Color.SandyBrown; }
+                  else { sheet.Cells[1, k + 1].Interior.Color = System.Drawing.Color.Silver; }
+              }
+
+              //input data and set type of cells - numbers /text
+              foreach (DataRow row in dtMobile.Rows)
+              {
+                  rows++;
+                  foreach (DataColumn column in dtMobile.Columns)
+                  {
+                      if (rows == 2)
+                      {
+                          if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
+                          { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
+                          else
+                          { sheet.Columns[column.Ordinal + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
+                      }
+                      sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
+                      sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
+                      sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
+                      sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
+                      sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
+                      sheet.Columns[column.Ordinal + 1].AutoFit();
+                  }
+              }
+
+              //Область сортировки   
+              Excel.Range range = sheet.Range["A2", lastCell];
+
+              //По какому столбцу сортировать
+              string nameColumnSorted = GetColumnName(Array.IndexOf(pTranslate, "Номер телефона абонента") + 1);
+              Excel.Range rangeKey = sheet.Range[nameColumnSorted + (rowsInTable - 1)];
+
+              //Добавляем параметры сортировки
+              sheet.Sort.SortFields.Add(rangeKey);
+              sheet.Sort.SetRange(range);
+              sheet.Sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
+              sheet.Sort.SortMethod = Excel.XlSortMethod.xlPinYin;
+              sheet.Sort.Apply();
+
+              //Очищаем фильтр
+              sheet.Sort.SortFields.Clear();
+
+              for (int k = 0; k < pTranslate.Length; k++)
+              {
+                  foreach (string str in listCollumnsHide)
+                  {
+                      if (pTranslate[k].Equals(str))
+                      {
+                          sheet.Columns[k + 1].Hidden = true;
+                      }
+                  }
+              }
+
+              //Autofilter                
+              range = sheet.UsedRange;  //sheet.Cells.Range["A1", lastCell];
+              range.Select();
+              range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
+
+              workbook.SaveAs(
+                  Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @"_full.xlsx",
+                  Excel.XlFileFormat.xlOpenXMLWorkbook,
+                  System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                  Excel.XlSaveAsAccessMode.xlExclusive, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+
+              workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+              workbooks.Close();
+
+              listCollumnsHide = null;
+              nameColumnSorted = null;
+              lastCell = null;
+              ReleaseObject(range);
+              ReleaseObject(rangeKey);
+              ReleaseObject(sheet);
+              ReleaseObject(sheets);
+              ReleaseObject(workbook);
+              ReleaseObject(workbooks);
+              excel.Quit();
+              ReleaseObject(excel);
+
+              //  autofill. manualy set number in D1 and D2, then use function
+              //rng = this.Application.get_Range("D1","D2");
+              //Excel.Range rng.AutoFill(this.Application.get_Range("D1", "D5"), Excel.XlAutoFillType.xlFillSeries);
+              //  add comment:
+              //Excel.Range dateComment = this.Application.get_Range("A1");
+              //dateComment.AddComment("Comment added " + DateTime.Now.ToString());
+              //  delete comment:
+              //if (dateComment.Comment != null) { dateComment.Comment.Delete(); }
+
+              // sheet.Cells[1, k + 1].Font.Bold = true;
+              // (sheet.Cells[1, column.Ordinal + 1] as Microsoft.Office.Interop.Excel.Range).Font.Size = 8;
+
+              //объединение ячеек
+              //sheet.get_Range(sheet.Cells[2, 2], sheet.Cells[4, 4]).Merge(missing);
+              //(sheet.Columns).ColumnWidth = 15;
+              // sheet.Columns.Font.Size = System.Drawing.Color.LightPink;
+          }
+          */
+        /* private void ExportDataTableToExcelForAccount() //Заполнение таблицы в Excel данными для бухгалтерии
+         {
+             int[] pIdxToAccount = new int[]
             {
-                Visible = false, //делаем объект не видимым
-                SheetsInNewWorkbook = 1//количество листов в книге
+                 // для бухгалтерии
+                 dtMobile.Columns.IndexOf("Дата счета"),
+                 dtMobile.Columns.IndexOf("Номер телефона абонента"),
+                 dtMobile.Columns.IndexOf("ФИО сотрудника"),
+                 dtMobile.Columns.IndexOf("Затраты по номеру, грн"),
+                 dtMobile.Columns.IndexOf("НДС, грн"),
+                 dtMobile.Columns.IndexOf("ПФ, грн"),
+                 dtMobile.Columns.IndexOf("Итого по контракту, грн"),
+                 dtMobile.Columns.IndexOf("Общая сумма в роуминге, грн"),
+                 dtMobile.Columns.IndexOf("Подразделение"),
+                 dtMobile.Columns.IndexOf("Табельный номер"),
+                 dtMobile.Columns.IndexOf("ТАРИФНАЯ МОДЕЛЬ"),
+                 dtMobile.Columns.IndexOf("К оплате владельцем номера, грн")
             };
 
-            Excel.Workbooks workbooks = excel.Workbooks;
-            excel.Workbooks.Add(); //добавляем книгу
-            Excel.Workbook workbook = workbooks[1];
-            Excel.Sheets sheets = workbook.Worksheets;
-            Excel.Worksheet sheet = sheets.get_Item(1);
-            sheet.Name = Path.GetFileNameWithoutExtension(filepathLoadedData);
-            _ProgressWork1Step();
+             int rows = 1;
+             int rowsInTable = dtMobile.Rows.Count;
+             int columnsInTable = pIdxToAccount.Length; // p.Length;
 
-            for (int k = 1; k < columnsInTable; k++)
-            {
-                sheet.Cells[k].WrapText = true;
-                sheet.Cells[1, k].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-                sheet.Cells[1, k].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
-                sheet.Cells[1, k + 1].Value = dt.Columns[k].ColumnName;
-                //string columnName = dt.Columns[0].Caption;
+             Excel.Application excel = new Excel.Application
+             {
+                 Visible = false, //делаем объект не видимым
+                 SheetsInNewWorkbook = 1//количество листов в книге
+             };
+             Excel.Workbooks workbooks = excel.Workbooks;
+             excel.Workbooks.Add(); //добавляем книгу
+             Excel.Workbook workbook = workbooks[1];
+             Excel.Sheets sheets = workbook.Worksheets;
+             Excel.Worksheet sheet = sheets.get_Item(1);
+             sheet.Name = Path.GetFileNameWithoutExtension(filePathTxt);
+             //sheet.Names.Add("next", "=" + Path.GetFileNameWithoutExtension(filePathTxt) + "!$A$1", true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
 
-                sheet.Columns[k].Font.Size = 8;
-                sheet.Columns[k].Font.Name = "Tahoma";
+             for (int k = 0; k < columnsInTable; k++)
+             {
+                 sheet.Cells[k + 1].WrapText = true;
+                 sheet.Cells[k + 1].Interior.Color = System.Drawing.Color.Silver;
+                 sheet.Cells[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                 sheet.Cells[k + 1].VerticalAlignment = Excel.XlVAlign.xlVAlignCenter;
+                 sheet.Cells[1, k + 1].Value = pToAccount[k];
+                 sheet.Columns[k + 1].Font.Size = 8;
+                 sheet.Columns[k + 1].Font.Name = "Tahoma";
 
-                //colourize of collumns
-                sheet.Cells[1, k].Interior.Color = System.Drawing.Color.Silver;
-                _ProgressWork1Step();
-            }
+                 switch (k)
+                 {
+                     case 0:
+                     case 1:
+                     case 2:
+                     case 8:
+                     case 9:
+                     case 10:
+                         {
+                             sheet.Columns[k + 1].NumberFormat = "@";
+                             break;
+                         }
+                     case 3:
+                     case 4:
+                     case 5:
+                     case 6:
+                     case 7:
+                     case 11:
+                         {
+                             sheet.Columns[k + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00";
+                             sheet.Columns[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
+                             break;
+                         }
+                 }
+             }
 
-            //input data and set type of cells - numbers /text
-            int stepCount = stepOfProgressCount;
-            foreach (DataRow row in dt.Rows)
-            {
-                rows++;
-                foreach (DataColumn column in dt.Columns)
-                {
-                    if (rows > 1)
-                    {
-                        if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
-                        { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
-                        else
-                        { sheet.Columns[column.Ordinal + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
-                    }
-                    sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
-                    stepCount--;
-                    if (stepCount == 0)
-                    {
-                        _ProgressWork1Step($"Обработано {rows,20 }, строк из {rowsInTable,15}");
-                        stepCount = stepOfProgressCount;
-                    }
-                    //  sheet.Columns[column.Ordinal + 1].AutoFit();
-                }
-            }
+             //colourize of collumns
+             sheet.Columns[7].Interior.Color = System.Drawing.Color.DarkSeaGreen;  //"Итого по контракту, грн"
+             sheet.Columns[columnsInTable].Interior.Color = System.Drawing.Color.SandyBrown;  //"К оплате владельцем номера, грн"
 
-            //Autofilter                
-            Excel.Range range = sheet.UsedRange;  //sheet.Cells.Range["A1", lastCell];
+             //input data and set type of cells - numbers /text
+             foreach (DataRow row in dtMobile.Rows)
+             {
+                 rows++;
+                 for (int column = 0; column < columnsInTable; column++)
+                 {
+                     sheet.Cells[rows, column + 1].Value = row[pIdxToAccount[column]];
+                 }
+             }
 
-            //ширина колонок - авто
-            range.Cells.EntireColumn.AutoFit();
-            _ProgressWork1Step();
+             //Область сортировки          
+             Excel.Range range = sheet.Range["A2", GetColumnName(columnsInTable) + (rows - 1)];
 
-            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideHorizontal].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideVertical].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideVertical].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+             //По какому столбцу сортировать
+             string nameColumnSorted = GetColumnName(Array.IndexOf(pIdxToAccount, dtMobile.Columns.IndexOf("Номер телефона абонента")) + 1);
+             Excel.Range rangeKey = sheet.Range[nameColumnSorted + (rowsInTable - 1)];
 
-            range.Select();
-            _ProgressWork1Step();
+             //Добавляем параметры сортировки
+             sheet.Sort.SortFields.Add(rangeKey);
+             sheet.Sort.SetRange(range);
+             sheet.Sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
+             sheet.Sort.SortMethod = Excel.XlSortMethod.xlPinYin;
+             sheet.Sort.Apply();
+             //Очищаем фильтр
+             sheet.Sort.SortFields.Clear();
 
-            range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
+             //Autofilter
+             range = sheet.UsedRange; //sheet.Cells.Range["A1", GetColumnName(columnsInTable) + rowsInTable];
+             range.Select();
 
-            workbook.SaveAs(
-                Path.GetDirectoryName(filepathLoadedData) + @"\" + Path.GetFileNameWithoutExtension(filepathLoadedData) + sufixExportFile,
-                Excel.XlFileFormat.xlOpenXMLWorkbook,
-                System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                Excel.XlSaveAsAccessMode.xlExclusive, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+             //Форматирование колонок (стиль линий обводки)
+             range.Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
+             range.Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
+             range.Borders[Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Excel.XlLineStyle.xlContinuous;
+             range.Borders[Excel.XlBordersIndex.xlInsideHorizontal].Weight = Excel.XlBorderWeight.xlThin;
+             range.Borders[Excel.XlBordersIndex.xlInsideVertical].LineStyle = Excel.XlLineStyle.xlContinuous;
+             range.Borders[Excel.XlBordersIndex.xlInsideVertical].Weight = Excel.XlBorderWeight.xlThin;
+             range.Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
+             range.Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
+             range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
 
-            workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-            workbooks.Close();
-            _ProgressWork1Step(" ");
+             workbook.SaveAs(Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx",
+                 Excel.XlFileFormat.xlOpenXMLWorkbook,
+                 System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                 Excel.XlSaveAsAccessMode.xlExclusive,
+                 System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+             workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+             workbooks.Close();
 
-            lastCell = null;
-            ReleaseObject(range);
-            ReleaseObject(sheet);
-            ReleaseObject(sheets);
-            ReleaseObject(workbook);
-            ReleaseObject(workbooks);
-            excel.Quit();
-            ReleaseObject(excel);
-            _ProgressBar1Stop();
-        }
-
-        private void ExportFullDataTableToExcel() //Заполнение таблицы в Excel всеми данными
-        {
-            int rows = 1;
-            int rowsInTable = dtMobile.Rows.Count;
-            int columnsInTable = p.Length; // p.Length;
-            string lastCell = GetColumnName(columnsInTable) + rowsInTable;
-
-            Excel.Application excel = new Excel.Application
-            {
-                Visible = false, //делаем объект не видимым
-                SheetsInNewWorkbook = 1//количество листов в книге
-            };
-
-            Excel.Workbooks workbooks = excel.Workbooks;
-            excel.Workbooks.Add(); //добавляем книгу
-            Excel.Workbook workbook = workbooks[1];
-            Excel.Sheets sheets = workbook.Worksheets;
-            Excel.Worksheet sheet = sheets.get_Item(1);
-            sheet.Name = Path.GetFileNameWithoutExtension(filePathTxt);
-            // sheet.Names.Add("next", "=" + Path.GetFileNameWithoutExtension(filePathTxt) + "!$A$1", true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-
-            HashSet<string> listCollumnsHide = new HashSet<string>(pTranslate);
-            listCollumnsHide.ExceptWith(new HashSet<string>(pToAccount));
-
-            for (int k = 0; k < columnsInTable; k++)
-            {
-                sheet.Cells[k + 1].WrapText = true;
-                sheet.Cells[1, k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-                sheet.Cells[1, k + 1].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
-                sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-                sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-
-                sheet.Cells[1, k + 1].Value = pTranslate[k];
-
-                sheet.Columns[k + 1].Font.Size = 8;
-                sheet.Columns[k + 1].Font.Name = "Tahoma";
-
-                //colourize of collumns
-                if (pTranslate[k].Equals("Итого по контракту, грн"))
-                { sheet.Columns[k + 1].Interior.Color = System.Drawing.Color.DarkSeaGreen; }
-                else if (pTranslate[k].Equals("К оплате владельцем номера, грн"))
-                { sheet.Columns[k + 1].Interior.Color = System.Drawing.Color.SandyBrown; }
-                else { sheet.Cells[1, k + 1].Interior.Color = System.Drawing.Color.Silver; }
-            }
-
-            //input data and set type of cells - numbers /text
-            foreach (DataRow row in dtMobile.Rows)
-            {
-                rows++;
-                foreach (DataColumn column in dtMobile.Columns)
-                {
-                    if (rows == 2)
-                    {
-                        if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
-                        { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
-                        else
-                        { sheet.Columns[column.Ordinal + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
-                    }
-                    sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
-                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-                    sheet.Columns[column.Ordinal + 1].AutoFit();
-                }
-            }
-
-            //Область сортировки   
-            Excel.Range range = sheet.Range["A2", lastCell];
-
-            //По какому столбцу сортировать
-            string nameColumnSorted = GetColumnName(Array.IndexOf(pTranslate, "Номер телефона абонента") + 1);
-            Excel.Range rangeKey = sheet.Range[nameColumnSorted + (rowsInTable - 1)];
-
-            //Добавляем параметры сортировки
-            sheet.Sort.SortFields.Add(rangeKey);
-            sheet.Sort.SetRange(range);
-            sheet.Sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
-            sheet.Sort.SortMethod = Excel.XlSortMethod.xlPinYin;
-            sheet.Sort.Apply();
-
-            //Очищаем фильтр
-            sheet.Sort.SortFields.Clear();
-
-            for (int k = 0; k < pTranslate.Length; k++)
-            {
-                foreach (string str in listCollumnsHide)
-                {
-                    if (pTranslate[k].Equals(str))
-                    {
-                        sheet.Columns[k + 1].Hidden = true;
-                    }
-                }
-            }
-
-            //Autofilter                
-            range = sheet.UsedRange;  //sheet.Cells.Range["A1", lastCell];
-            range.Select();
-            range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
-
-            workbook.SaveAs(
-                Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @"_full.xlsx",
-                Excel.XlFileFormat.xlOpenXMLWorkbook,
-                System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                Excel.XlSaveAsAccessMode.xlExclusive, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-
-            workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-            workbooks.Close();
-
-            listCollumnsHide = null;
-            nameColumnSorted = null;
-            lastCell = null;
-            ReleaseObject(range);
-            ReleaseObject(rangeKey);
-            ReleaseObject(sheet);
-            ReleaseObject(sheets);
-            ReleaseObject(workbook);
-            ReleaseObject(workbooks);
-            excel.Quit();
-            ReleaseObject(excel);
-
-            //  autofill. manualy set number in D1 and D2, then use function
-            //rng = this.Application.get_Range("D1","D2");
-            //Excel.Range rng.AutoFill(this.Application.get_Range("D1", "D5"), Excel.XlAutoFillType.xlFillSeries);
-            //  add comment:
-            //Excel.Range dateComment = this.Application.get_Range("A1");
-            //dateComment.AddComment("Comment added " + DateTime.Now.ToString());
-            //  delete comment:
-            //if (dateComment.Comment != null) { dateComment.Comment.Delete(); }
-
-            // sheet.Cells[1, k + 1].Font.Bold = true;
-            // (sheet.Cells[1, column.Ordinal + 1] as Microsoft.Office.Interop.Excel.Range).Font.Size = 8;
-
-            //объединение ячеек
-            //sheet.get_Range(sheet.Cells[2, 2], sheet.Cells[4, 4]).Merge(missing);
-            //(sheet.Columns).ColumnWidth = 15;
-            // sheet.Columns.Font.Size = System.Drawing.Color.LightPink;
-        }
-
-        private void ExportDataTableToExcelForAccount() //Заполнение таблицы в Excel данными для бухгалтерии
-        {
-            int[] pIdxToAccount = new int[]
-           {
-                // для бухгалтерии
-                dtMobile.Columns.IndexOf("Дата счета"),
-                dtMobile.Columns.IndexOf("Номер телефона абонента"),
-                dtMobile.Columns.IndexOf("ФИО сотрудника"),
-                dtMobile.Columns.IndexOf("Затраты по номеру, грн"),
-                dtMobile.Columns.IndexOf("НДС, грн"),
-                dtMobile.Columns.IndexOf("ПФ, грн"),
-                dtMobile.Columns.IndexOf("Итого по контракту, грн"),
-                dtMobile.Columns.IndexOf("Общая сумма в роуминге, грн"),
-                dtMobile.Columns.IndexOf("Подразделение"),
-                dtMobile.Columns.IndexOf("Табельный номер"),
-                dtMobile.Columns.IndexOf("ТАРИФНАЯ МОДЕЛЬ"),
-                dtMobile.Columns.IndexOf("К оплате владельцем номера, грн")
-           };
-
-            int rows = 1;
-            int rowsInTable = dtMobile.Rows.Count;
-            int columnsInTable = pIdxToAccount.Length; // p.Length;
-
-            Excel.Application excel = new Excel.Application
-            {
-                Visible = false, //делаем объект не видимым
-                SheetsInNewWorkbook = 1//количество листов в книге
-            };
-            Excel.Workbooks workbooks = excel.Workbooks;
-            excel.Workbooks.Add(); //добавляем книгу
-            Excel.Workbook workbook = workbooks[1];
-            Excel.Sheets sheets = workbook.Worksheets;
-            Excel.Worksheet sheet = sheets.get_Item(1);
-            sheet.Name = Path.GetFileNameWithoutExtension(filePathTxt);
-            //sheet.Names.Add("next", "=" + Path.GetFileNameWithoutExtension(filePathTxt) + "!$A$1", true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-
-            for (int k = 0; k < columnsInTable; k++)
-            {
-                sheet.Cells[k + 1].WrapText = true;
-                sheet.Cells[k + 1].Interior.Color = System.Drawing.Color.Silver;
-                sheet.Cells[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-                sheet.Cells[k + 1].VerticalAlignment = Excel.XlVAlign.xlVAlignCenter;
-                sheet.Cells[1, k + 1].Value = pToAccount[k];
-                sheet.Columns[k + 1].Font.Size = 8;
-                sheet.Columns[k + 1].Font.Name = "Tahoma";
-
-                switch (k)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 8:
-                    case 9:
-                    case 10:
-                        {
-                            sheet.Columns[k + 1].NumberFormat = "@";
-                            break;
-                        }
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 11:
-                        {
-                            sheet.Columns[k + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00";
-                            sheet.Columns[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
-                            break;
-                        }
-                }
-            }
-
-            //colourize of collumns
-            sheet.Columns[7].Interior.Color = System.Drawing.Color.DarkSeaGreen;  //"Итого по контракту, грн"
-            sheet.Columns[columnsInTable].Interior.Color = System.Drawing.Color.SandyBrown;  //"К оплате владельцем номера, грн"
-
-            //input data and set type of cells - numbers /text
-            foreach (DataRow row in dtMobile.Rows)
-            {
-                rows++;
-                for (int column = 0; column < columnsInTable; column++)
-                {
-                    sheet.Cells[rows, column + 1].Value = row[pIdxToAccount[column]];
-                }
-            }
-
-            //Область сортировки          
-            Excel.Range range = sheet.Range["A2", GetColumnName(columnsInTable) + (rows - 1)];
-
-            //По какому столбцу сортировать
-            string nameColumnSorted = GetColumnName(Array.IndexOf(pIdxToAccount, dtMobile.Columns.IndexOf("Номер телефона абонента")) + 1);
-            Excel.Range rangeKey = sheet.Range[nameColumnSorted + (rowsInTable - 1)];
-
-            //Добавляем параметры сортировки
-            sheet.Sort.SortFields.Add(rangeKey);
-            sheet.Sort.SetRange(range);
-            sheet.Sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
-            sheet.Sort.SortMethod = Excel.XlSortMethod.xlPinYin;
-            sheet.Sort.Apply();
-            //Очищаем фильтр
-            sheet.Sort.SortFields.Clear();
-
-            //Autofilter
-            range = sheet.UsedRange; //sheet.Cells.Range["A1", GetColumnName(columnsInTable) + rowsInTable];
-            range.Select();
-
-            //Форматирование колонок (стиль линий обводки)
-            range.Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-            range.Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-            range.Borders[Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Excel.XlLineStyle.xlContinuous;
-            range.Borders[Excel.XlBordersIndex.xlInsideHorizontal].Weight = Excel.XlBorderWeight.xlThin;
-            range.Borders[Excel.XlBordersIndex.xlInsideVertical].LineStyle = Excel.XlLineStyle.xlContinuous;
-            range.Borders[Excel.XlBordersIndex.xlInsideVertical].Weight = Excel.XlBorderWeight.xlThin;
-            range.Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-            range.Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-            range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
-
-            workbook.SaveAs(Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx",
-                Excel.XlFileFormat.xlOpenXMLWorkbook,
-                System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                Excel.XlSaveAsAccessMode.xlExclusive,
-                System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-            workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-            workbooks.Close();
-
-            ReleaseObject(range);
-            ReleaseObject(rangeKey);
-            ReleaseObject(sheet);
-            ReleaseObject(sheets);
-            ReleaseObject(workbook);
-            ReleaseObject(workbooks);
-            excel.Quit();
-            ReleaseObject(excel);
-            MessageBox.Show("Отчет готов и сохранен:" + Environment.NewLine + Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx");
-        }
+             ReleaseObject(range);
+             ReleaseObject(rangeKey);
+             ReleaseObject(sheet);
+             ReleaseObject(sheets);
+             ReleaseObject(workbook);
+             ReleaseObject(workbooks);
+             excel.Quit();
+             ReleaseObject(excel);
+             MessageBox.Show("Отчет готов и сохранен:" + Environment.NewLine + Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx");
+         }
+         */
 
         private void ReleaseObject(object obj)
         {
@@ -2451,7 +2446,7 @@ namespace MobileNumbersDetailizationReportGenerator
             else
             {
                 ofd.FileName = @"";
-                ofd.Filter =Properties.Resources.OpenDialogTextFiles;
+                ofd.Filter = Properties.Resources.OpenDialogTextFiles;
                 ofd.ShowDialog();
                 filePath = ofd.FileName;
             }
@@ -2588,23 +2583,6 @@ namespace MobileNumbersDetailizationReportGenerator
                 control.Enabled = enabled;
         }
 
-        private void _TextboxAppendLine(TextBox textBox, string text) //Set its name 
-        {
-            if (InvokeRequired)
-                Invoke(new MethodInvoker(delegate { textBox.AppendLine(text); }));
-            else
-                textBox.AppendLine(text);
-        }
-
-        private void _TextboxClear(TextBox control) //Set its name 
-        {
-            if (InvokeRequired)
-                Invoke(new MethodInvoker(delegate { control.Clear(); }));
-            else
-                control.Clear();
-        }
-
-
         //Save and Recover Data in Registry
         public void ListsRegistryDataCheck() //Read previously Saved Parameters from Registry
         {
@@ -2696,7 +2674,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                     foundSavedData = true;
                 }
-                catch(Exception expt) { MessageBox.Show("Ошибки с доступом для записи списка " + parameterName + " в реестр. Данные не сохранены.", expt.Message); }
+                catch (Exception expt) { MessageBox.Show("Ошибки с доступом для записи списка " + parameterName + " в реестр. Данные не сохранены.", expt.Message); }
             }
         }
 
@@ -2714,7 +2692,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
                 foundSavedData = true;
             }
-            catch(Exception expt) { _ = MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.", expt.Message); }
+            catch (Exception expt) { _ = MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.", expt.Message); }
         }
     }
 }
