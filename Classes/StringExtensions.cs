@@ -25,5 +25,17 @@ namespace MobileNumbersDetailizationReportGenerator
                 Encoding.GetEncoding(1251));
         }
 
+        public static string[] ExpandArray(this string[] array, string addToList)
+        {
+            if (!(addToList?.Length > 0) || !(array?.Length > 0))
+            { return array; }
+
+            List<string> columns = array.ToList();
+            columns.Add(addToList);
+            string[] temp = columns.ToArray();
+           
+            return temp;
+        }
+
     }
 }
