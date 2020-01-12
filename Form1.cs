@@ -373,14 +373,14 @@ namespace MobileNumbersDetailizationReportGenerator
             if (pivot)
             {
                 pathToFile = Path.Combine(Path.GetDirectoryName(filePathSourceTxt), $"{Path.GetFileNameWithoutExtension(filePathSourceTxt)} pivot.xlsx");
-                dt.EnableEditTable()
+                dt.AllowToEditTable()
                          .SetColumnsOrder(columnsCollection)
                          .SeteColumnsCollectionInDataTable(columnsCollection)
-                         .ExportToExcelPivotTable(pathToFile, nameSheet, "К оплате владельцем номера, грн");
+                         .ExportToExcelPivotTable(pathToFile, nameSheet, new string[] { "К оплате владельцем номера, грн" }, null);
             }
             else
             {
-                dt.EnableEditTable()
+                dt.AllowToEditTable()
                     .SetColumnsOrder(columnsCollection)
                     .SeteColumnsCollectionInDataTable(columnsCollection)
                     .ExportToExcel(pathToFile, nameSheet, "К оплате владельцем номера, грн");
