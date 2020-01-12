@@ -255,13 +255,14 @@ namespace MobileNumbersDetailizationReportGenerator
         private void Form1_Load(object sender, EventArgs e)
         {
             myFileVersionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(Application.ExecutablePath);
+            this.Text = myFileVersionInfo.Comments;
 
-            myRegKey = @"SOFTWARE\RYIK\" + myFileVersionInfo.ProductName;
-            pathToIni = Application.StartupPath + @"\" + myFileVersionInfo.ProductName + ".ini"; //path to ini of tools
+            myRegKey = $@"SOFTWARE\RYIK\{myFileVersionInfo.ProductName}";
+            pathToIni = Path.Combine(Application.StartupPath, myFileVersionInfo.ProductName + ".ini"); //path to ini of tools
 
-            string about = myFileVersionInfo.Comments + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
+            string about = $"{myFileVersionInfo.Comments} ver.{myFileVersionInfo.FileVersion} {myFileVersionInfo.LegalCopyright}";
 
-            StatusLabel1.Text = myFileVersionInfo.ProductName + " ver." + myFileVersionInfo.FileVersion + " " + myFileVersionInfo.LegalCopyright;
+            StatusLabel1.Text = $"{myFileVersionInfo.ProductName} ver.{myFileVersionInfo.FileVersion} {myFileVersionInfo.LegalCopyright}";
             StatusLabel1.Alignment = ToolStripItemAlignment.Right;
 
             contextMenu1 = new ContextMenu();  //Context Menu on notify Icon
@@ -270,13 +271,11 @@ namespace MobileNumbersDetailizationReportGenerator
 
             notifyIcon1.ContextMenu = contextMenu1;
             notifyIcon1.BalloonTipText = about;
-            notifyIcon1.Text = myFileVersionInfo.ProductName + Environment.NewLine + "v." + myFileVersionInfo.FileVersion;
-
-            this.Text = myFileVersionInfo.Comments;
+            notifyIcon1.Text = $"{myFileVersionInfo.ProductName}{Environment.NewLine}v.{myFileVersionInfo.FileVersion}";
 
             ProgressBar1.Value = 0;
 
-            groupBox1.BackColor = System.Drawing.Color.Ivory;
+            groupBox1.BackColor = Color.Ivory;
 
             labelAccount.Visible = false;
             labelPeriod.Visible = false;
@@ -284,30 +283,27 @@ namespace MobileNumbersDetailizationReportGenerator
             labelContracts.Visible = false;
             ReadStringsWithParametersFromIniFile();
 
-            makeReportAccountantItem.Enabled = false;
-            makeFullReportItem.Enabled = false;
             prepareBillItem.Enabled = false;
 
-
             openBillItem.ToolTipText = "Открыть счет Voodafon в текстовом формате." + Environment.NewLine + "Max количество строк - 500 000";
+            makeFullReportItem.Enabled = false;
             makeFullReportItem.ToolTipText = "Подготовить полный отчет в Excel-файле." + Environment.NewLine + "Файл будет сохранен в папке с программой";
+            makeReportAccountantItem.Enabled = false;
             makeReportAccountantItem.ToolTipText = "Подготовить отчет для бух. в Excel-файле." + Environment.NewLine + "Файл будет сохранен в папке с программой";
-            useSavedDataItem.ToolTipText = "Использовать сохраненный список файлов и сервисов из предыдущей сессии";
             labelDiscount.Text = "";
             clearTextboxItem.ToolTipText = "Убрать весь текст из окна просмотра";
             aboutItem.ToolTipText = "О программе";
             exitItem.ToolTipText = "Выйти из программы и сохранить настройки и парсеры счета";
 
-            /*buttonReport2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.PaleGreen;
-            buttonExit.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SandyBrown;
+            /*buttonReport2.FlatAppearance.MouseOverBackColor = Color.PaleGreen;
+            buttonExit.FlatAppearance.MouseOverBackColor = Color.SandyBrown;
             */
             dtMobile.Columns.AddRange(dcMobile);
             dtOwnerOfMobileWithinSelectedPeriod.Columns.AddRange(dcTarif);
-            //  dtFullBill.Columns.AddRange(dcFullBill);
             dtMarket.Columns.AddRange(dcFullBill);
             ListsRegistryDataCheck();
             useSavedDataItem.Enabled = foundSavedData;
-
+            useSavedDataItem.ToolTipText = "Использовать сохраненный список файлов и сервисов из предыдущей сессии";
         }
 
 
@@ -331,6 +327,8 @@ namespace MobileNumbersDetailizationReportGenerator
             dtMarket?.Dispose();
             dtMobile?.Dispose();
             dtOwnerOfMobileWithinSelectedPeriod?.Dispose();
+            contextMenu1?.Dispose();
+            notifyIcon1?.Dispose();
 
             Application.Exit();
         }
@@ -403,10 +401,12 @@ namespace MobileNumbersDetailizationReportGenerator
         { ApplicationExit(); }
 
         private void selectListNumbersItem_Click(object sender, EventArgs e)
-        { PrepareListNumbers(); }
+        { PrepareListPhoneNumbers(); }
 
-        //limit of numbers <500
-        private void PrepareListNumbers() //Prepare list of numbers for the marketing report - listNumbers
+        /// <summary>
+        /// limit of numbers <500. Prepare list of numbers for the marketing report
+        /// </summary>
+        private void PrepareListPhoneNumbers()
         {
             selectedNumbers = false;
             string strTemp;
@@ -466,8 +466,10 @@ namespace MobileNumbersDetailizationReportGenerator
         private void selectListServicesItem_Click(object sender, EventArgs e)
         { PrepareListServicesToMakeReport(); }
 
-        //limit of services <100
-        private void PrepareListServicesToMakeReport() //Prepare list of services for the marketing report - listServices
+        /// <summary>
+        /// limit of services <100. Prepare list of services for the marketing report
+        /// </summary>        
+        private void PrepareListServicesToMakeReport()
         {
             selectedServices = false;
             textBoxLog.Clear();
@@ -515,9 +517,9 @@ namespace MobileNumbersDetailizationReportGenerator
                 NameNewColumnWithSummary = "Суммарно, МБ",              // column 'Summary' - result data format for column Summary
                 NameNewColumnWithCount = "Количество",
                 //  TypeResultCalcultedData = typeResult,                   
-                ColumnsCollectionAtRightOrder = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В" }
+                ColumnsCollectionAtRightOrder =
+                new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В" }
             };
-
 
             MakerPivotTable makingPivotData = new MakerPivotTable(dtMarket, condition);
 
@@ -534,18 +536,18 @@ namespace MobileNumbersDetailizationReportGenerator
             MessageShow("Готово!");
         }
 
-        private void MessageShow(object sender, TextEventArgs e)
-        { Task.Run(() => MessageBox.Show(e.Message)); }
+        //  private void MessageShow(object sender, TextEventArgs e)
+        // { Task.Run(() => MessageBox.Show(e.Message)); }
 
         private void MessageShow(string text)
         { Task.Run(() => MessageBox.Show(text)); }
 
         private void LoadBillIntoMemoryToFilter()
         {
-            _ProgressBar1Start();
+            ProgressBar1Start();
             textBoxLog.Clear();
-            _ToolStripMenuItemEnabled(fileMenuItem, false);
-            _ControlVisibleEnabled(labelPeriod, true);
+            ToolStripMenuItemEnabled(fileMenuItem, false);
+            ControlVisibleEnabled(labelPeriod, true);
 
             loadedBill = false;
 
@@ -553,25 +555,14 @@ namespace MobileNumbersDetailizationReportGenerator
 
             string contract = "";
             string numberMobile = "";
-            //string fio = "";
-            //string nav = "";
-            //string department = "";
-            //string serviceName = "";
-            //string numberB = "";
-            //string date = "";
-            //string time = "";
-            //string durationA = "";
-            //string durationB = "";
-            //string cost = "";
             string tempRow;
-
             string exceptedStringContains = @". . .";
             // NUMBER_OF_CONTRACT,       //1     //number of contract
             // MOBILE_NUMBER,           //2     //number
             // NAME_OF_TARIF,            //3     //name of tarif package
 
-            p[1] = _ControlReturnText(textBoxP1);
-            p[2] = _ControlReturnText(textBoxP2);
+            p[1] = ControlReturnText(textBoxP1);
+            p[2] = ControlReturnText(textBoxP2);
 
             List<string> filterBill = new List<string>
             {
@@ -579,17 +570,14 @@ namespace MobileNumbersDetailizationReportGenerator
                 p[2]
             };
 
-            if (listServices.Count == 0)
-            { listServices = listSavedServices; }
-            if (listNumbers.Count == 0)
-            { listNumbers = listSavedNumbers; }
+            if (listServices?.Count == 0) { listServices = listSavedServices; }
+            if (listNumbers?.Count == 0) { listNumbers = listSavedNumbers; }
 
-            _ProgressWork1Step();
+            ProgressWork1Step();
 
-            foreach (string service in listServices)
-            { filterBill.Add(service); }
+            foreach (string service in listServices) { filterBill.Add(service); }
 
-            _ProgressWork1Step();
+            ProgressWork1Step();
 
             List<string> loadedBillWithServicesFiltered = LoadDataUsingParameters(filterBill, parametrStart, pStop, exceptedStringContains);
 
@@ -599,7 +587,6 @@ namespace MobileNumbersDetailizationReportGenerator
 
             if (loadedBillWithServicesFiltered?.Count > 0)
             {
-                //  dtFullBill.Rows.Clear();
                 StringBuilder sb = new StringBuilder();
 
                 //todo parsing strings of the filtered bill
@@ -619,7 +606,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                         catch (Exception err)
                         {
-                            MessageBox.Show("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
+                            MessageShow("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
                                 "Возможно поменялся формат." + Environment.NewLine +
                                 "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
                                 NUMBER_OF_CONTRACT + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
@@ -705,7 +692,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                 if (countStepProgressBar <= 0)
                                 {
                                     string s = $"В отчет добавлено {countRowsInTable,20 }, строк из {loadedBillWithServicesFiltered.Count,15}";
-                                    _ProgressWork1Step(s);
+                                    ProgressWork1Step(s);
                                     countStepProgressBar = counterstep;
                                 }
                             }
@@ -724,29 +711,21 @@ namespace MobileNumbersDetailizationReportGenerator
             { textBoxLog.AppendLine("В выборке нет ничего для указанных номеров!"); }
 
             CheckConditionEnableMarketingReport();
-            _ToolStripStatusLabelSetText(StatusLabel1, "Файл сохранен в папку: " + Path.GetDirectoryName(filepathLoadedData));
+            ToolStripStatusLabelSetText(StatusLabel1, "Файл сохранен в папку: " + Path.GetDirectoryName(filepathLoadedData));
 
-            _ToolStripMenuItemEnabled(fileMenuItem, true);
-            _ProgressBar1Stop();
+            ToolStripMenuItemEnabled(fileMenuItem, true);
+            ProgressBar1Stop();
         }
-
-        //  private void makeReportMarketingItem_Click(object sender, EventArgs e)
-        //   { MakeExcelReport(ExportMarketReport); }
-
-        //Заполнение таблицы в Excel  данными
-        //        private void ExportMarketReport()
-        //      { ExportDatatableToExcel(dtMarket, "_Marketing.xlsx"); }
-
 
         private void CheckConditionEnableMarketingReport() //enableing Marketing report if load data is correct
         {
             if (selectedServices && selectedNumbers && loadedBill)
             {
-                _ToolStripMenuItemEnabled(prepareBillItem, true);
+                ToolStripMenuItemEnabled(prepareBillItem, true);
             }
             else if (selectedServices && selectedNumbers)
             {
-                _ToolStripMenuItemEnabled(prepareBillItem, true);
+                ToolStripMenuItemEnabled(prepareBillItem, true);
             }
         }
 
@@ -757,17 +736,15 @@ namespace MobileNumbersDetailizationReportGenerator
             string s = "";
             int i = 0; // it is not empty's rows in the selected file
 
-            string filepathLoadedData = _OpenFileDialogReturnPath(openFileDialog1);
-            if (filepathLoadedData == null || filepathLoadedData.Length < 1)
-            { MessageBox.Show("Не выбран файл."); }
-            else
+            string filepathLoadedData = OpenFileDialogReturnPath(openFileDialog1);
+            if (filepathLoadedData?.Length > 0)
             {
                 try
                 {
                     var Coder = Encoding.GetEncoding(1251);
                     using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
                     {
-                        _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filepathLoadedData);
+                        ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filepathLoadedData);
                         while ((s = Reader.ReadLine()) != null && i < listMaxLength)
                         {
                             if (s.Trim().Length > 0)
@@ -778,11 +755,15 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                     }
                 }
-                catch (Exception expt) { MessageBox.Show("Ошибка произошла на " + i + " строке:" + Environment.NewLine + expt.ToString()); }
+                catch (Exception expt)
+                { MessageShow("Ошибка произошла на " + i + " строке:" + Environment.NewLine + expt.ToString()); }
 
                 if (i > listMaxLength - 10 || i == 0)
-                { MessageBox.Show("Error was happened on " + i + " row" + Environment.NewLine + " You've been chosen the long file!"); }
+                { MessageShow("Error was happened on " + i + " row" + Environment.NewLine + " You've been chosen the long file!"); }
             }
+            else
+            { MessageShow("Не выбран файл со счетом."); }
+
             return listValue;
         }
 
@@ -815,7 +796,7 @@ namespace MobileNumbersDetailizationReportGenerator
                               MessageBoxDefaultButton.Button1);
                         if (result == DialogResult.No)
                         {
-                            filepathLoadedData = _OpenFileDialogReturnPath(openFileDialog1);
+                            filepathLoadedData = OpenFileDialogReturnPath(openFileDialog1);
                         }
                         else
                         {
@@ -824,12 +805,12 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                     else if (!currentInvoice)
                     {
-                        filepathLoadedData = _OpenFileDialogReturnPath(openFileDialog1);
+                        filepathLoadedData = OpenFileDialogReturnPath(openFileDialog1);
                     }
 
                     if (filepathLoadedData?.Length > 2 && File.Exists(filepathLoadedData))
                     {
-                        _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filepathLoadedData);
+                        ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filepathLoadedData);
                         int counter = 0;
                         try
                         {
@@ -867,7 +848,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     countStepProgressBar--;
                                     if (countStepProgressBar == 0)
                                     {
-                                        _ProgressWork1Step();
+                                        ProgressWork1Step();
                                         countStepProgressBar = 500;
                                     }
                                 }
@@ -875,12 +856,13 @@ namespace MobileNumbersDetailizationReportGenerator
 
                             if (checkPeriod && checkRahunok && checkNomerRahunku)
                             {
-                                _ControlSetItsText(labelPeriod, periodInvoice);
+                                ControlSetItsText(labelPeriod, periodInvoice);
                             }
 
                             ParameterLastInvoiceRegistrySave();
                         }
-                        catch (Exception expt) { MessageBox.Show("Error was happened on " + listRows.Count + " row" + Environment.NewLine + expt.ToString()); }
+                        catch (Exception expt)
+                        { MessageBox.Show("Error was happened on " + listRows.Count + " row" + Environment.NewLine + expt.ToString()); }
                         textBoxLog.AppendLine("Из файла-счета: " + Environment.NewLine);
                         textBoxLog.AppendLine(filepathLoadedData);
                         textBoxLog.AppendLine("отобрано для построения отчета " + counter + " строк с требуемыми сервисами");
@@ -946,14 +928,14 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     MessageBox.Show("Выбранный счет в базу данных Tfactura еще не импортирован!" + Environment.NewLine + "Перед обработкой счета, предварительно необходимо импортировать счет в базу!");
                     StatusLabel1.Text = "Обработка счета прекращена! Предварительно импортируйте счет в Tfactura!";
-                    StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
+                    StatusLabel1.BackColor = Color.SandyBrown;
                 }
                 else
                 {
                     await Task.Run(() => CheckNewTarif());
 
                     //clear log if it was found a problem
-                    if (listTarifData.Count > 0)
+                    if (listTarifData?.Count > 0)
                     { textBoxLog.Clear(); }
 
                     if (!newModels)
@@ -961,18 +943,18 @@ namespace MobileNumbersDetailizationReportGenerator
                         ParseStringsOfPreparedListIntoTable();
                         DataRow[] results;
 
-                        string columnName1 = dtMobile.Columns[0].ColumnName.Remove(3);
-                        string columnName2 = dtMobile.Columns[2].ColumnName.Remove(14);
-                        string columnName3 = dtMobile.Columns[3].ColumnName;
-                        string columnName4 = dtMobile.Columns[10].ColumnName.Remove(6);
-                        string columnName5 = dtMobile.Columns[21].ColumnName;
+                        string columnName1 = dtMobile.Columns["ФИО сотрудника"].ColumnName.Remove(3);
+                        string columnName2 = dtMobile.Columns["Номер телефона абонента"].ColumnName.Remove(14);
+                        string columnName3 = dtMobile.Columns["Ціновий Пакет"].ColumnName;
+                        string columnName4 = dtMobile.Columns["Итого по контракту, грн"].ColumnName.Remove(6);
+                        string columnName5 = dtMobile.Columns["ТАРИФНАЯ МОДЕЛЬ"].ColumnName;
                         string columnName6 = "Роуминг";                     //dtMobile.Columns[5].ColumnName;
-                        string columnName10 = dtMobile.Columns[24].ColumnName;
-                        string columnName11 = dtMobile.Columns[25].ColumnName;
+                        string columnName10 = dtMobile.Columns["NumberUsed"].ColumnName;
+                        string columnName11 = dtMobile.Columns["NumberNoBlock"].ColumnName;
 
-                        string sortOrder = dtMobile.Columns[0].ColumnName + " ASC";
+                        string sortOrder = dtMobile.Columns["ФИО сотрудника"].ColumnName + " ASC";
 
-                        textBoxLog.AppendLine("-= Дата счета:  " + dtMobile.Rows[1][16].ToString() + " =-"); //Дата счета
+                        textBoxLog.AppendLine("-= Дата счета:  " + dtMobile.Rows[1]["Дата счета"].ToString() + " =-"); //Дата счета
                         textBoxLog.AppendLine(Properties.Resources.RowDozenOfEqualSymbols);
 
                         //////////////////////////////
@@ -1087,7 +1069,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     if (infoStatusBar.Length > 1)
                     {
                         StatusLabel1.Text = infoStatusBar;
-                        StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
+                        StatusLabel1.BackColor = Color.SandyBrown;
                     }
                     makeReportAccountantItem.Enabled = true;
                     makeFullReportItem.Enabled = true;
@@ -1109,25 +1091,6 @@ namespace MobileNumbersDetailizationReportGenerator
             // перейти в конец текстового файла
             // textBox1.SelectionStart = textBox1.Text.Length;
             // textBox1.ScrollToCaret();
-        }
-
-        private async void MakeExcelReport(Action action)
-        {
-            StatusLabel1.Text = "Обрабатываю полученные данные и формирую отчет...";
-
-            makeReportAccountantItem.Enabled = false;
-            makeFullReportItem.Enabled = false;
-            openBillItem.Enabled = false;
-            makeReportMarketingMenuItem.Enabled = false;
-
-            await Task.Run(() => action());
-
-            makeReportAccountantItem.Enabled = true;
-            makeFullReportItem.Enabled = true;
-            openBillItem.Enabled = true;
-            makeReportMarketingMenuItem.Enabled = true;
-
-            StatusLabel1.Text = @"Формирование отчета завершено. Файл сохранен в папку:  " + Path.GetDirectoryName(filePathSourceTxt);
         }
 
         private string ParseParameterNameAndValueFromReadString(string delimeter, string parameter, string defaultValue = null)
@@ -1173,38 +1136,38 @@ namespace MobileNumbersDetailizationReportGenerator
                             //Далее - обработка ini файла только с наличием авторства
                             if (b1 && b2)
                             {
-                                if (s.StartsWith(nameof(pConnectionServer) + "="))
+                                if (s.StartsWith($"{nameof(pConnectionServer)}="))
                                 {
                                     pConnectionServer = ParseParameterNameAndValueFromReadString("=", s, pConnectionServer);
                                 }
-                                else if (s.StartsWith(nameof(pConnectionUserName) + "="))
+                                else if (s.StartsWith($"{nameof(pConnectionUserName)}="))
                                 {
                                     pConnectionUserName = ParseParameterNameAndValueFromReadString("=", s, pConnectionUserName);
                                 }
-                                else if (s.StartsWith(nameof(pConnectionUserPasswords) + "="))
+                                else if (s.StartsWith($"{nameof(pConnectionUserPasswords)}="))
                                 {
                                     pConnectionUserPasswords = ParseParameterNameAndValueFromReadString("=", s, pConnectionUserPasswords);
                                 }
-                                else if (s.StartsWith(nameof(parametrStart) + "="))
+                                else if (s.StartsWith($"{nameof(parametrStart)}="))
                                 {
                                     parametrStart = ParseParameterNameAndValueFromReadString("=", s, parametrStart);
                                 }
-                                else if (s.StartsWith(nameof(pStop) + "="))
+                                else if (s.StartsWith($"{nameof(pStop)}="))
                                 {
                                     pStop = ParseParameterNameAndValueFromReadString("=", s, pStop);
                                 }
-                                else if (s.StartsWith(nameof(pBillDeliveryCost) + "=")) //Строка с суммой стоимости доставки электронного счета до вычисления скидки и налогов
+                                else if (s.StartsWith($"{nameof(pBillDeliveryCost)}=")) //Строка с суммой стоимости доставки электронного счета до вычисления скидки и налогов
                                 {
                                     pBillDeliveryCost = ParseParameterNameAndValueFromReadString("=", s, pBillDeliveryCost);
                                 }
-                                else if (s.StartsWith(nameof(pBillDeliveryCostDiscount) + "="))//Строка с суммой скидки на доставку электронного счет
+                                else if (s.StartsWith($"{nameof(pBillDeliveryCostDiscount)}="))//Строка с суммой скидки на доставку электронного счет
                                 {
                                     pBillDeliveryCostDiscount = ParseParameterNameAndValueFromReadString("=", s, pBillDeliveryCostDiscount);
                                 }
 
                                 for (int i = 0; i < p?.Length; i++)
                                 {
-                                    if (s.StartsWith("p" + i.ToString() + "="))
+                                    if (s.StartsWith($"p{i.ToString()}="))
                                     {
                                         p[i] = ParseParameterNameAndValueFromReadString("=", s);
                                     }
@@ -1216,12 +1179,12 @@ namespace MobileNumbersDetailizationReportGenerator
 
                 if ((b1 && b2 == false) || (b2 && b1 == false))
                 {
-                    info += "Настройки из " + myFileVersionInfo.ProductName + ".ini проигнорированы. Изменен формат файла" + Environment.NewLine;
+                    info += $"Настройки из {myFileVersionInfo.ProductName}.ini проигнорированы. Изменен формат файла{Environment.NewLine}";
                 }
                 else
                 {
-                    info += "Парсеры модифицированы настройками из " + myFileVersionInfo.ProductName + ".ini" + Environment.NewLine;
-                    groupBox1.BackColor = System.Drawing.Color.Tan;
+                    info += $"Парсеры модифицированы настройками из {myFileVersionInfo.ProductName}.ini{Environment.NewLine}";
+                    groupBox1.BackColor = Color.Tan;
                 }
 
                 toolTip1.SetToolTip(groupBox1, info);
@@ -1248,15 +1211,15 @@ namespace MobileNumbersDetailizationReportGenerator
                 StatusLabel1.Text = infoStatusBar;
                 StatusLabel1.ToolTipText = info;
 
-                StatusLabel1.BackColor = System.Drawing.Color.SandyBrown;
+                StatusLabel1.BackColor = Color.SandyBrown;
             }
             else
             {
                 fileMenuItem.Enabled = false;
                 StatusLabel1.Text = "Проверяю доступность БД сервера";
-                StatusLabel1.BackColor = System.Drawing.Color.PaleGoldenrod;
+                StatusLabel1.BackColor = Color.PaleGoldenrod;
 
-                _ProgressBar1Start();
+                ProgressBar1Start();
                 string infoStatus = null, infoStatusTooltip = null;
                 System.Drawing.Color infoStatusBackColor = System.Drawing.SystemColors.Menu;
                 using (Timer timer1 = new Timer { Interval = 200, Enabled = true })
@@ -1279,12 +1242,12 @@ namespace MobileNumbersDetailizationReportGenerator
 
                         infoStatusTooltip = info;
                         infoStatus = infoStatusBar;
-                        infoStatusBackColor = System.Drawing.Color.SandyBrown;
+                        infoStatusBackColor = Color.SandyBrown;
                     }
                     else
                     {
                         fileMenuItem.Enabled = true;
-                        infoStatusBackColor = System.Drawing.Color.PaleGreen;
+                        infoStatusBackColor = Color.PaleGreen;
                         infoStatus = "БД сервера со счетами Tfactura доступна для генерации отчетов";
                         infoStatusTooltip = "выберите счет мобильного оператора с которым планируете работать";
                     }
@@ -1295,20 +1258,17 @@ namespace MobileNumbersDetailizationReportGenerator
                     timer1.Enabled = false;
                     timer1.Stop();
                 }
-                _ProgressBar1Stop();
+                ProgressBar1Stop();
             }
-            StatusLabel1.ForeColor = System.Drawing.Color.Black;
+            StatusLabel1.ForeColor = Color.Black;
         }
 
         private bool CheckAliveDbServer()
         {
             bool state = false;
             string pConnection =
-                "Data Source=" + pConnectionServer +
-                "; Initial Catalog=EBP; Type System Version=SQL Server 2005; Persist Security Info =True" +
-                "; User ID=" + pConnectionUserName +
-                "; Password=" + pConnectionUserPasswords +
-                "; Connect Timeout=5";
+                $"Data Source={pConnectionServer}; Initial Catalog=EBP; Type System Version=SQL Server 2005; Persist Security Info =True" +
+                $"; User ID={pConnectionUserName}; Password={pConnectionUserPasswords}; Connect Timeout=5";
 
             string sqlQuery = @"SELECT database_id FROM sys.databases WHERE Name ='EBP'";
             using (var sqlConnection = new System.Data.SqlClient.SqlConnection(pConnection))
@@ -1379,35 +1339,32 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private bool TryToReadBillToPrepareList() //Чтение исходного файл, и первичный разбор счета (удаление ненужных данных)
         {
-            //to do
-            //change output data into  new Invoice() and alollected strings
-
-            bool ChosenFile = false;
+            bool ChosenFile;
             int i = 0; //amount contracts in the current bill
             listTempContract.Clear();
-            filePathSourceTxt = _OpenFileDialogReturnPath(openFileDialog1);
+            filePathSourceTxt = OpenFileDialogReturnPath(openFileDialog1);
 
             if (filePathSourceTxt?.Length > 3)
             {
                 try
                 {
-                    Invoice invoice = new Invoice();
-                    invoice.invoicePathToFile = filePathSourceTxt;
-                    invoice.invoiceFileName = Path.GetFileName(filePathSourceTxt);
+                    Invoice invoice = new Invoice
+                    {
+                        invoicePathToFile = filePathSourceTxt,
+                        invoiceFileName = Path.GetFileName(filePathSourceTxt)
+                    };
 
-                    _ControlSetItsText(labelFile, invoice.invoiceFileName);
+                    ControlSetItsText(labelFile, invoice.invoiceFileName);
                     toolTip1.SetToolTip(labelFile, Properties.Resources.SelectedInvoice);
 
-                    var Coder = Encoding.GetEncoding(1251);
-
-                    using (StreamReader Reader = new StreamReader(invoice.invoicePathToFile, Coder))
+                    using (StreamReader Reader = new StreamReader(invoice.invoicePathToFile, Encoding.GetEncoding(1251)))
                     {
                         string s, tmp;
                         bool mystatusbegin = false;
                         bool startModuleWithDiscountWholeBill = false;
                         int lenghtData = 0;
 
-                        _ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + invoice.invoicePathToFile);
+                        ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + invoice.invoicePathToFile);
                         while ((s = Reader.ReadLine()) != null)
                         {
                             if (s.Contains("Особовий рахунок"))
@@ -1415,16 +1372,16 @@ namespace MobileNumbersDetailizationReportGenerator
                                 string[] substrings = Regex.Split(s, ":| ");
                                 invoice.invoiceInternalHoldingNumber = substrings[substrings.Length - 1].Trim();
 
-                                _ControlVisibleEnabled(labelAccount, true);
-                                _ControlSetItsText(labelAccount, invoice.invoiceInternalHoldingNumber);
+                                ControlVisibleEnabled(labelAccount, true);
+                                ControlSetItsText(labelAccount, invoice.invoiceInternalHoldingNumber);
                             }
                             else if (s.Contains("Номер рахунку"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
                                 invoice.invoiceNumber = substrings[substrings.Length - 3].Trim();
 
-                                _ControlVisibleEnabled(labelBill, true);
-                                _ControlSetItsText(labelBill, invoice.invoiceNumber);
+                                ControlVisibleEnabled(labelBill, true);
+                                ControlSetItsText(labelBill, invoice.invoiceNumber);
                             }
                             else if (s.Contains(pStop)) //finished to look for contracts and start data for the bill's delivery cost
                             {
@@ -1451,8 +1408,8 @@ namespace MobileNumbersDetailizationReportGenerator
                                 periodInvoice = substrings[substrings.Length - 1].Trim();
                                 invoice.invoicePeriod = periodInvoice;
 
-                                _ControlVisibleEnabled(labelPeriod, true);
-                                _ControlSetItsText(labelPeriod, periodInvoice);
+                                ControlVisibleEnabled(labelPeriod, true);
+                                ControlSetItsText(labelPeriod, periodInvoice);
                             }
 
                             if (s.Contains(p[1]))
@@ -1472,8 +1429,8 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                     }
 
-                    _ControlVisibleEnabled(labelContracts, true);
-                    _ControlSetItsText(labelContracts, " " + i + " шт.");
+                    ControlVisibleEnabled(labelContracts, true);
+                    ControlSetItsText(labelContracts, " " + i + " шт.");
 
                     ChosenFile = true;
 
@@ -1481,8 +1438,8 @@ namespace MobileNumbersDetailizationReportGenerator
                     resultOfCalculatingDiscount = Math.Abs(BillDeliveryCostDiscount / BillDeliveryCost * 100);
                     amountBillAfterDiscount = 1 - Math.Abs(BillDeliveryCostDiscount / BillDeliveryCost);
 
-                    _ControlVisibleEnabled(labelDiscount, true);
-                    _ControlSetItsText(labelDiscount, resultOfCalculatingDiscount.ToString() + "%");
+                    ControlVisibleEnabled(labelDiscount, true);
+                    ControlSetItsText(labelDiscount, resultOfCalculatingDiscount.ToString() + "%");
 
                     StatusLabel1.ToolTipText = "";
 
@@ -1639,7 +1596,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private void ParseStringsOfPreparedListIntoTable() //Парсинг строк и передача результата текстовый редактор
         {
-            _ToolStripStatusLabelSetText(StatusLabel1, Properties.Resources.WorkingWithData);
+            ToolStripStatusLabelSetText(StatusLabel1, Properties.Resources.WorkingWithData);
             dataStart = labelPeriod.Text.Split('-')[0].Trim(); // дата начала периода счета
             dataEnd = labelPeriod.Text.Split('-')[1].Trim();  // дата конца периода счета
 
@@ -1647,8 +1604,8 @@ namespace MobileNumbersDetailizationReportGenerator
             bool isUsedCurrent = false;
             bool isCheckFinishedTitles = false;
 
-            string n = "", searchNumber;
-            string[] substrings = new string[1];
+            string temp, searchNumber;
+            string[] substrings;
 
             strNewModels = "";
 
@@ -1740,74 +1697,76 @@ namespace MobileNumbersDetailizationReportGenerator
                     else if (s.Contains(p[4]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.monthCost = Convert.ToDouble(Regex.Replace(n, "[,]",
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.monthCost = Convert.ToDouble(Regex.Replace(temp, "[,]",
                             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * amountBillAfterDiscount * 1.275;
                     }
                     else if (s.Contains(p[5]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.roming = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.roming = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
                     else if (s.Contains(p[6]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.discount = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.discount = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                     }
                     else if (s.Contains(p[7]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.totalCost = Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.totalCost = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                         isCheckFinishedTitles = true;
                         isUsedCurrent = false;
                     }
                     else if (s.Contains(p[11]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.romingData += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.romingData += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
                     else if (s.Contains(p[12]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
                     else if (s.Contains(p[13]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.outToCity += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.outToCity += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
                     else if (s.Contains(p[14]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraService += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.extraService += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                     }
                     else if (s.Contains(p[15]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.content += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.content += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
                     else if (s.Contains(p[23]))
                     {
                         substrings = s.Split(' ');
-                        n = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraServiceOrdered += Convert.ToDouble(Regex.Replace(n, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
+                        temp = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.extraServiceOrdered += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
                     else if (isCheckFinishedTitles)
                     { isUsedCurrent = true; }
                 }
 
                 //additional payment for detalisation (at the end of the current bill)
-                mcpCurrent = new MobileContractPerson();
-                mcpCurrent.totalCost = Math.Abs(BillDeliveryCost * amountBillAfterDiscount);
-                mcpCurrent.discount = Math.Abs(BillDeliveryCostDiscount);
+                mcpCurrent = new MobileContractPerson
+                {
+                    totalCost = Math.Abs(BillDeliveryCost * amountBillAfterDiscount),
+                    discount = Math.Abs(BillDeliveryCostDiscount)
+                };
                 mcpCurrent.tax = CalculateTax(mcpCurrent.totalCost);
                 mcpCurrent.pF = CalculatePf(mcpCurrent.totalCost);
                 mcpCurrent.totalCostWithTax = mcpCurrent.totalCost * 1.275;  //number spend+НДС+ПФ
@@ -1832,421 +1791,12 @@ namespace MobileNumbersDetailizationReportGenerator
             listTempContract.Clear();
         }
 
-        /* add link at Microsoft.Office.Interop.Excel
-         * and using Excel = Microsoft.Office.Interop.Excel;
-         * private void ExportDatatableToExcel(DataTable dt, string sufixExportFile) //Заполнение таблицы в Excel  данными
-          {
-              _ProgressBar1Start();
-              int rows = 1;
-              int rowsInTable = dt.Rows.Count;
-              int columnsInTable = dt.Columns.Count; // p.Length;
-
-              int stepOfProgressCount = (rowsInTable * columnsInTable) / 100;
-
-              string lastCell = GetColumnName(columnsInTable) + rowsInTable;
-              _ProgressWork1Step();
-              Excel.Application excel = new Excel.Application
-              {
-                  Visible = false, //делаем объект не видимым
-                  SheetsInNewWorkbook = 1//количество листов в книге
-              };
-
-              Excel.Workbooks workbooks = excel.Workbooks;
-              excel.Workbooks.Add(); //добавляем книгу
-              Excel.Workbook workbook = workbooks[1];
-              Excel.Sheets sheets = workbook.Worksheets;
-              Excel.Worksheet sheet = sheets.get_Item(1);
-              sheet.Name = Path.GetFileNameWithoutExtension(filepathLoadedData);
-              _ProgressWork1Step();
-
-              for (int k = 1; k < columnsInTable; k++)
-              {
-                  sheet.Cells[k].WrapText = true;
-                  sheet.Cells[1, k].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-                  sheet.Cells[1, k].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
-                  sheet.Cells[1, k + 1].Value = dt.Columns[k].ColumnName;
-                  //string columnName = dt.Columns[0].Caption;
-
-                  sheet.Columns[k].Font.Size = 8;
-                  sheet.Columns[k].Font.Name = "Tahoma";
-
-                  //colourize of collumns
-                  sheet.Cells[1, k].Interior.Color = System.Drawing.Color.Silver;
-                  _ProgressWork1Step();
-              }
-
-              //input data and set type of cells - numbers /text
-              int stepCount = stepOfProgressCount;
-              foreach (DataRow row in dt.Rows)
-              {
-                  rows++;
-                  foreach (DataColumn column in dt.Columns)
-                  {
-                      if (rows > 1)
-                      {
-                          if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
-                          { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
-                          else
-                          { sheet.Columns[column.Ordinal + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
-                      }
-                      sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
-                      stepCount--;
-                      if (stepCount == 0)
-                      {
-                          _ProgressWork1Step($"Обработано {rows,20 }, строк из {rowsInTable,15}");
-                          stepCount = stepOfProgressCount;
-                      }
-                      //  sheet.Columns[column.Ordinal + 1].AutoFit();
-                  }
-              }
-
-              //Autofilter                
-              Excel.Range range = sheet.UsedRange;  //sheet.Cells.Range["A1", lastCell];
-
-              //ширина колонок - авто
-              range.Cells.EntireColumn.AutoFit();
-              _ProgressWork1Step();
-
-              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeRight].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideHorizontal].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideVertical].LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-              range.Cells.Borders[Microsoft.Office.Interop.Excel.XlBordersIndex.xlInsideVertical].Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-
-              range.Select();
-              _ProgressWork1Step();
-
-              range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
-
-              workbook.SaveAs(
-                  Path.GetDirectoryName(filepathLoadedData) + @"\" + Path.GetFileNameWithoutExtension(filepathLoadedData) + sufixExportFile,
-                  Excel.XlFileFormat.xlOpenXMLWorkbook,
-                  System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                  Excel.XlSaveAsAccessMode.xlExclusive, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-
-              workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-              workbooks.Close();
-              _ProgressWork1Step(" ");
-
-              lastCell = null;
-              ReleaseObject(range);
-              ReleaseObject(sheet);
-              ReleaseObject(sheets);
-              ReleaseObject(workbook);
-              ReleaseObject(workbooks);
-              excel.Quit();
-              ReleaseObject(excel);
-              _ProgressBar1Stop();
-          }*/
-
-        /*  private void ExportFullDataTableToExcel() //Заполнение таблицы в Excel всеми данными
-          {
-              int rows = 1;
-              int rowsInTable = dtMobile.Rows.Count;
-              int columnsInTable = p.Length; // p.Length;
-              string lastCell = GetColumnName(columnsInTable) + rowsInTable;
-
-              Excel.Application excel = new Excel.Application
-              {
-                  Visible = false, //делаем объект не видимым
-                  SheetsInNewWorkbook = 1//количество листов в книге
-              };
-
-              Excel.Workbooks workbooks = excel.Workbooks;
-              excel.Workbooks.Add(); //добавляем книгу
-              Excel.Workbook workbook = workbooks[1];
-              Excel.Sheets sheets = workbook.Worksheets;
-              Excel.Worksheet sheet = sheets.get_Item(1);
-              sheet.Name = Path.GetFileNameWithoutExtension(filePathTxt);
-              // sheet.Names.Add("next", "=" + Path.GetFileNameWithoutExtension(filePathTxt) + "!$A$1", true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-
-              HashSet<string> listCollumnsHide = new HashSet<string>(pTranslate);
-              listCollumnsHide.ExceptWith(new HashSet<string>(pToAccount));
-
-              for (int k = 0; k < columnsInTable; k++)
-              {
-                  sheet.Cells[k + 1].WrapText = true;
-                  sheet.Cells[1, k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-                  sheet.Cells[1, k + 1].VerticalAlignment = Excel.XlVAlign.xlVAlignTop;
-                  sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                  sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-                  sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                  sheet.Cells[1, k + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-
-                  sheet.Cells[1, k + 1].Value = pTranslate[k];
-
-                  sheet.Columns[k + 1].Font.Size = 8;
-                  sheet.Columns[k + 1].Font.Name = "Tahoma";
-
-                  //colourize of collumns
-                  if (pTranslate[k].Equals("Итого по контракту, грн"))
-                  { sheet.Columns[k + 1].Interior.Color = System.Drawing.Color.DarkSeaGreen; }
-                  else if (pTranslate[k].Equals("К оплате владельцем номера, грн"))
-                  { sheet.Columns[k + 1].Interior.Color = System.Drawing.Color.SandyBrown; }
-                  else { sheet.Cells[1, k + 1].Interior.Color = System.Drawing.Color.Silver; }
-              }
-
-              //input data and set type of cells - numbers /text
-              foreach (DataRow row in dtMobile.Rows)
-              {
-                  rows++;
-                  foreach (DataColumn column in dtMobile.Columns)
-                  {
-                      if (rows == 2)
-                      {
-                          if (row[column.Ordinal].GetType().ToString().ToLower().Contains("string"))
-                          { sheet.Columns[column.Ordinal + 1].NumberFormat = "@"; }
-                          else
-                          { sheet.Columns[column.Ordinal + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00"; }
-                      }
-                      sheet.Cells[rows, column.Ordinal + 1].Value = row[column.Ordinal];
-                      sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                      sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-                      sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                      sheet.Cells[rows, column.Ordinal + 1].Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-                      sheet.Columns[column.Ordinal + 1].AutoFit();
-                  }
-              }
-
-              //Область сортировки   
-              Excel.Range range = sheet.Range["A2", lastCell];
-
-              //По какому столбцу сортировать
-              string nameColumnSorted = GetColumnName(Array.IndexOf(pTranslate, "Номер телефона абонента") + 1);
-              Excel.Range rangeKey = sheet.Range[nameColumnSorted + (rowsInTable - 1)];
-
-              //Добавляем параметры сортировки
-              sheet.Sort.SortFields.Add(rangeKey);
-              sheet.Sort.SetRange(range);
-              sheet.Sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
-              sheet.Sort.SortMethod = Excel.XlSortMethod.xlPinYin;
-              sheet.Sort.Apply();
-
-              //Очищаем фильтр
-              sheet.Sort.SortFields.Clear();
-
-              for (int k = 0; k < pTranslate.Length; k++)
-              {
-                  foreach (string str in listCollumnsHide)
-                  {
-                      if (pTranslate[k].Equals(str))
-                      {
-                          sheet.Columns[k + 1].Hidden = true;
-                      }
-                  }
-              }
-
-              //Autofilter                
-              range = sheet.UsedRange;  //sheet.Cells.Range["A1", lastCell];
-              range.Select();
-              range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
-
-              workbook.SaveAs(
-                  Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @"_full.xlsx",
-                  Excel.XlFileFormat.xlOpenXMLWorkbook,
-                  System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                  Excel.XlSaveAsAccessMode.xlExclusive, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-
-              workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-              workbooks.Close();
-
-              listCollumnsHide = null;
-              nameColumnSorted = null;
-              lastCell = null;
-              ReleaseObject(range);
-              ReleaseObject(rangeKey);
-              ReleaseObject(sheet);
-              ReleaseObject(sheets);
-              ReleaseObject(workbook);
-              ReleaseObject(workbooks);
-              excel.Quit();
-              ReleaseObject(excel);
-
-              //  autofill. manualy set number in D1 and D2, then use function
-              //rng = this.Application.get_Range("D1","D2");
-              //Excel.Range rng.AutoFill(this.Application.get_Range("D1", "D5"), Excel.XlAutoFillType.xlFillSeries);
-              //  add comment:
-              //Excel.Range dateComment = this.Application.get_Range("A1");
-              //dateComment.AddComment("Comment added " + DateTime.Now.ToString());
-              //  delete comment:
-              //if (dateComment.Comment != null) { dateComment.Comment.Delete(); }
-
-              // sheet.Cells[1, k + 1].Font.Bold = true;
-              // (sheet.Cells[1, column.Ordinal + 1] as Microsoft.Office.Interop.Excel.Range).Font.Size = 8;
-
-              //объединение ячеек
-              //sheet.get_Range(sheet.Cells[2, 2], sheet.Cells[4, 4]).Merge(missing);
-              //(sheet.Columns).ColumnWidth = 15;
-              // sheet.Columns.Font.Size = System.Drawing.Color.LightPink;
-          }
-          */
-        /* private void ExportDataTableToExcelForAccount() //Заполнение таблицы в Excel данными для бухгалтерии
-         {
-             int[] pIdxToAccount = new int[]
-            {
-                 // для бухгалтерии
-                 dtMobile.Columns.IndexOf("Дата счета"),
-                 dtMobile.Columns.IndexOf("Номер телефона абонента"),
-                 dtMobile.Columns.IndexOf("ФИО сотрудника"),
-                 dtMobile.Columns.IndexOf("Затраты по номеру, грн"),
-                 dtMobile.Columns.IndexOf("НДС, грн"),
-                 dtMobile.Columns.IndexOf("ПФ, грн"),
-                 dtMobile.Columns.IndexOf("Итого по контракту, грн"),
-                 dtMobile.Columns.IndexOf("Общая сумма в роуминге, грн"),
-                 dtMobile.Columns.IndexOf("Подразделение"),
-                 dtMobile.Columns.IndexOf("Табельный номер"),
-                 dtMobile.Columns.IndexOf("ТАРИФНАЯ МОДЕЛЬ"),
-                 dtMobile.Columns.IndexOf("К оплате владельцем номера, грн")
-            };
-
-             int rows = 1;
-             int rowsInTable = dtMobile.Rows.Count;
-             int columnsInTable = pIdxToAccount.Length; // p.Length;
-
-             Excel.Application excel = new Excel.Application
-             {
-                 Visible = false, //делаем объект не видимым
-                 SheetsInNewWorkbook = 1//количество листов в книге
-             };
-             Excel.Workbooks workbooks = excel.Workbooks;
-             excel.Workbooks.Add(); //добавляем книгу
-             Excel.Workbook workbook = workbooks[1];
-             Excel.Sheets sheets = workbook.Worksheets;
-             Excel.Worksheet sheet = sheets.get_Item(1);
-             sheet.Name = Path.GetFileNameWithoutExtension(filePathTxt);
-             //sheet.Names.Add("next", "=" + Path.GetFileNameWithoutExtension(filePathTxt) + "!$A$1", true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-
-             for (int k = 0; k < columnsInTable; k++)
-             {
-                 sheet.Cells[k + 1].WrapText = true;
-                 sheet.Cells[k + 1].Interior.Color = System.Drawing.Color.Silver;
-                 sheet.Cells[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-                 sheet.Cells[k + 1].VerticalAlignment = Excel.XlVAlign.xlVAlignCenter;
-                 sheet.Cells[1, k + 1].Value = pToAccount[k];
-                 sheet.Columns[k + 1].Font.Size = 8;
-                 sheet.Columns[k + 1].Font.Name = "Tahoma";
-
-                 switch (k)
-                 {
-                     case 0:
-                     case 1:
-                     case 2:
-                     case 8:
-                     case 9:
-                     case 10:
-                         {
-                             sheet.Columns[k + 1].NumberFormat = "@";
-                             break;
-                         }
-                     case 3:
-                     case 4:
-                     case 5:
-                     case 6:
-                     case 7:
-                     case 11:
-                         {
-                             sheet.Columns[k + 1].NumberFormat = "0" + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "00";
-                             sheet.Columns[k + 1].HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
-                             break;
-                         }
-                 }
-             }
-
-             //colourize of collumns
-             sheet.Columns[7].Interior.Color = System.Drawing.Color.DarkSeaGreen;  //"Итого по контракту, грн"
-             sheet.Columns[columnsInTable].Interior.Color = System.Drawing.Color.SandyBrown;  //"К оплате владельцем номера, грн"
-
-             //input data and set type of cells - numbers /text
-             foreach (DataRow row in dtMobile.Rows)
-             {
-                 rows++;
-                 for (int column = 0; column < columnsInTable; column++)
-                 {
-                     sheet.Cells[rows, column + 1].Value = row[pIdxToAccount[column]];
-                 }
-             }
-
-             //Область сортировки          
-             Excel.Range range = sheet.Range["A2", GetColumnName(columnsInTable) + (rows - 1)];
-
-             //По какому столбцу сортировать
-             string nameColumnSorted = GetColumnName(Array.IndexOf(pIdxToAccount, dtMobile.Columns.IndexOf("Номер телефона абонента")) + 1);
-             Excel.Range rangeKey = sheet.Range[nameColumnSorted + (rowsInTable - 1)];
-
-             //Добавляем параметры сортировки
-             sheet.Sort.SortFields.Add(rangeKey);
-             sheet.Sort.SetRange(range);
-             sheet.Sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
-             sheet.Sort.SortMethod = Excel.XlSortMethod.xlPinYin;
-             sheet.Sort.Apply();
-             //Очищаем фильтр
-             sheet.Sort.SortFields.Clear();
-
-             //Autofilter
-             range = sheet.UsedRange; //sheet.Cells.Range["A1", GetColumnName(columnsInTable) + rowsInTable];
-             range.Select();
-
-             //Форматирование колонок (стиль линий обводки)
-             range.Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-             range.Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlThin;
-             range.Borders[Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Excel.XlLineStyle.xlContinuous;
-             range.Borders[Excel.XlBordersIndex.xlInsideHorizontal].Weight = Excel.XlBorderWeight.xlThin;
-             range.Borders[Excel.XlBordersIndex.xlInsideVertical].LineStyle = Excel.XlLineStyle.xlContinuous;
-             range.Borders[Excel.XlBordersIndex.xlInsideVertical].Weight = Excel.XlBorderWeight.xlThin;
-             range.Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-             range.Borders[Excel.XlBordersIndex.xlEdgeRight].Weight = Excel.XlBorderWeight.xlThin;
-             range.AutoFilter(1, Type.Missing, Excel.XlAutoFilterOperator.xlAnd, Type.Missing, true);
-
-             workbook.SaveAs(Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx",
-                 Excel.XlFileFormat.xlOpenXMLWorkbook,
-                 System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                 Excel.XlSaveAsAccessMode.xlExclusive,
-                 System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-             workbook.Close(false, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
-             workbooks.Close();
-
-             ReleaseObject(range);
-             ReleaseObject(rangeKey);
-             ReleaseObject(sheet);
-             ReleaseObject(sheets);
-             ReleaseObject(workbook);
-             ReleaseObject(workbooks);
-             excel.Quit();
-             ReleaseObject(excel);
-             MessageBox.Show("Отчет готов и сохранен:" + Environment.NewLine + Path.GetDirectoryName(filePathTxt) + @"\" + Path.GetFileNameWithoutExtension(filePathTxt) + @".xlsx");
-         }
-         */
-
-        private void ReleaseObject(object obj)
-        {
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
-        }
-
-        static string GetColumnName(int number)
-        {
-            string result;
-            if (number > 0)
-            {
-                int alphabets = (number - 1) / 26;
-                int remainder = (number - 1) % 26;
-                result = ((char)('A' + remainder)).ToString();
-                if (alphabets > 0)
-                    result = GetColumnName(alphabets) + result;
-            }
-            else
-                result = null;
-            return result;
-        }
-
 
         private DataTable GetDataWithModel()  // получение данных из базы ТФактура
         {
             DataTable dt = dtOwnerOfMobileWithinSelectedPeriod.Clone();
 
-            string dataFromLabel = _ControlReturnText(labelPeriod);
+            string dataFromLabel = ControlReturnText(labelPeriod);
             dataStart = dataFromLabel.Split('-')[0].Trim(); //'01.05.2018'
             dataEnd = dataFromLabel.Split('-')[1].Trim();  //'31.05.2018'
             string dataStartSearch = dataStart.Split('.')[2] + "-" + dataStart.Split('.')[1] + "-" + dataStart.Split('.')[0]; //'2018-05-01'
@@ -2434,7 +1984,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
 
         //Access to Control from other threads
-        private string _OpenFileDialogReturnPath(OpenFileDialog ofd) //Return its name 
+        private string OpenFileDialogReturnPath(OpenFileDialog ofd) //Return its name 
         {
             string filePath = "";
             if (InvokeRequired)
@@ -2455,7 +2005,7 @@ namespace MobileNumbersDetailizationReportGenerator
             return filePath;
         }
 
-        private void _ProgressWork1Step(string text = "") //add into progressBar Value 2 from other threads
+        private void ProgressWork1Step(string text = "") //add into progressBar Value 2 from other threads
         {
             if (InvokeRequired)
                 Invoke(new MethodInvoker(delegate
@@ -2465,7 +2015,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     ProgressBar1.Maximum = 100;
                     ProgressBar1.Value += 1;
                     if (text.Length > 0)
-                        _ToolStripStatusLabelSetText(StatusLabel1, text);
+                        ToolStripStatusLabelSetText(StatusLabel1, text);
                 }));
             else
             {
@@ -2474,11 +2024,11 @@ namespace MobileNumbersDetailizationReportGenerator
                 ProgressBar1.Maximum = 100;
                 ProgressBar1.Value += 1;
                 if (text.Length > 0)
-                    _ToolStripStatusLabelSetText(StatusLabel1, text);
+                    ToolStripStatusLabelSetText(StatusLabel1, text);
             }
         }
 
-        private void _ProgressBar1Start() //Set progressBar Value into 0 from other threads
+        private void ProgressBar1Start() //Set progressBar Value into 0 from other threads
         {
             if (InvokeRequired)
                 Invoke(new MethodInvoker(delegate
@@ -2491,7 +2041,7 @@ namespace MobileNumbersDetailizationReportGenerator
             }
         }
 
-        private void _ProgressBar1Stop() //Set progressBar Value into 100 from other threads
+        private void ProgressBar1Stop() //Set progressBar Value into 100 from other threads
         {
             if (InvokeRequired)
                 Invoke(new MethodInvoker(delegate
@@ -2543,7 +2093,7 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
 
-        private string _ControlReturnText(Control controlText) //Return its name 
+        private string ControlReturnText(Control controlText) //Return its name 
         {
             string tBox = "";
             if (InvokeRequired)
@@ -2553,7 +2103,7 @@ namespace MobileNumbersDetailizationReportGenerator
             return tBox;
         }
 
-        private void _ControlSetItsText(Control control, string text) //Set its name 
+        private void ControlSetItsText(Control control, string text) //Set its name 
         {
             if (InvokeRequired)
                 Invoke(new MethodInvoker(delegate { control.Text = text; }));
@@ -2561,7 +2111,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 control.Text = text;
         }
 
-        private void _ControlVisibleEnabled(Control control, bool visible) //Set its name 
+        private void ControlVisibleEnabled(Control control, bool visible) //Set its name 
         {
             if (InvokeRequired)
                 Invoke(new MethodInvoker(delegate { control.Visible = visible; }));
@@ -2569,7 +2119,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 control.Visible = visible;
         }
 
-        private void _ToolStripStatusLabelSetText(ToolStripStatusLabel control, string text) //Set its name 
+        private void ToolStripStatusLabelSetText(ToolStripStatusLabel control, string text) //Set its name 
         {
             if (InvokeRequired)
                 Invoke(new MethodInvoker(delegate { control.Text = text; }));
@@ -2577,7 +2127,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 control.Text = text;
         }
 
-        private void _ToolStripMenuItemEnabled(ToolStripMenuItem control, bool enabled) //Set its name 
+        private void ToolStripMenuItemEnabled(ToolStripMenuItem control, bool enabled) //Set its name 
         {
             if (InvokeRequired)
                 Invoke(new MethodInvoker(delegate { control.Enabled = enabled; }));
@@ -2617,8 +2167,8 @@ namespace MobileNumbersDetailizationReportGenerator
                         if (!string.IsNullOrWhiteSpace(line))
                         { listSavedNumbers.Add(line.Trim()); }
                     }
-                    _ControlSetItsText(labelContracts, listSavedNumbers.Count.ToString() + " шт.");
-                    _ControlVisibleEnabled(labelContracts, true);
+                    ControlSetItsText(labelContracts, listSavedNumbers.Count.ToString() + " шт.");
+                    ControlVisibleEnabled(labelContracts, true);
                     foundSavedData = true;
                 }
 
@@ -2629,8 +2179,8 @@ namespace MobileNumbersDetailizationReportGenerator
                 string period = (string)EvUserKey?.GetValue("PeriodLastInvoice");
                 if (period?.Length > 6)
                 {
-                    _ControlSetItsText(labelPeriod, period);
-                    _ControlVisibleEnabled(labelPeriod, true);
+                    ControlSetItsText(labelPeriod, period);
+                    ControlVisibleEnabled(labelPeriod, true);
                 }
 
                 if (listSavedServices?.Count > 0 || listSavedNumbers?.Count > 0)
@@ -2676,7 +2226,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                     foundSavedData = true;
                 }
-                catch (Exception expt) { MessageBox.Show("Ошибки с доступом для записи списка " + parameterName + " в реестр. Данные не сохранены.", expt.Message); }
+                catch (Exception expt) { MessageShow("Ошибки с доступом для записи списка " + parameterName + " в реестр. Данные не сохранены.\n"+ expt.Message); }
             }
         }
 
@@ -2689,12 +2239,12 @@ namespace MobileNumbersDetailizationReportGenerator
                     if (filepathLoadedData?.Length > 0)
                     { EvUserKey.SetValue("PathToLastInvoice", filepathLoadedData, Microsoft.Win32.RegistryValueKind.String); }
 
-                    if (_ControlReturnText(labelPeriod).Length > 0)
+                    if (ControlReturnText(labelPeriod).Length > 0)
                     { EvUserKey.SetValue("PeriodLastInvoice", periodInvoice, Microsoft.Win32.RegistryValueKind.String); }
                 }
                 foundSavedData = true;
             }
-            catch (Exception expt) { _ = MessageBox.Show("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.", expt.Message); }
+            catch (Exception expt) { MessageShow("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.\n"+expt.Message); }
         }
     }
 }
