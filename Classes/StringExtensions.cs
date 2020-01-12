@@ -30,9 +30,9 @@ namespace MobileNumbersDetailizationReportGenerator
             if (!(addToList?.Length > 0) || !(array?.Length > 0))
             { return array; }
 
-            List<string> columns = array.ToList();
-            columns.Add(addToList);
-            string[] temp = columns.ToArray();
+            List<string> list = array.ToList();
+            list.Add(addToList);
+            string[] temp = list.ToArray();
            
             return temp;
         }
