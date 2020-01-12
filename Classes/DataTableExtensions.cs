@@ -105,7 +105,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// https://stackoverrun.com/ru/q/3109752
         /// </summary>
         /// <param name="pathToFile"></param>
-        public static void ExportToExcel(this DataTable source, string pathToFile, string nameSheet, string columnWithColor = null)
+        public static void ExportToExcel(this DataTable source, string pathToFile, string nameSheet, string[] columnsRedColor = null, string[] columnsGreenColor = null)
         {
             DataTable table = source;
             System.IO.FileInfo fileInfo = new System.IO.FileInfo(pathToFile);
@@ -150,17 +150,34 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                 }
 
-                //Set color of special column
+                //Set color cells at special columns
                 for (int c = 1; c < 1 + table.Columns.Count; c++)
                 {
-                    if (columnWithColor != null && c == table.Columns.IndexOf(columnWithColor))
+                    foreach (var col in columnsRedColor)
                     {
-                        for (int r = 3; r < table.Rows.Count + 3; r++)
+                        if (col != null && c == table.Columns.IndexOf(col))
                         {
-                            if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                            for (int r = 3; r < table.Rows.Count + 3; r++)
                             {
-                                wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.SandyBrown);
+                                if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                {
+                                    wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                    wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.SandyBrown);
+                                }
+                            }
+                        }
+                    }
+                    foreach (var col in columnsGreenColor)
+                    {
+                        if (col != null && c == table.Columns.IndexOf(col))
+                        {
+                            for (int r = 3; r < table.Rows.Count + 3; r++)
+                            {
+                                if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                {
+                                    wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                    wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.PaleGreen);
+                                }
                             }
                         }
                     }
@@ -171,12 +188,11 @@ namespace MobileNumbersDetailizationReportGenerator
                 wsData.Cells[2, 1, 2, table.Columns.Count].Style.WrapText = true;
                 wsData.Cells[2, 1, 2, table.Columns.Count].Style.Font.Size = 9;
                 wsData.Cells[2, 1, 2, table.Columns.Count].Style.Font.Bold = true;
+                
+                var dataRange = wsData.Cells[wsData.Dimension.Address.ToString()];
+
+                dataRange.AutoFitColumns();
             }
-
-            var dataRange = wsData.Cells[wsData.Dimension.Address.ToString()];
-
-            dataRange.AutoFitColumns();
-
             excel.Save();
         }
 
@@ -229,7 +245,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                 }
 
-                //Set color of special column
+                //Set color cells at special columns
                 for (int c = 1; c < 1 + table.Columns.Count; c++)
                 {
                     foreach (var col in columnsRedColor)
@@ -268,7 +284,6 @@ namespace MobileNumbersDetailizationReportGenerator
                 wsData.Cells[2, 1, 2, table.Columns.Count].Style.Font.Size = 9;
                 wsData.Cells[2, 1, 2, table.Columns.Count].Style.Font.Bold = true;
             
-
             var dataRange = wsData.Cells[wsData.Dimension.Address.ToString()];
             dataRange.Style.Font.Name = "Tahoma";
 
@@ -289,7 +304,7 @@ namespace MobileNumbersDetailizationReportGenerator
             pivotTable.ApplyWidthHeightFormats = true;
             pivotTable.ShowDrill = true;
             pivotTable.FirstDataCol = 3;
-            pivotTable.RowHeaderCaption = "Подразделение";
+            pivotTable.RowHeaderCaption = "Сводный анализ";
 
             var modelField = pivotTable.Fields["ФИО сотрудника"];//Дата счета
             pivotTable.PageFields.Add(modelField);
