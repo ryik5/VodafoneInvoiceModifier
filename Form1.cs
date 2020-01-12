@@ -348,7 +348,7 @@ namespace MobileNumbersDetailizationReportGenerator
         private void makeReportAccountantToolItem_Click(object sender, EventArgs e)
         { ExportDataTableToExcelForAccount(); }
 
-        private void ExportDataTableToExcelForAccount(bool pivot = false)
+        private void ExportDataTableToExcelForAccount(bool makePivot = false)
         {
             string[] columnsCollection = new string[]      // для бухгалтерии
                        {
@@ -368,22 +368,24 @@ namespace MobileNumbersDetailizationReportGenerator
 
             string pathToFile = Path.Combine(Path.GetDirectoryName(filePathSourceTxt), $"{Path.GetFileNameWithoutExtension(filePathSourceTxt)}.xlsx");
             string nameSheet = Path.GetFileNameWithoutExtension(filePathSourceTxt);
+            string[] redColumns = { "К оплате владельцем номера, грн" };
+            string[] greenColumns = { "Затраты по номеру, грн", "Итого по контракту, грн" };
 
             DataTable dt = dtMobile.Copy();
-            if (pivot)
+            if (makePivot)
             {
                 pathToFile = Path.Combine(Path.GetDirectoryName(filePathSourceTxt), $"{Path.GetFileNameWithoutExtension(filePathSourceTxt)} pivot.xlsx");
                 dt.AllowToEditTable()
                          .SetColumnsOrder(columnsCollection)
                          .SeteColumnsCollectionInDataTable(columnsCollection)
-                         .ExportToExcelPivotTable(pathToFile, nameSheet, new string[] { "К оплате владельцем номера, грн" }, null);
+                         .ExportToExcelPivotTable(pathToFile, nameSheet, redColumns, greenColumns);
             }
             else
             {
                 dt.AllowToEditTable()
                     .SetColumnsOrder(columnsCollection)
                     .SeteColumnsCollectionInDataTable(columnsCollection)
-                    .ExportToExcel(pathToFile, nameSheet, "К оплате владельцем номера, грн");
+                    .ExportToExcel(pathToFile, nameSheet, redColumns, greenColumns);
             }
 
             MessageShow($"Отчет готов и сохранен:{Environment.NewLine}{pathToFile}");
