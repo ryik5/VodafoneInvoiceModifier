@@ -57,7 +57,9 @@ namespace MobileNumbersDetailizationReportGenerator
         {
             DataTable result = table.Copy();
             foreach (DataColumn col in result.Columns)
-            { col.ReadOnly = false; }
+            {
+                 col.ReadOnly = false;
+            }
 
             return result;
         }
@@ -68,7 +70,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="source">DataTable</param>
         /// <param name="columnsOrder">Columns collection at the right order</param>
         /// <returns>DataTable with changed columns' order and set</returns>
-        public static DataTable SeteColumnsCollectionInDataTable(this DataTable source, string[] columnsOrder)
+        public static DataTable SetColumnsCollectionInDataTable(this DataTable source, string[] columnsOrder)
         {
             DataTable result = source;
             List<string> extraColumns = ReturnExtraColumnsInDataTable(result, columnsOrder);
@@ -211,7 +213,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="nameSheet">name of the sheet</param>
         /// <param name="columnsRedColor">caption columns which data backgroud will be filled red color</param>
         /// <param name="columnsGreenColor">caption columns which data backgroud will be filled green color</param>
-        public static void ExportToExcelPivotTable(this DataTable source, string pathToFile, string nameSheet, string[] columnsRedColor = null, string[] columnsGreenColor = null)
+        public static void ExportToExcelPivotTable(this DataTable source, string pathToFile, string nameSheet, string[] columnsRedColor = null, string[] columnsGreenColor = null, bool accountant=true)
         {
             DataTable table = source;
             System.IO.FileInfo fileInfo = new System.IO.FileInfo(pathToFile);
@@ -304,6 +306,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     dataRange.Style.Font.Name = "Tahoma";
 
                     dataRange.AutoFitColumns();
+
                     var pivotTable = wsPivot.PivotTables.Add(wsPivot.Cells["A3"], dataRange, "Сводная");
                     pivotTable.MultipleFieldFilters = true;
                     pivotTable.RowGrandTotals = true;
@@ -322,7 +325,13 @@ namespace MobileNumbersDetailizationReportGenerator
                     pivotTable.FirstDataCol = 3;
                     pivotTable.RowHeaderCaption = "Сводный анализ";
 
-                    //Filter
+
+                    if (accountant==true)
+                        pivotTable.Accountant(dataRange);
+                    else
+                        pivotTable.Market(dataRange);
+                    
+                    /*//Filter
                     var modelField = pivotTable.Fields["ФИО сотрудника"];//Дата счета
                     pivotTable.PageFields.Add(modelField);
                     modelField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
@@ -360,9 +369,93 @@ namespace MobileNumbersDetailizationReportGenerator
                     //   monthGroupField.ShowAll = false;
                     //  var dayGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
                     //  dayGroupField.ShowAll = false;
+                    */
                 }
                 excel.Save();
             }
+        }
+
+        public static OfficeOpenXml.Table.PivotTable.ExcelPivotTable Market(this OfficeOpenXml.Table.PivotTable.ExcelPivotTable table, OfficeOpenXml.ExcelRange range)
+        {
+            var pivotTable = table;
+
+            //Filter
+            var modelField = pivotTable.Fields["ФИО"];//Дата счета
+            pivotTable.PageFields.Add(modelField);
+            modelField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+      //      var tarifField = pivotTable.Fields["Номер телефона"];//Дата счета
+      //      pivotTable.PageFields.Add(tarifField);
+      //      tarifField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+        //    var numberField = pivotTable.Fields["Имя сервиса"];//Дата счета
+         //   pivotTable.PageFields.Add(numberField);
+       //     numberField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+
+            //Total (Groupby - Calculated values)
+            var countField = pivotTable.Fields["Номер В"];//Затраты по номеру, грн
+            pivotTable.DataFields.Add(countField);
+            var paidOwner = pivotTable.Fields["Длительность В"];//Затраты по номеру, грн
+            pivotTable.DataFields.Add(paidOwner);
+
+            //Rows(Caption)
+            var gspField = pivotTable.Fields["Подразделение"];
+            pivotTable.RowFields.Add(gspField);
+            gspField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+
+            //   var countryField = pivotTable.Fields[""];//Подразделение
+            //    pivotTable.RowFields.Add(countryField);
+
+            //Columns, Total
+            var oldStatusField = pivotTable.Fields["Суммарно, МБ"];//
+            pivotTable.ColumnFields.Add(oldStatusField);
+            var ewStatusField = pivotTable.Fields["Колличество"];//
+            pivotTable.ColumnFields.Add(ewStatusField);
+
+            return pivotTable;
+        }
+        public static OfficeOpenXml.Table.PivotTable.ExcelPivotTable Accountant(this OfficeOpenXml.Table.PivotTable.ExcelPivotTable table, OfficeOpenXml.ExcelRange range)
+        {
+            var pivotTable = table;
+
+            //Filter
+            var modelField = pivotTable.Fields["ФИО сотрудника"];//Дата счета
+            pivotTable.PageFields.Add(modelField);
+            modelField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+            var tarifField = pivotTable.Fields["ТАРИФНАЯ МОДЕЛЬ"];//Дата счета
+            pivotTable.PageFields.Add(tarifField);
+            tarifField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+            var numberField = pivotTable.Fields["Номер телефона абонента"];//Дата счета
+            pivotTable.PageFields.Add(numberField);
+            numberField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+
+            //Total (Groupby - Calculated values)
+            var countField = pivotTable.Fields["Итого по контракту, грн"];//Затраты по номеру, грн
+            pivotTable.DataFields.Add(countField);
+            var paidOwner = pivotTable.Fields["К оплате владельцем номера, грн"];//Затраты по номеру, грн
+            pivotTable.DataFields.Add(paidOwner);
+
+            //Rows(Caption)
+            var gspField = pivotTable.Fields["Подразделение"];
+            pivotTable.RowFields.Add(gspField);
+            gspField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
+
+            //   var countryField = pivotTable.Fields[""];//Подразделение
+            //    pivotTable.RowFields.Add(countryField);
+
+            //Columns, Total
+            var oldStatusField = pivotTable.Fields["Дата счета"];//
+            pivotTable.ColumnFields.Add(oldStatusField);
+            //  var newStatusField = pivotTable.Fields["Общая сумма в роуминге, грн"];
+            //  pivotTable.ColumnFields.Add(newStatusField);
+
+            // var submittedDateField = pivotTable.Fields["К оплате владельцем номера, грн"];
+            //  pivotTable.RowFields.Add(submittedDateField);
+            //   submittedDateField.AddDateGrouping(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Months | OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
+            //   var monthGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Months);
+            //   monthGroupField.ShowAll = false;
+            //  var dayGroupField = pivotTable.Fields.GetDateGroupField(OfficeOpenXml.Table.PivotTable.eDateGroupBy.Days);
+            //  dayGroupField.ShowAll = false;
+
+            return pivotTable;
         }
 
         //public static List<string> ExportRowsToList(this DataTable table)
@@ -627,7 +720,7 @@ namespace MobileNumbersDetailizationReportGenerator
              Excel.Application excel = new Excel.Application
              {
                  Visible = false, //делаем объект не видимым
-                 SheetsInNewWorkbook = 1//количество листов в книге
+                 SheetsInNewWorkbook = 1//Колличество листов в книге
              };
 
              Excel.Workbooks workbooks = excel.Workbooks;
@@ -731,7 +824,7 @@ namespace MobileNumbersDetailizationReportGenerator
               Excel.Application excel = new Excel.Application
               {
                   Visible = false, //делаем объект не видимым
-                  SheetsInNewWorkbook = 1//количество листов в книге
+                  SheetsInNewWorkbook = 1//Колличество листов в книге
               };
 
               Excel.Workbooks workbooks = excel.Workbooks;
@@ -888,7 +981,7 @@ namespace MobileNumbersDetailizationReportGenerator
              Excel.Application excel = new Excel.Application
              {
                  Visible = false, //делаем объект не видимым
-                 SheetsInNewWorkbook = 1//количество листов в книге
+                 SheetsInNewWorkbook = 1//Колличество листов в книге
              };
              Excel.Workbooks workbooks = excel.Workbooks;
              excel.Workbooks.Add(); //добавляем книгу

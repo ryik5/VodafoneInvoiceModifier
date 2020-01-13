@@ -18,7 +18,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 .SetColumnsOrder(condition.ColumnsCollectionAtRightOrder), _condition);
         }
 
-        public DataTable SetInternetTrafic( DataTable dataTable, ConditionForMakingPivotTable condition)
+        public DataTable SetInternetTrafic(DataTable dataTable, ConditionForMakingPivotTable condition)
         {
             DataTable dt = dataTable.Copy();
             foreach (DataRow row in dt.Rows)
@@ -48,7 +48,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             return result;
         }
-      
+
         private DataTable AddNewColumnsAtDataTable(DataTable dataTable, ConditionForMakingPivotTable condition)
         {
             DataTable dt = dataTable.Copy();
@@ -63,7 +63,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             return dt;
         }
- 
+
         /*
                 //public DataTable GroupBy(DataTable source, string groupByColumn)
                 //{
@@ -114,7 +114,7 @@ namespace MobileNumbersDetailizationReportGenerator
         public virtual DataTable MakePivot()
         {
             DataTable dt = Filter(_source, _condition);
-                    
+
             var pivotData = dt.AsEnumerable()
                         .Select(r => new
                         {
@@ -135,13 +135,13 @@ namespace MobileNumbersDetailizationReportGenerator
                                 Department = g.Select(c => c.Department).FirstOrDefault(),
                                 Service = g.Select(c => c.Service).FirstOrDefault(),
                                 Summary = g.Sum(c => c.Summary),
-                                Count = g.Count(c => c.Count>0),
+                                Count = g.Count(c => c.Count > 0),
                             })
-                            .OrderBy(x=>x.Department)
-                            .ThenBy(x=>x.FIO);
+                            .OrderBy(x => x.Department)
+                            .ThenBy(x => x.FIO);
 
-           DataTable pivotTable = _source.Clone();
-            foreach(var v in pivotData)
+            DataTable pivotTable = _source.Clone();
+            foreach (var v in pivotData)
             {
                 DataRow row = pivotTable.NewRow();
 
@@ -155,19 +155,19 @@ namespace MobileNumbersDetailizationReportGenerator
 
                 pivotTable.Rows.Add(row);
             }
-            
+
             return pivotTable;
         }
-        
+
         /// <summary>
         /// Filter DataTable
         /// </summary>
         /// <param name="source">DataTable with Data</param>
         /// <returns></returns>
-        public  DataTable Filter(DataTable source, ConditionForMakingPivotTable condition)
+        public DataTable Filter(DataTable source, ConditionForMakingPivotTable condition)
         {
             DataTable result = source
-                .SeteColumnsCollectionInDataTable(condition.ColumnsCollectionAtRightOrder)
+                .SetColumnsCollectionInDataTable(condition.ColumnsCollectionAtRightOrder)
                 .AsEnumerable()
                 .Where(myRow => myRow.Field<string>(condition.NameColumnWithFilteringService)
                         .Contains(condition.FilteringService))
@@ -175,6 +175,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
             return result;
         }
+       
+        public DataTable Source { get { return _source; } }
     }
 
     /// <summary>
