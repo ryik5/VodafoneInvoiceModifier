@@ -5,7 +5,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EE2E919C-DD0E-4986-A46C-BF9E65001CE7}</ProjectGuid>
+    <ProjectGuid>{BF51D453-AB63-4563-AB6D-9BD4AF87F24D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MobileNumbersDetailizationReportGenerator</RootNamespace>
