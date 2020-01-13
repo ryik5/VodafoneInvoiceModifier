@@ -156,30 +156,36 @@ namespace MobileNumbersDetailizationReportGenerator
                     //Set color cells at special columns
                     for (int c = 1; c < 1 + table.Columns.Count; c++)
                     {
-                        foreach (var col in columnsRedColor)
+                        if (columnsRedColor?.Length > 0)
                         {
-                            if (col != null && c == table.Columns.IndexOf(col))
+                            foreach (var col in columnsRedColor)
                             {
-                                for (int r = 3; r < table.Rows.Count + 3; r++)
+                                if (col != null && c == table.Columns.IndexOf(col))
                                 {
-                                    if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                    for (int r = 3; r < table.Rows.Count + 3; r++)
                                     {
-                                        wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                        wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.SandyBrown);
+                                        if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                        {
+                                            wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                            wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.SandyBrown);
+                                        }
                                     }
                                 }
                             }
                         }
-                        foreach (var col in columnsGreenColor)
+                        if (columnsGreenColor?.Length > 0)
                         {
-                            if (col != null && c == table.Columns.IndexOf(col))
+                            foreach (var col in columnsGreenColor)
                             {
-                                for (int r = 3; r < table.Rows.Count + 3; r++)
+                                if (col != null && c == table.Columns.IndexOf(col))
                                 {
-                                    if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                    for (int r = 3; r < table.Rows.Count + 3; r++)
                                     {
-                                        wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                        wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.PaleGreen);
+                                        if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                        {
+                                            wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                            wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.PaleGreen);
+                                        }
                                     }
                                 }
                             }
@@ -255,30 +261,36 @@ namespace MobileNumbersDetailizationReportGenerator
                     //Set color cells at special columns
                     for (int c = 1; c < 1 + table.Columns.Count; c++)
                     {
-                        foreach (var col in columnsRedColor)
+                        if (columnsRedColor?.Length > 0)
                         {
-                            if (col != null && c == table.Columns.IndexOf(col))
+                            foreach (var col in columnsRedColor)
                             {
-                                for (int r = 3; r < table.Rows.Count + 3; r++)
+                                if (col != null && c == table.Columns.IndexOf(col))
                                 {
-                                    if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                    for (int r = 3; r < table.Rows.Count + 3; r++)
                                     {
-                                        wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                        wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.SandyBrown);
+                                        if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                        {
+                                            wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                            wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.SandyBrown);
+                                        }
                                     }
                                 }
                             }
                         }
-                        foreach (var col in columnsGreenColor)
+                        if (columnsGreenColor?.Length > 0)
                         {
-                            if (col != null && c == table.Columns.IndexOf(col))
+                            foreach (var col in columnsGreenColor)
                             {
-                                for (int r = 3; r < table.Rows.Count + 3; r++)
+                                if (col != null && c == table.Columns.IndexOf(col))
                                 {
-                                    if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                    for (int r = 3; r < table.Rows.Count + 3; r++)
                                     {
-                                        wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                        wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.PaleGreen);
+                                        if (wsData.Cells[r, c + 1]?.ToString()?.Length > 0)
+                                        {
+                                            wsData.Cells[r, c + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                            wsData.Cells[r, c + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.PaleGreen);
+                                        }
                                     }
                                 }
                             }
@@ -313,6 +325,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     pivotTable.FirstDataCol = 3;
                     pivotTable.RowHeaderCaption = "Сводный анализ";
 
+                    //Filter
                     var modelField = pivotTable.Fields["ФИО сотрудника"];//Дата счета
                     pivotTable.PageFields.Add(modelField);
                     modelField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
@@ -323,11 +336,13 @@ namespace MobileNumbersDetailizationReportGenerator
                     pivotTable.PageFields.Add(numberField);
                     numberField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
 
+                    //Total (Groupby - Calculated values)
                     var countField = pivotTable.Fields["Итого по контракту, грн"];//Затраты по номеру, грн
                     pivotTable.DataFields.Add(countField);
                     var paidOwner = pivotTable.Fields["К оплате владельцем номера, грн"];//Затраты по номеру, грн
                     pivotTable.DataFields.Add(paidOwner);
 
+                    //Rows(Caption)
                     var gspField = pivotTable.Fields["Подразделение"];
                     pivotTable.RowFields.Add(gspField);
                     gspField.Sort = OfficeOpenXml.Table.PivotTable.eSortType.Ascending;
@@ -335,6 +350,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     //   var countryField = pivotTable.Fields[""];//Подразделение
                     //    pivotTable.RowFields.Add(countryField);
 
+                    //Columns, Total
                     var oldStatusField = pivotTable.Fields["Дата счета"];//
                     pivotTable.ColumnFields.Add(oldStatusField);
                     //  var newStatusField = pivotTable.Fields["Общая сумма в роуминге, грн"];
