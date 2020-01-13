@@ -1,4 +1,4 @@
-﻿namespace BillReportsGenerator
+﻿namespace MobileNumbersDetailizationReportGenerator
 {
     partial class Form1
     {
@@ -34,6 +34,7 @@
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.labelAccountName = new System.Windows.Forms.Label();
             this.labelAccount = new System.Windows.Forms.Label();
             this.labelPeriodName = new System.Windows.Forms.Label();
@@ -61,7 +62,6 @@
             this.selectListNumbersItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectListServicesItem = new System.Windows.Forms.ToolStripMenuItem();
             this.prepareBillItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.makeReportMarketingItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearTextboxItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,7 +70,6 @@
             this.labelDiscount = new System.Windows.Forms.Label();
             this.labelDiscountName = new System.Windows.Forms.Label();
             this.labelFile = new System.Windows.Forms.Label();
-            this.ProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -113,6 +112,11 @@
             this.StatusLabel1.Size = new System.Drawing.Size(73, 17);
             this.StatusLabel1.Text = "StatusLabel1";
             this.StatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // ProgressBar1
+            // 
+            this.ProgressBar1.Name = "ProgressBar1";
+            this.ProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
             // labelAccountName
             // 
@@ -342,7 +346,7 @@
             // openBillItem
             // 
             this.openBillItem.Name = "openBillItem";
-            this.openBillItem.Size = new System.Drawing.Size(199, 22);
+            this.openBillItem.Size = new System.Drawing.Size(200, 22);
             this.openBillItem.Text = "Выбрать счет";
             this.openBillItem.Click += new System.EventHandler(this.openBillItem_Click);
             // 
@@ -352,79 +356,71 @@
             this.useSavedDataItem,
             this.selectListNumbersItem,
             this.selectListServicesItem,
-            this.prepareBillItem,
-            this.makeReportMarketingItem});
+            this.prepareBillItem});
             this.makeReportMarketingMenuItem.Name = "makeReportMarketingMenuItem";
-            this.makeReportMarketingMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.makeReportMarketingMenuItem.Size = new System.Drawing.Size(200, 22);
             this.makeReportMarketingMenuItem.Text = "Отчет для маркетинга";
             // 
             // useSavedDataItem
             // 
             this.useSavedDataItem.Name = "useSavedDataItem";
-            this.useSavedDataItem.Size = new System.Drawing.Size(257, 22);
+            this.useSavedDataItem.Size = new System.Drawing.Size(258, 22);
             this.useSavedDataItem.Text = "Предыдущая сесия";
             this.useSavedDataItem.Click += new System.EventHandler(this.UseSavedDataItem_Click);
             // 
             // selectListNumbersItem
             // 
             this.selectListNumbersItem.Name = "selectListNumbersItem";
-            this.selectListNumbersItem.Size = new System.Drawing.Size(257, 22);
+            this.selectListNumbersItem.Size = new System.Drawing.Size(258, 22);
             this.selectListNumbersItem.Text = "Список анализируемых номеров";
             this.selectListNumbersItem.Click += new System.EventHandler(this.selectListNumbersItem_Click);
             // 
             // selectListServicesItem
             // 
             this.selectListServicesItem.Name = "selectListServicesItem";
-            this.selectListServicesItem.Size = new System.Drawing.Size(257, 22);
+            this.selectListServicesItem.Size = new System.Drawing.Size(258, 22);
             this.selectListServicesItem.Text = "Список проверяемых сервисов";
             this.selectListServicesItem.Click += new System.EventHandler(this.selectListServicesItem_Click);
             // 
             // prepareBillItem
             // 
             this.prepareBillItem.Name = "prepareBillItem";
-            this.prepareBillItem.Size = new System.Drawing.Size(257, 22);
-            this.prepareBillItem.Text = "Сформировать отчет (в CSV)";
+            this.prepareBillItem.Size = new System.Drawing.Size(258, 22);
+            this.prepareBillItem.Text = "Сформировать отчет";
             this.prepareBillItem.Click += new System.EventHandler(this.prepareBillItem_Click);
-            // 
-            // makeReportMarketingItem
-            // 
-            this.makeReportMarketingItem.Name = "makeReportMarketingItem";
-            this.makeReportMarketingItem.Size = new System.Drawing.Size(257, 22);
-            this.makeReportMarketingItem.Text = "Сформировать Excel отчет";
-            this.makeReportMarketingItem.Click += new System.EventHandler(this.makeReportMarketingItem_Click);
             // 
             // makeReportAccountantItem
             // 
             this.makeReportAccountantItem.Name = "makeReportAccountantItem";
-            this.makeReportAccountantItem.Size = new System.Drawing.Size(199, 22);
+            this.makeReportAccountantItem.Size = new System.Drawing.Size(200, 22);
             this.makeReportAccountantItem.Text = "Отчет для бухгалтерии";
             this.makeReportAccountantItem.Click += new System.EventHandler(this.makeReportAccountantToolItem_Click);
             // 
             // makeFullReportItem
             // 
             this.makeFullReportItem.Name = "makeFullReportItem";
-            this.makeFullReportItem.Size = new System.Drawing.Size(199, 22);
-            this.makeFullReportItem.Text = "Полный отчет";
+            this.makeFullReportItem.Size = new System.Drawing.Size(200, 22);
+            this.makeFullReportItem.Text = "Сводный отчет";
             this.makeFullReportItem.Click += new System.EventHandler(this.makeFullReportItem_Click);
             // 
             // clearTextboxItem
             // 
             this.clearTextboxItem.Name = "clearTextboxItem";
-            this.clearTextboxItem.Size = new System.Drawing.Size(199, 22);
+            this.clearTextboxItem.Size = new System.Drawing.Size(200, 22);
             this.clearTextboxItem.Text = "Очистить окно вывода";
             this.clearTextboxItem.Click += new System.EventHandler(this.clearTextBoxItem_Click);
             // 
             // aboutItem
             // 
             this.aboutItem.Name = "aboutItem";
-            this.aboutItem.Size = new System.Drawing.Size(199, 22);
+            this.aboutItem.Size = new System.Drawing.Size(200, 22);
             this.aboutItem.Text = "О программе";
             this.aboutItem.Click += new System.EventHandler(this.AboutSoft);
             // 
             // exitItem
             // 
             this.exitItem.Name = "exitItem";
-            this.exitItem.Size = new System.Drawing.Size(199, 22);
+            this.exitItem.Size = new System.Drawing.Size(200, 22);
             this.exitItem.Text = "Выход";
             this.exitItem.Click += new System.EventHandler(this.ApplicationExit);
             // 
@@ -464,11 +460,6 @@
             this.labelFile.Size = new System.Drawing.Size(0, 13);
             this.labelFile.TabIndex = 29;
             this.labelFile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // ProgressBar1
-            // 
-            this.ProgressBar1.Name = "ProgressBar1";
-            this.ProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
             // Form1
             // 
@@ -551,7 +542,6 @@
         private System.Windows.Forms.ToolStripMenuItem makeReportMarketingMenuItem;
         private System.Windows.Forms.ToolStripMenuItem selectListNumbersItem;
         private System.Windows.Forms.ToolStripMenuItem selectListServicesItem;
-        private System.Windows.Forms.ToolStripMenuItem makeReportMarketingItem;
         private System.Windows.Forms.ToolStripMenuItem prepareBillItem;
         private System.Windows.Forms.ToolStripMenuItem useSavedDataItem;
         private System.Windows.Forms.Label labelDiscount;

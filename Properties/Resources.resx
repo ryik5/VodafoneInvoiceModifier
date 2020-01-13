@@ -140,6 +140,9 @@
   <data name="ListOfServices" xml:space="preserve">
     <value>List of services</value>
   </data>
+  <data name="OpenDialogTextFiles" xml:space="preserve">
+    <value>Текстовые файлы (*.txt)|*.txt|All files (*.*)|*.*</value>
+  </data>
   <data name="RowDashedLines" xml:space="preserve">
     <value>--------------------------------------------</value>
   </data>
