@@ -365,7 +365,7 @@
             // 
             this.useSavedDataItem.Name = "useSavedDataItem";
             this.useSavedDataItem.Size = new System.Drawing.Size(258, 22);
-            this.useSavedDataItem.Text = "Предыдущая сесия";
+            this.useSavedDataItem.Text = "Предыдущая сессия";
             this.useSavedDataItem.Click += new System.EventHandler(this.UseSavedDataItem_Click);
             // 
             // selectListNumbersItem
@@ -386,7 +386,7 @@
             // 
             this.prepareBillItem.Name = "prepareBillItem";
             this.prepareBillItem.Size = new System.Drawing.Size(258, 22);
-            this.prepareBillItem.Text = "Сформировать отчет";
+            this.prepareBillItem.Text = "Сформировать отчет Excel";
             this.prepareBillItem.Click += new System.EventHandler(this.prepareBillItem_Click);
             // 
             // makeReportAccountantItem
