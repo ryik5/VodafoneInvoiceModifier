@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EE2E919C-DD0E-4986-A46C-BF9E65001CE7}</ProjectGuid>
+    <ProjectGuid>{958345AB-C299-4904-90C5-A440F17C01B7}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VodafoneInvoiceModifier</RootNamespace>
