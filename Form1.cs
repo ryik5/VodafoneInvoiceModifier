@@ -285,7 +285,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             prepareBillItem.Enabled = false;
 
-            openBillItem.ToolTipText = "Открыть счет Voodafon в текстовом формате." + Environment.NewLine + "Max Колличество строк - 500 000";
+            openBillItem.ToolTipText = "Открыть счет Voodafon в текстовом формате." + Environment.NewLine + "Max Количество строк - 500 000";
             makeFullReportItem.Enabled = false;
             makeFullReportItem.ToolTipText = "Подготовить полный отчет в Excel-файле." + Environment.NewLine + "Файл будет сохранен в папке с программой";
             makeReportAccountantItem.Enabled = false;
@@ -501,14 +501,16 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private async void prepareBillItem_Click(object sender, EventArgs e)
         {
-            dtMarket.Rows.Clear();
+            dtMarket?.Rows?.Clear();
             string pathToFileMarketPivotTable;
             string pathToFileMarketTable;
+            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketPivotTable.xlsx");
+            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketTable.xlsx");
+          
             await Task.Run(() => LoadBillIntoMemoryToFilter());
+           
             string[] columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В" };
 
-            //test
-            //  var typeResult = TypeData.DataStringMb;
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
             {                                                           // columns 'dcFullBill' in the table 'dtMarket'
                 KeyColumnName = "Номер телефона",                       // column "ФИО" //groupby
@@ -516,17 +518,15 @@ namespace MobileNumbersDetailizationReportGenerator
                 NameColumnWithFilteringService = "Номер В",             // column "Номер В",
                 NameColumnWithFilteringServiceValue = "Длительность А", // column "Длительность А", it is used by column 'Summary'
                 NameNewColumnWithSummary = "Суммарно, МБ",              // column 'Summary' - result data format for column Summary
-                NameNewColumnWithCount = "Колличество",
+                NameNewColumnWithCount = "Количество",
                 //  TypeResultCalcultedData = typeResult,                   
                 ColumnsCollectionAtRightOrder = columnsCollection
             };
 
             MakerPivotTable makingPivotData = new MakerPivotTable(dtMarket, condition);
+            
 
-            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketPivotTable.xlsx");
-            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketTable.xlsx");
-
-                        try { await Task.Run(() => dtMarket.ExportToExcel(pathToFileMarketTable, "Selected data")); }
+            try { await Task.Run(() => dtMarket.ExportToExcel(pathToFileMarketTable, "Selected data")); }
             catch (Exception err) { MessageShow(err.ToString()); }
             textBoxLog.AppendLine("Общая таблица для Маркетинга экспортирована");
 
@@ -541,22 +541,27 @@ namespace MobileNumbersDetailizationReportGenerator
             textBoxLog.AppendLine("Сводная таблица для Маркетинга экспортирована"+ Environment.NewLine);
 
 
-            columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В", "Имя сервиса", "Длительность В", "Дата", "Суммарно, МБ", "Колличество" };
 
-            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} TestPivotTable.xlsx");
+            columnsCollection = new string[] 
+            { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В", "Имя сервиса", "Длительность В", "Дата" };
+            textBoxLog.AppendLine(string.Join(Environment.NewLine, columnsCollection));
+            
+            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"Test {Path.GetFileNameWithoutExtension(filepathLoadedData)} PivotTable.xlsx");
             string nameSheet ="Test";
             string[] redColumns = { };
             string[] greenColumns = {  };
-            textBoxLog.AppendLine(string.Join(Environment.NewLine, columnsCollection));
-            DataTable dt =dtMarket.Copy();
-            dt.AllowToEditTable();
+
+            condition.ColumnsCollectionAtRightOrder = columnsCollection;
+            makingPivotData = new MakerPivotTable(dtMarket, condition);
+            
+            DataTable dt = makingPivotData.Source;
             
             try
             {
                 dt
                      .SetColumnsOrder(columnsCollection)
                      .SetColumnsCollectionInDataTable(columnsCollection)
-                    // .ExportToExcelPivotTable(pathToFileMarketPivotTable, nameSheet, redColumns, greenColumns,false)
+                     .ExportToExcelPivotTable(pathToFileMarketPivotTable, nameSheet, redColumns, greenColumns,false)
                      ;
             }
             catch (Exception err) { MessageShow(err.ToString()); }
@@ -1488,13 +1493,13 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                     }
 
-                    if (!(countParser[p[1]] != 0 &&                   //Колличество контрактов должно быть больше нуля
-                        countParser[p[1]] == countParser[p[2]] &&   //Колличество контрактов должно соответствовать 
+                    if (!(countParser[p[1]] != 0 &&                   //Количество контрактов должно быть больше нуля
+                        countParser[p[1]] == countParser[p[2]] &&   //Количество контрактов должно соответствовать 
                         countParser[p[2]] == countParser[p[3]]))     //количеству номеров и наименованию тарифных пакетов
                     {
                         ChosenFile = false;
                         string message = "Счет для анализа выбран с некорректными парсерами." + Environment.NewLine +
-                                         "Колличество этих параметров должны быть одинаковое и больше нуля:" + Environment.NewLine +
+                                         "Количество этих параметров должны быть одинаковое и больше нуля:" + Environment.NewLine +
                                          "'" + p[1] + @"' =  " + countParser[p[1]] + Environment.NewLine +
                                          "'" + p[2] + @"' =  " + countParser[p[2]] + Environment.NewLine +
                                          "'" + p[3] + @"' =  " + countParser[p[3]];

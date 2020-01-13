@@ -113,7 +113,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public virtual DataTable MakePivot()
         {
-            DataTable dt = Filter(_source, _condition);
+          // DataTable dt = Filter(_source, _condition);
+            DataTable dt = _source.Copy();
 
             var pivotData = dt.AsEnumerable()
                         .Select(r => new
@@ -123,10 +124,11 @@ namespace MobileNumbersDetailizationReportGenerator
                             NAV = r.Field<string>("NAV"),
                             Department = r.Field<string>("Подразделение"),
                             Service = r.Field<string>("Номер В"),
-                            Summary = r.Field<decimal>(_condition.NameNewColumnWithSummary),
-                            Count = r.Field<decimal>(_condition.NameNewColumnWithSummary),
+                            ResultSummary = r.Field<decimal>(_condition.NameNewColumnWithSummary),
+                            ResultCount = r.Field<decimal>(_condition.NameNewColumnWithSummary),
                         })
-                            .GroupBy(x => x.KeyColumnName)
+                        .Where(row => row.Service.Contains(_condition.FilteringService))
+                        .GroupBy(x => x.KeyColumnName)
                             .Select(g => new
                             {
                                 KeyColumnName = g.Key,
@@ -134,29 +136,29 @@ namespace MobileNumbersDetailizationReportGenerator
                                 NAV = g.Select(c => c.NAV).FirstOrDefault(),
                                 Department = g.Select(c => c.Department).FirstOrDefault(),
                                 Service = g.Select(c => c.Service).FirstOrDefault(),
-                                Summary = g.Sum(c => c.Summary),
-                                Count = g.Count(c => c.Count > 0),
+                                ResultSummary = g.Sum(c => c.ResultSummary),
+                                ResultCount = g.Count(c => c.ResultCount > 0),
                             })
                             .OrderBy(x => x.Department)
                             .ThenBy(x => x.FIO);
 
-            DataTable pivotTable = _source.Clone();
+            DataTable resultPivot = _source.Clone();
             foreach (var v in pivotData)
             {
-                DataRow row = pivotTable.NewRow();
+                DataRow row = resultPivot.NewRow();
 
                 row[_condition.KeyColumnName] = v.KeyColumnName;
                 row["ФИО"] = v.FIO;
                 row["NAV"] = v.NAV;
                 row["Подразделение"] = v.Department;
                 row["Номер В"] = v.Service;
-                row[_condition.NameNewColumnWithSummary] = v.Summary;
-                row[_condition.NameNewColumnWithCount] = v.Count;
+                row[_condition.NameNewColumnWithSummary] = v.ResultSummary;
+                row[_condition.NameNewColumnWithCount] = v.ResultCount;
 
-                pivotTable.Rows.Add(row);
+                resultPivot.Rows.Add(row);
             }
 
-            return pivotTable;
+            return resultPivot;
         }
 
         /// <summary>

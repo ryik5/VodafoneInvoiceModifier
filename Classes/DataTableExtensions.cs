@@ -130,24 +130,19 @@ namespace MobileNumbersDetailizationReportGenerator
                             var colNumber = col.Ordinal + 1;
                             var range = wsData.Cells[2, colNumber, table.Rows.Count + 2, colNumber];
                             range.Style.Numberformat.Format = "yyyy.MM.dd"; //"dd.MM.yyyy"
-                            range.Style.Font.Size = 8;
                         }
-                        else if (col.DataType == typeof(System.Decimal) || col.DataType == typeof(System.Double))
+                        else if (col.DataType == typeof(decimal) || col.DataType == typeof(int) || col.DataType == typeof(long) || col.DataType == typeof(double))
                         {
                             var colNumber = col.Ordinal + 1;
                             var range = wsData.Cells[2, colNumber, table.Rows.Count + 2, colNumber];
-                            range.Style.Numberformat.Format = "0.00"; //"dd.MM.yyyy"
-                            range.Style.Font.Size = 8;
-                            range.Style.Font.Name = "Tahoma";
+                            range.Style.Numberformat.Format = "0.00";
                             range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                         }
                         else
                         {
                             var colNumber = col.Ordinal + 1;
                             var range = wsData.Cells[2, colNumber, table.Rows.Count + 2, colNumber];
-                            //  range.Style.Numberformat.Format = "@"; //"dd.MM.yyyy"
-                            range.Style.Font.Size = 8;
-                            range.Style.Font.Name = "Tahoma";
+                            range.Style.Numberformat.Format = "@"; //"dd.MM.yyyy"
                             range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                         }
                     }
@@ -159,7 +154,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         {
                             foreach (var col in columnsRedColor)
                             {
-                                if (col != null && c == table.Columns.IndexOf(col))
+                                if (col?.Trim().Length>0 && c == table.Columns.IndexOf(col))
                                 {
                                     for (int r = 3; r < table.Rows.Count + 3; r++)
                                     {
@@ -176,7 +171,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         {
                             foreach (var col in columnsGreenColor)
                             {
-                                if (col != null && c == table.Columns.IndexOf(col))
+                                if (col?.Trim().Length > 0 && c == table.Columns.IndexOf(col))
                                 {
                                     for (int r = 3; r < table.Rows.Count + 3; r++)
                                     {
@@ -191,13 +186,22 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                     }
 
+
                     //Set format of header of table
-                    wsData.Cells[2, 1, 2, table.Columns.Count].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    wsData.Cells[2, 1, 2, table.Columns.Count].Style.WrapText = true;
-                    wsData.Cells[2, 1, 2, table.Columns.Count].Style.Font.Size = 9;
-                    wsData.Cells[2, 1, 2, table.Columns.Count].Style.Font.Bold = true;
+                    var headerRange = wsData.Cells[2, 1, 2, table.Columns.Count];
+                    headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    headerRange.Style.WrapText = true;
+                    headerRange.Style.Font.Size = 9;
+                    headerRange.Style.Font.Bold = true;
+
+                    //Set format of body of table
+                    var bodyRange = wsData.Cells[3, 1, table.Rows.Count + 2, table.Columns.Count];
+                    bodyRange.Style.WrapText = false;
+                    bodyRange.Style.Font.Size = 8;
+                    bodyRange.Style.Font.Bold = false;
 
                     var dataRange = wsData.Cells[wsData.Dimension.Address.ToString()];
+                    dataRange.Style.Font.Name = "Tahoma";
 
                     dataRange.AutoFitColumns();
                 }
@@ -237,14 +241,12 @@ namespace MobileNumbersDetailizationReportGenerator
                             var colNumber = col.Ordinal + 1;
                             var range = wsData.Cells[2, colNumber, table.Rows.Count + 2, colNumber];
                             range.Style.Numberformat.Format = "yyyy.MM.dd"; //"dd.MM.yyyy"
-                            range.Style.Font.Size = 8;
                         }
-                        else if (col.DataType == typeof(System.Decimal) || col.DataType == typeof(System.Double))
+                        else if (col.DataType == typeof(decimal) || col.DataType == typeof(int) || col.DataType == typeof(long) || col.DataType == typeof(double))
                         {
                             var colNumber = col.Ordinal + 1;
                             var range = wsData.Cells[2, colNumber, table.Rows.Count + 2, colNumber];
                             range.Style.Numberformat.Format = "0.00"; //"dd.MM.yyyy"
-                            range.Style.Font.Size = 8;
                             range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                         }
                         else
@@ -252,7 +254,6 @@ namespace MobileNumbersDetailizationReportGenerator
                             var colNumber = col.Ordinal + 1;
                             var range = wsData.Cells[2, colNumber, table.Rows.Count + 2, colNumber];
                             //  range.Style.Numberformat.Format = "@"; //"dd.MM.yyyy"
-                            range.Style.Font.Size = 8;
                             range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                         }
                     }
@@ -264,7 +265,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         {
                             foreach (var col in columnsRedColor)
                             {
-                                if (col != null && c == table.Columns.IndexOf(col))
+                                if (col?.Trim().Length > 0 && c == table.Columns.IndexOf(col))
                                 {
                                     for (int r = 3; r < table.Rows.Count + 3; r++)
                                     {
@@ -281,7 +282,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         {
                             foreach (var col in columnsGreenColor)
                             {
-                                if (col != null && c == table.Columns.IndexOf(col))
+                                if (col?.Trim().Length > 0 && c == table.Columns.IndexOf(col))
                                 {
                                     for (int r = 3; r < table.Rows.Count + 3; r++)
                                     {
@@ -297,11 +298,18 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
 
                     //Set format of header of table
-                    wsData.Cells[2, 1, 2, table.Columns.Count].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    wsData.Cells[2, 1, 2, table.Columns.Count].Style.WrapText = true;
-                    wsData.Cells[2, 1, 2, table.Columns.Count].Style.Font.Size = 9;
-                    wsData.Cells[2, 1, 2, table.Columns.Count].Style.Font.Bold = true;
+                    var headerRange = wsData.Cells[2, 1, 2, table.Columns.Count];
+                    headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    headerRange.Style.WrapText = true;
+                    headerRange.Style.Font.Size = 9;
+                    headerRange.Style.Font.Bold = true;
 
+                    //Set format of body of table
+                    var bodyRange = wsData.Cells[3, 1, table.Rows.Count + 2, table.Columns.Count];
+                    bodyRange.Style.WrapText = false;
+                    bodyRange.Style.Font.Size = 8;
+                    bodyRange.Style.Font.Bold = false;
+                    
                     var dataRange = wsData.Cells[wsData.Dimension.Address.ToString()];
                     dataRange.Style.Font.Name = "Tahoma";
 
