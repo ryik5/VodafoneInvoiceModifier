@@ -26,7 +26,13 @@ namespace MobileNumbersDetailizationReportGenerator
                 string cell = row[condition.NameColumnWithFilteringService]?.ToString()?.Trim()?.ToUpper();
                 if (cell != null && cell.Contains(condition.FilteringService.ToUpper()))
                 {
-                    row[condition.NameNewColumnWithSummary] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb");
+                    row[condition.NameNewColumnWithSummary] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb") ?? 0;
+                    row[condition.NameNewColumnWithCount] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb") > 0 ? 1 : 0;
+                }
+                else
+                {
+                    row[condition.NameNewColumnWithSummary] = 0;
+                    row[condition.NameNewColumnWithCount] = 0;
                 }
             }
             dt.AcceptChanges();

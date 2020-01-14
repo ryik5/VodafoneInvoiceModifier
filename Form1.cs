@@ -504,10 +504,11 @@ namespace MobileNumbersDetailizationReportGenerator
             dtMarket?.Rows?.Clear();
             string pathToFileMarketPivotTable;
             string pathToFileMarketTable;
-            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketPivotTable.xlsx");
-            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketTable.xlsx");
           
             await Task.Run(() => LoadBillIntoMemoryToFilter());
+            
+            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketPivotTable.xlsx");
+            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketTable.xlsx");
            
             string[] columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В" };
 
@@ -526,25 +527,26 @@ namespace MobileNumbersDetailizationReportGenerator
             MakerPivotTable makingPivotData = new MakerPivotTable(dtMarket, condition);
             
 
-            try { await Task.Run(() => dtMarket.ExportToExcel(pathToFileMarketTable, "Selected data")); }
-            catch (Exception err) { MessageShow(err.ToString()); }
+            try { 
+             //   await Task.Run(() => dtMarket.ExportToExcel(pathToFileMarketTable, "Selected data")); 
             textBoxLog.AppendLine("Общая таблица для Маркетинга экспортирована");
+            }
+            catch (Exception err) { MessageShow("dtMarket.ExportToExcel\n" + err.ToString()); }
 
             try
             {
                 await Task.Run(() =>
                          {
-                             makingPivotData.MakePivot().ExportToExcel(pathToFileMarketPivotTable, "PivotTable");
+                           //  makingPivotData.MakePivot().ExportToExcel(pathToFileMarketPivotTable, "PivotTable");
                          });
-                  }
-            catch (Exception err) { MessageShow(err.ToString()); }
             textBoxLog.AppendLine("Сводная таблица для Маркетинга экспортирована"+ Environment.NewLine);
+                  }
+            catch (Exception err) { MessageShow(" makingPivotData.MakePivot().ExportToExcel\n" + err.ToString()); }
 
 
 
             columnsCollection = new string[] 
             { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В", "Имя сервиса", "Длительность В", "Дата" };
-            textBoxLog.AppendLine(string.Join(Environment.NewLine, columnsCollection));
             
             pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"Test {Path.GetFileNameWithoutExtension(filepathLoadedData)} PivotTable.xlsx");
             string nameSheet ="Test";
@@ -555,16 +557,20 @@ namespace MobileNumbersDetailizationReportGenerator
             makingPivotData = new MakerPivotTable(dtMarket, condition);
             
             DataTable dt = makingPivotData.Source;
-            
+
             try
             {
                 dt
-                     .SetColumnsOrder(columnsCollection)
-                     .SetColumnsCollectionInDataTable(columnsCollection)
-                     .ExportToExcelPivotTable(pathToFileMarketPivotTable, nameSheet, redColumns, greenColumns,false)
-                     ;
+                    //  .SetColumnsOrder(columnsCollection)
+                    //  .SetColumnsCollectionInDataTable(columnsCollection)
+                    .ExportToExcelPivotTable(pathToFileMarketPivotTable, nameSheet, redColumns, greenColumns, false);
+                  //  .ExportToExcel(pathToFileMarketPivotTable, nameSheet, redColumns, greenColumns);
             }
-            catch (Exception err) { MessageShow(err.ToString()); }
+            catch (Exception err)
+            {
+                MessageShow("dt.ExportToExcelPivotTable(pathToFileMarketPivotTabl\n" +
+                err.ToString());
+            }
 
             textBoxLog.AppendLine("Экспорт завершен");
             MessageShow("Готово!");
@@ -710,7 +716,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     rowMarket["Дата"] = parsed.date;
                                     rowMarket["Время"] = parsed.time;
                                     rowMarket["Длительность А"] = parsed.durationA;
-                                    rowMarket["Длительность В"] = parsed.durationB;
+                                    rowMarket["Длительность В"] = parsed.durationB?? parsed.durationA;
                                     rowMarket["Стоимость"] = parsed.cost;
                                     rowMarket["ФИО"] = parsed.fio;
                                     rowMarket["NAV"] = parsed.nav;
