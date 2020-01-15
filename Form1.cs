@@ -79,62 +79,62 @@ namespace MobileNumbersDetailizationReportGenerator
             @"GPRS",                                        //29        //GPRS
             @"CDMA"                                        //30         //CDMA
        };
-       // readonly string[] pTranslate = new string[]
-       //{
-       //     // со счета
-       //     @"ФИО сотрудника",
-       //     @"Контракт",
-       //     @"Номер телефона абонента",
-       //     @"Ціновий Пакет",
-       //     @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА",
-       //     @"Общая сумма в роуминге, грн",
-       //     @"Скидка",
-       //     @"Затраты по номеру, грн",
-       //     @"НДС, грн",
-       //     @"ПФ, грн",
-       //     @"Итого по контракту, грн",
-       //     @"Интернет в роуминге",
-       //     @"Интернет за пределами пакета",
-       //     @"Звонки на городские номера",
-       //     @"ПОСЛУГИ, НАДАНІ ЗА МЕЖАМИ ПАКЕТА",
-       //     @"КОНТЕНТ-ПОСЛУГИ",
-       //     @"Дата счета",
-       //     @"Дата окончания периода",
-       //     // из базы
-       //     @"Табельный номер",
-       //     @"Подразделение",
-       //     @"Действует c",
-       //     @"ТАРИФНАЯ МОДЕЛЬ",
-       //     @"К оплате владельцем номера, грн",
-       //     // со счета
-       //     @"ЗАМОВЛЕНІ ДОДАТКОВІ ПОСЛУГИ ЗА МЕЖАМИ ПАКЕТА",
-       //     // анализ
-       //     @"Контракт использовался",
-       //     @"Контракт не заблокирован",
-       //     @"Вхідні",     //26
-       //     @"Вихідні",     //27
-       //     @"Переадр",     //28
-       //     @"GPRS",     //29
-       //     @"CDMA"     //29
-       //};
-       // readonly string[] pToAccount = new string[]
-       //{
-       //     // для бухгалтерии
-       //     @"Дата счета",
-       //     @"Номер телефона абонента",
-       //     @"ФИО сотрудника",
-       //     @"Затраты по номеру, грн",
-       //     @"НДС, грн",
-       //     @"ПФ, грн",
-       //     @"Итого по контракту, грн",
-       //     @"Общая сумма в роуминге, грн",
-       //     @"Подразделение",
-       //     @"Табельный номер",
-       //     @"ТАРИФНАЯ МОДЕЛЬ",
-       //     @"К оплате владельцем номера, грн",
-       //     @"Контракт использовался",   //Test
-       //     @"Контракт не заблокирован"  //Test
-       //};
+        // readonly string[] pTranslate = new string[]
+        //{
+        //     // со счета
+        //     @"ФИО сотрудника",
+        //     @"Контракт",
+        //     @"Номер телефона абонента",
+        //     @"Ціновий Пакет",
+        //     @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА",
+        //     @"Общая сумма в роуминге, грн",
+        //     @"Скидка",
+        //     @"Затраты по номеру, грн",
+        //     @"НДС, грн",
+        //     @"ПФ, грн",
+        //     @"Итого по контракту, грн",
+        //     @"Интернет в роуминге",
+        //     @"Интернет за пределами пакета",
+        //     @"Звонки на городские номера",
+        //     @"ПОСЛУГИ, НАДАНІ ЗА МЕЖАМИ ПАКЕТА",
+        //     @"КОНТЕНТ-ПОСЛУГИ",
+        //     @"Дата счета",
+        //     @"Дата окончания периода",
+        //     // из базы
+        //     @"Табельный номер",
+        //     @"Подразделение",
+        //     @"Действует c",
+        //     @"ТАРИФНАЯ МОДЕЛЬ",
+        //     @"К оплате владельцем номера, грн",
+        //     // со счета
+        //     @"ЗАМОВЛЕНІ ДОДАТКОВІ ПОСЛУГИ ЗА МЕЖАМИ ПАКЕТА",
+        //     // анализ
+        //     @"Контракт использовался",
+        //     @"Контракт не заблокирован",
+        //     @"Вхідні",     //26
+        //     @"Вихідні",     //27
+        //     @"Переадр",     //28
+        //     @"GPRS",     //29
+        //     @"CDMA"     //29
+        //};
+        // readonly string[] pToAccount = new string[]
+        //{
+        //     // для бухгалтерии
+        //     @"Дата счета",
+        //     @"Номер телефона абонента",
+        //     @"ФИО сотрудника",
+        //     @"Затраты по номеру, грн",
+        //     @"НДС, грн",
+        //     @"ПФ, грн",
+        //     @"Итого по контракту, грн",
+        //     @"Общая сумма в роуминге, грн",
+        //     @"Подразделение",
+        //     @"Табельный номер",
+        //     @"ТАРИФНАЯ МОДЕЛЬ",
+        //     @"К оплате владельцем номера, грн",
+        //     @"Контракт использовался",   //Test
+        //     @"Контракт не заблокирован"  //Test
+        //};
         StringBuilder sbError = new StringBuilder();
         DataTable dtMobile = new DataTable("MobileData");
         readonly DataColumn[] dcMobile ={
@@ -502,14 +502,22 @@ namespace MobileNumbersDetailizationReportGenerator
         private async void prepareBillItem_Click(object sender, EventArgs e)
         {
             dtMarket?.Rows?.Clear();
-            string pathToFileMarketPivotTable;
-            string pathToFileMarketTable;
-          
             await Task.Run(() => LoadBillIntoMemoryToFilter());
-            
-            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketPivotTable.xlsx");
-            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} MarketTable.xlsx");
-           
+
+            string pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} CommonTable.xlsx");
+
+            try
+            {
+                await Task.Run(() => dtMarket.ExportToExcel(pathToFileMarketTable, "Selected data"));
+                textBoxLog.AppendLine("Таблица исходных данных для маркетинга экспортирована");
+            }
+            catch (Exception err)
+            {
+                textBoxLog.AppendLine("dtMarket.ExportToExcel");
+                textBoxLog.AppendLine(err.ToString());
+                MessageShow("dtMarket.ExportToExcel\n" + err.ToString());
+            }
+
             string[] columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В" };
 
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
@@ -525,59 +533,48 @@ namespace MobileNumbersDetailizationReportGenerator
             };
 
             MakerPivotTable makingPivotData = new MakerPivotTable(dtMarket, condition);
-            
 
-            try { 
-             //   await Task.Run(() => dtMarket.ExportToExcel(pathToFileMarketTable, "Selected data")); 
-            textBoxLog.AppendLine("Общая таблица для Маркетинга экспортирована");
-            }
-            catch (Exception err) { MessageShow("dtMarket.ExportToExcel\n" + err.ToString()); }
+            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)}  PivotTable.xlsx");
 
             try
             {
-                await Task.Run(() =>
-                         {
-                           //  makingPivotData.MakePivot().ExportToExcel(pathToFileMarketPivotTable, "PivotTable");
-                         });
-            textBoxLog.AppendLine("Сводная таблица для Маркетинга экспортирована"+ Environment.NewLine);
-                  }
-            catch (Exception err) { MessageShow(" makingPivotData.MakePivot().ExportToExcel\n" + err.ToString()); }
+                await Task.Run(() => makingPivotData.MakePivot().ExportToExcel(pathToFileMarketTable, "Сводная"));
+                textBoxLog.AppendLine("Сводная таблица для Маркетинга экспортирована");
+            }
+            catch (Exception err)
+            {
+                textBoxLog.AppendLine("makingPivotData.MakePivot().ExportToExcel");
+                textBoxLog.AppendLine(err.ToString());
+                MessageShow("makingPivotData.MakePivot().ExportToExcel\n" + err.ToString());
+            }
 
 
-
-            columnsCollection = new string[] 
-            { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В", "Имя сервиса", "Длительность В", "Дата" };
-            
-            pathToFileMarketPivotTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"Test {Path.GetFileNameWithoutExtension(filepathLoadedData)} PivotTable.xlsx");
-            string nameSheet ="Test";
+            columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В", "Имя сервиса", "Длительность В", "Дата" };
+            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} CommonAndPivotTables.xlsx");
+            string nameSheet = "Common";
             string[] redColumns = { };
-            string[] greenColumns = {  };
+            string[] greenColumns = { };
 
             condition.ColumnsCollectionAtRightOrder = columnsCollection;
             makingPivotData = new MakerPivotTable(dtMarket, condition);
-            
+
             DataTable dt = makingPivotData.Source;
 
             try
             {
-                dt
-                    //  .SetColumnsOrder(columnsCollection)
-                    //  .SetColumnsCollectionInDataTable(columnsCollection)
-                    .ExportToExcelPivotTable(pathToFileMarketPivotTable, nameSheet, redColumns, greenColumns, false);
-                  //  .ExportToExcel(pathToFileMarketPivotTable, nameSheet, redColumns, greenColumns);
+                dt.ExportToExcelPivotTable(pathToFileMarketTable, nameSheet, redColumns, greenColumns, false);
+                textBoxLog.AppendLine("Таблица исходных данных и сводная таблица для маркетинга экспортирована");
             }
             catch (Exception err)
             {
-                MessageShow("dt.ExportToExcelPivotTable(pathToFileMarketPivotTabl\n" +
-                err.ToString());
+                textBoxLog.AppendLine("dt.ExportToExcelPivotTabl");
+                textBoxLog.AppendLine(err.ToString());
+                MessageShow("dt.ExportToExcelPivotTable(pathToFileMarketPivotTabl\n" + err.ToString());
             }
 
             textBoxLog.AppendLine("Экспорт завершен");
             MessageShow("Готово!");
         }
-
-        //  private void MessageShow(object sender, TextEventArgs e)
-        // { Task.Run(() => MessageBox.Show(e.Message)); }
 
         private void MessageShow(string text)
         { Task.Run(() => MessageBox.Show(text)); }
@@ -716,7 +713,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     rowMarket["Дата"] = parsed.date;
                                     rowMarket["Время"] = parsed.time;
                                     rowMarket["Длительность А"] = parsed.durationA;
-                                    rowMarket["Длительность В"] = parsed.durationB?? parsed.durationA;
+                                    rowMarket["Длительность В"] = parsed.durationB ?? parsed.durationA;
                                     rowMarket["Стоимость"] = parsed.cost;
                                     rowMarket["ФИО"] = parsed.fio;
                                     rowMarket["NAV"] = parsed.nav;
@@ -2266,7 +2263,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                     foundSavedData = true;
                 }
-                catch (Exception expt) { MessageShow("Ошибки с доступом для записи списка " + parameterName + " в реестр. Данные не сохранены.\n"+ expt.Message); }
+                catch (Exception expt) { MessageShow("Ошибки с доступом для записи списка " + parameterName + " в реестр. Данные не сохранены.\n" + expt.Message); }
             }
         }
 
@@ -2284,7 +2281,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
                 foundSavedData = true;
             }
-            catch (Exception expt) { MessageShow("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.\n"+expt.Message); }
+            catch (Exception expt) { MessageShow("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.\n" + expt.Message); }
         }
     }
 }

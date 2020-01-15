@@ -26,12 +26,12 @@ namespace MobileNumbersDetailizationReportGenerator
                 string cell = row[condition.NameColumnWithFilteringService]?.ToString()?.Trim()?.ToUpper();
                 if (cell != null && cell.Contains(condition.FilteringService.ToUpper()))
                 {
-                    row[condition.NameNewColumnWithSummary] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb") ?? 0;
+                    row[condition.NameNewColumnWithSummary] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb");// ?? 0;
                     row[condition.NameNewColumnWithCount] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb") > 0 ? 1 : 0;
                 }
                 else
                 {
-                    row[condition.NameNewColumnWithSummary] = 0;
+                    row[condition.NameNewColumnWithSummary] = 0; // иначе при генерации сводной в MakePivot ошибка (не обрабатывает данные)
                     row[condition.NameNewColumnWithCount] = 0;
                 }
             }
@@ -119,7 +119,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public virtual DataTable MakePivot()
         {
-          // DataTable dt = Filter(_source, _condition);
+            // DataTable dt = Filter(_source, _condition);
             DataTable dt = _source.Copy();
 
             var pivotData = dt.AsEnumerable()
@@ -131,7 +131,7 @@ namespace MobileNumbersDetailizationReportGenerator
                             Department = r.Field<string>("Подразделение"),
                             Service = r.Field<string>("Номер В"),
                             ResultSummary = r.Field<decimal>(_condition.NameNewColumnWithSummary),
-                            ResultCount = r.Field<decimal>(_condition.NameNewColumnWithSummary),
+                            ResultCount = r.Field<int>(_condition.NameNewColumnWithCount),
                         })
                         .Where(row => row.Service.Contains(_condition.FilteringService))
                         .GroupBy(x => x.KeyColumnName)
@@ -183,7 +183,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             return result;
         }
-       
+
         public DataTable Source { get { return _source; } }
     }
 
