@@ -2363,7 +2363,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             List<string> billList = LoadDataUsingParameters(new List<string> { p[1], p[2] }, parametrStart, pStop, null);
 
-
+            List<ParsedStringOfBill> parsedList = new List<ParsedStringOfBill>();
             ParsingStringDetalizationOfBill parsing = new ParsingStringDetalizationOfBill();
             ParsedStringOfBill parsed;
 
@@ -2371,6 +2371,7 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 parsing.SetString(row);
                 parsed = parsing.ParseString();
+                parsedList.Add(parsed);
             }
 
             /
