@@ -2321,7 +2321,6 @@ namespace MobileNumbersDetailizationReportGenerator
 
             List<ParsedStringOfBill> parsedList = new List<ParsedStringOfBill>();
             ParsingStringDetalizationOfBill detalization = new ParsingStringDetalizationOfBill();
-               //     detalization.status += MessageShow;
             ParsedStringOfBill parsedBodyContract = new ParsedStringOfBill();
             ParsedStringOfBill parsedHeaderContract = new ParsedStringOfBill();
             bool headerExist = false;
@@ -2356,9 +2355,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
                 else if (headerExist && headerFinished)
                 {
-              //      detalization.status -= MessageShow;
                     detalization = new ParsingStringDetalizationOfBill(row, parsedHeaderContract);
-              //      detalization.status += MessageShow;
                     detalization.Parse();
                     parsedBodyContract = detalization.Get();
                     parsedList.Add(parsedBodyContract);
@@ -2366,12 +2363,11 @@ namespace MobileNumbersDetailizationReportGenerator
             }
             detalization.status -= MessageShow;
 
-            textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString()+ Environment.NewLine);
-
-          //  textBoxLog.AppendLine("Список номеров:"+ Environment.NewLine);
-          //  textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.numberOwner).Distinct().ToArray()));
-
-            textBoxLog.AppendLine("Список сервисов:"+ Environment.NewLine);
+            int amount = parsedList.Select(x => x.numberOwner).Distinct().ToArray().Length;
+            textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString());
+            textBoxLog.AppendLine("Всего номеров: " + amount);
+            amount = parsedList.Select(x => x.serviceName).Distinct().ToArray().Length;
+            textBoxLog.AppendLine("Список сервисов: "+ amount + Environment.NewLine);
             textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.serviceName).Distinct().ToArray()));
 
             textBoxLog.Visible = true;
