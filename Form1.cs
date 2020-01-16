@@ -2367,10 +2367,13 @@ namespace MobileNumbersDetailizationReportGenerator
             ParsingStringDetalizationOfBill parsing = new ParsingStringDetalizationOfBill();
             ParsedStringOfBill parsed;
 
-            parsing.SetString(sRowBill);
-            parsed = parsing.ParseString();
+            foreach (var row in billList)
+            {
+                parsing.SetString(row);
+                parsed = parsing.ParseString();
+            }
 
-
+            /
             textBoxLog.AppendLine("В списке строк: "+billList.Count.ToString());
 
 
