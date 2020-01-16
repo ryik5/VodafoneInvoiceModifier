@@ -79,62 +79,7 @@ namespace MobileNumbersDetailizationReportGenerator
             @"GPRS",                                        //29        //GPRS
             @"CDMA"                                        //30         //CDMA
        };
-        // readonly string[] pTranslate = new string[]
-        //{
-        //     // со счета
-        //     @"ФИО сотрудника",
-        //     @"Контракт",
-        //     @"Номер телефона абонента",
-        //     @"Ціновий Пакет",
-        //     @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА",
-        //     @"Общая сумма в роуминге, грн",
-        //     @"Скидка",
-        //     @"Затраты по номеру, грн",
-        //     @"НДС, грн",
-        //     @"ПФ, грн",
-        //     @"Итого по контракту, грн",
-        //     @"Интернет в роуминге",
-        //     @"Интернет за пределами пакета",
-        //     @"Звонки на городские номера",
-        //     @"ПОСЛУГИ, НАДАНІ ЗА МЕЖАМИ ПАКЕТА",
-        //     @"КОНТЕНТ-ПОСЛУГИ",
-        //     @"Дата счета",
-        //     @"Дата окончания периода",
-        //     // из базы
-        //     @"Табельный номер",
-        //     @"Подразделение",
-        //     @"Действует c",
-        //     @"ТАРИФНАЯ МОДЕЛЬ",
-        //     @"К оплате владельцем номера, грн",
-        //     // со счета
-        //     @"ЗАМОВЛЕНІ ДОДАТКОВІ ПОСЛУГИ ЗА МЕЖАМИ ПАКЕТА",
-        //     // анализ
-        //     @"Контракт использовался",
-        //     @"Контракт не заблокирован",
-        //     @"Вхідні",     //26
-        //     @"Вихідні",     //27
-        //     @"Переадр",     //28
-        //     @"GPRS",     //29
-        //     @"CDMA"     //29
-        //};
-        // readonly string[] pToAccount = new string[]
-        //{
-        //     // для бухгалтерии
-        //     @"Дата счета",
-        //     @"Номер телефона абонента",
-        //     @"ФИО сотрудника",
-        //     @"Затраты по номеру, грн",
-        //     @"НДС, грн",
-        //     @"ПФ, грн",
-        //     @"Итого по контракту, грн",
-        //     @"Общая сумма в роуминге, грн",
-        //     @"Подразделение",
-        //     @"Табельный номер",
-        //     @"ТАРИФНАЯ МОДЕЛЬ",
-        //     @"К оплате владельцем номера, грн",
-        //     @"Контракт использовался",   //Test
-        //     @"Контракт не заблокирован"  //Test
-        //};
+        
         StringBuilder sbError = new StringBuilder();
         DataTable dtMobile = new DataTable("MobileData");
         readonly DataColumn[] dcMobile ={
@@ -225,7 +170,7 @@ namespace MobileNumbersDetailizationReportGenerator
         bool selectedServices = false;
         bool selectedNumbers = false;
 
-        readonly DataColumn[] dcFullBill ={
+        readonly DataColumn[] dcMarket ={
                                   new DataColumn("Контракт",typeof(string)),
                                   new DataColumn("Номер телефона",typeof(string)),
                                   new DataColumn("ФИО",typeof(string)),
@@ -301,7 +246,7 @@ namespace MobileNumbersDetailizationReportGenerator
             */
             dtMobile.Columns.AddRange(dcMobile);
             dtOwnerOfMobileWithinSelectedPeriod.Columns.AddRange(dcTarif);
-            dtMarket.Columns.AddRange(dcFullBill);
+            dtMarket.Columns.AddRange(dcMarket);
             ListsRegistryDataCheck();
             useSavedDataItem.Enabled = foundSavedData;
             useSavedDataItem.ToolTipText = "Использовать сохраненный список файлов и сервисов из предыдущей сессии";
@@ -529,7 +474,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     textBoxLog.AppendLine(nameSheet);
                     textBoxLog.AppendLine(err.ToString());
-                    MessageShow(nameSheet+"\n" + err.ToString());
+                    MessageShow(nameSheet + "\n" + err.ToString());
                 }
             }
 
@@ -606,7 +551,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 ColumnsCollectionAtRightOrder = columnsCollection
             };
             pivotData = new MakerPivotTable(dtMarket, condition);
-            
+
             using (DataTable dt = pivotData.Source)
             {
                 columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Имя сервиса", "Номер В", "Длительность А", "Дата", "Время", "Стоимость", "Суммарно, МБ", "Количество" };
@@ -635,6 +580,10 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private void MessageShow(string text)
         { Task.Run(() => MessageBox.Show(text)); }
+
+        private void MessageShow(object sender, TextEventArgs e)
+        { MessageShow(e.Message); }
+
 
         private void LoadBillIntoMemoryToFilter()
         {
@@ -725,7 +674,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         96-106	стоимость
                         */
                         ParsingStringDetalizationOfBill parsing = new ParsingStringDetalizationOfBill();
-                        ParsedStringOfBill parsed;
+                        ParsedStringOfBill parsed = new ParsedStringOfBill();
 
                         try
                         {
@@ -741,22 +690,25 @@ namespace MobileNumbersDetailizationReportGenerator
                                     //durationB = sRowBill?.Substring(84, 9)?.Trim();
                                     //cost = sRowBill?.Substring(95)?.Trim();
 
-                                    parsing.SetString(sRowBill);
-                                    parsed = parsing.ParseString();
-
-                                    parsed.contract = contract;
-                                    parsed.numberOwner = sNumber;
-
                                     foreach (DataRow rowTarif in dtOwnerOfMobileWithinSelectedPeriod.Rows)
                                     {
                                         if (rowTarif["Номер телефона"].ToString().Contains(sNumber))
                                         {
-                                            parsed.fio = rowTarif["ФИО"].ToString();
-                                            parsed.nav = rowTarif["NAV"].ToString();
-                                            parsed.department = rowTarif["Подразделение"].ToString();
+                                            parsed = new ParsedStringOfBill
+                                            {
+                                                fio = rowTarif["ФИО"].ToString(),
+                                                nav = rowTarif["NAV"].ToString(),
+                                                department = rowTarif["Подразделение"].ToString(),
+                                                contract = contract,
+                                                numberOwner = sNumber
+                                            };
                                             break;
                                         }
                                     }
+
+                                    parsing = new ParsingStringDetalizationOfBill(sRowBill, parsed);
+                                    parsing.Parse();
+                                    parsed = parsing.Get();
 
                                     //for dump
                                     tempRow = $"{parsed.numberOwner}\t{parsed.fio}\t{parsed.nav}\t{parsed.department}\t{parsed.serviceName}\t" +
@@ -910,7 +862,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         {
                             using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
                             {
-                                while ((loadedString = Reader?.ReadLine()?.Trim())!=null && !endLoadData && listRows.Count < listMaxLength)
+                                while ((loadedString = Reader?.ReadLine()?.Trim()) != null && !endLoadData && listRows.Count < listMaxLength)
                                 {
                                     //Set label Date
                                     if (loadedString.Contains("Особовий рахунок")) { checkRahunok = true; }
@@ -1320,7 +1272,6 @@ namespace MobileNumbersDetailizationReportGenerator
             }
             else
             {
-                fileMenuItem.Enabled = false;
                 StatusLabel1.Text = "Проверяю доступность БД сервера";
                 StatusLabel1.BackColor = Color.PaleGoldenrod;
 
@@ -2354,38 +2305,81 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private void analyzeBillItem_Click(object sender, EventArgs e)
         {
+            AnalyzeBill();
+        }
+
+        private void AnalyzeBill()
+        {
             textBoxLog.Clear();
             p[1] = ControlReturnText(textBoxP1);
             p[2] = ControlReturnText(textBoxP2);
 
             textBoxLog.Visible = false;
-         //   textBoxLog.Enabled = false;
 
             List<string> billList = LoadDataUsingParameters(new List<string> { p[1], p[2] }, parametrStart, pStop, null);
+            textBoxLog.AppendLine("В прочитаном счете строк: " + billList.Count.ToString());
 
             List<ParsedStringOfBill> parsedList = new List<ParsedStringOfBill>();
-            ParsingStringDetalizationOfBill parsing = new ParsingStringDetalizationOfBill();
-            ParsedStringOfBill parsed;
+            ParsingStringDetalizationOfBill detalization = new ParsingStringDetalizationOfBill();
+               //     detalization.status += MessageShow;
+            ParsedStringOfBill parsedBodyContract = new ParsedStringOfBill();
+            ParsedStringOfBill parsedHeaderContract = new ParsedStringOfBill();
+            bool headerExist = false;
+            bool headerFinished = false;
+            string str;
 
             foreach (var row in billList)
             {
-                parsing.SetString(row);
-                parsed = parsing.ParseString();
-                parsedList.Add(parsed);
+                if (row.StartsWith(parametrStart))
+                {
+                    headerExist = detalization.ParseHeaderContract(row);
+                    headerFinished = false;
+                    parsedHeaderContract = detalization.Get();
+
+                    //MessageShow("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
+                    //    "Возможно поменялся формат." + Environment.NewLine +
+                    //    "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
+                    //    NUMBER_OF_CONTRACT + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
+                    //    "Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
+                    //    "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
+                    //    row + Environment.NewLine +
+                    //    "Ошибка: " + err.ToString()
+                    //    );
+                }
+                else if (row.StartsWith(pStop))
+                {
+                    break;
+                }
+                else if (headerExist && row.StartsWith(p[7]))
+                {
+                    headerFinished = true;
+                }
+                else if (headerExist && headerFinished)
+                {
+              //      detalization.status -= MessageShow;
+                    detalization = new ParsingStringDetalizationOfBill(row, parsedHeaderContract);
+              //      detalization.status += MessageShow;
+                    detalization.Parse();
+                    parsedBodyContract = detalization.Get();
+                    parsedList.Add(parsedBodyContract);
+                }
             }
+            detalization.status -= MessageShow;
 
-            /
-            textBoxLog.AppendLine("В списке строк: "+billList.Count.ToString());
+            textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString()+ Environment.NewLine);
 
+          //  textBoxLog.AppendLine("Список номеров:"+ Environment.NewLine);
+          //  textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.numberOwner).Distinct().ToArray()));
 
+            textBoxLog.AppendLine("Список сервисов:"+ Environment.NewLine);
+            textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.serviceName).Distinct().ToArray()));
 
-            string str = string.Join(Environment.NewLine, billList.ToArray());
-
-                textBoxLog.AppendLine(str);
-
-          //  textBoxLog.Visible = true;
-            textBoxLog.Enabled = true;
-
+            textBoxLog.Visible = true;
         }
+
+        private string MessageWrite(object sender, TextEventArgs e)
+        { return e.Message; }
+
+
     }
 }
