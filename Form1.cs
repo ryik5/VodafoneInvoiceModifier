@@ -22,9 +22,9 @@ namespace MobileNumbersDetailizationReportGenerator
 
         //Скидка на счет = pBillDeliveryCostDiscount/pBillDeliveryCost  (в процентах)
         string pBillDeliveryCost = @"Інші послуги на особовому рахунку"; //Стоимость услуги доставки электронного счета
-        double BillDeliveryCost = 0; //Стоимость услуги доставки электронного счета
+        double BillDeliveryValue = 0; //Стоимость услуги доставки электронного счета
         string pBillDeliveryCostDiscount = @"Знижка на суму особового рахунку"; //Скидка на стоимость услуги по доставке электронного счета
-        double BillDeliveryCostDiscount = 0; //Скидка на стоимость услуги по доставке электронного счета
+        double DiscountOnBillDeliveryValue = 0; //Скидка на стоимость услуги по доставке электронного счета
 
         string dataStart = ""; // дата начала периода счета
         string dataEnd = "";  // дата конца периода счета
@@ -48,13 +48,13 @@ namespace MobileNumbersDetailizationReportGenerator
             MOBILE_NUMBER,                                             //2     //number
             NAME_OF_TARIF,                                      //3     //name of tarif package
             @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА",                 //4     //cost of package
-            @"ПОСЛУГИ МІЖНАРОДНОГО РОУМІНГУ",                   //5     //rouming
+            @"ПОСЛУГИ МІЖНАРОДНОГО РОУМІНГУ",                   //5     //rouming -суммарно
             @"ЗНИЖКИ",                                          //6     //discount
             @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)",           //7     //total without tax and pf
             @"ПДВ",                                             //8     //Tax
             @"ПФ",                                              //9     //PF
             @"Загалом з податками",                             //10    //total with tax and pf
-            @"GPRS/CDMA з'єд.  Роумінг",                        //11    //GPRS in rouming
+            @"GPRS/CDMA з'єд.  Роумінг",                        //11    //GPRS in rouming детализация
             @"Передача даних - вартість пакету послуг",         //12    //transmission of data. cost of package
             @"Вихідні дзвінки  Міські номери",                  //13    //outgoing to city numbers
             @"ПОСЛУГИ, НАДАНІ ЗА МЕЖАМИ ПАКЕТА",                //14    //services outside the package
@@ -287,6 +287,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             openBillItem.ToolTipText = "Открыть счет Voodafon в текстовом формате." + Environment.NewLine + "Max Количество строк - 500 000";
             makeFullReportItem.Enabled = false;
+            //analyzeBillItem.Enabled = false;
             makeFullReportItem.ToolTipText = "Подготовить полный отчет в Excel-файле." + Environment.NewLine + "Файл будет сохранен в папке с программой";
             makeReportAccountantItem.Enabled = false;
             makeReportAccountantItem.ToolTipText = "Подготовить отчет для бух. в Excel-файле." + Environment.NewLine + "Файл будет сохранен в папке с программой";
@@ -340,12 +341,12 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
         private void makeFullReportItem_Click(object sender, EventArgs e)
-        { ExportDataTableToExcelForAccount(true); }
+        { ExportDataTableToExcelForAccount(TypeOfPivot.Accountant); }
 
         private void makeReportAccountantToolItem_Click(object sender, EventArgs e)
-        { ExportDataTableToExcelForAccount(); }
+        { ExportDataTableToExcelForAccount(TypeOfPivot.NonePivot); }
 
-        private void ExportDataTableToExcelForAccount(bool makePivot = false)
+        private void ExportDataTableToExcelForAccount(TypeOfPivot pivot)
         {
             string[] columnsCollection = new string[]      // для бухгалтерии
                        {
@@ -363,28 +364,28 @@ namespace MobileNumbersDetailizationReportGenerator
                         "К оплате владельцем номера, грн"
                    };
 
-            string pathToFile = Path.Combine(Path.GetDirectoryName(filePathSourceTxt), $"{Path.GetFileNameWithoutExtension(filePathSourceTxt)}.xlsx");
+            string pathToFile = Path.Combine(Path.GetDirectoryName(filePathSourceTxt), Path.GetFileNameWithoutExtension(filePathSourceTxt));
             string nameSheet = Path.GetFileNameWithoutExtension(filePathSourceTxt);
             string[] redColumns = { "К оплате владельцем номера, грн" };
             string[] greenColumns = { "Затраты по номеру, грн", "Итого по контракту, грн" };
 
-            DataTable dt = dtMobile.Copy();
-            if (makePivot)
+            switch (pivot)
             {
-                pathToFile = Path.Combine(Path.GetDirectoryName(filePathSourceTxt), $"{Path.GetFileNameWithoutExtension(filePathSourceTxt)} pivot.xlsx");
-                dt.AllowToEditTable()
-                         .SetColumnsOrder(columnsCollection)
-                         .SetColumnsCollectionInDataTable(columnsCollection)
-                         .ExportToExcelPivotTable(pathToFile, nameSheet, redColumns, greenColumns);
+                case TypeOfPivot.NonePivot:
+                    pathToFile += ".xlsx";
+                    break;
+                case TypeOfPivot.Accountant:
+                    pathToFile += " Pivot.xlsx";
+                    break;
             }
-            else
+            using (DataTable dt = dtMobile.Copy())
             {
-                dt.AllowToEditTable()
+                dt
                     .SetColumnsOrder(columnsCollection)
-                    .SetColumnsCollectionInDataTable(columnsCollection)
-                    .ExportToExcel(pathToFile, nameSheet, redColumns, greenColumns);
+                    .ExportToExcel(pathToFile, nameSheet, pivot, redColumns, greenColumns);
             }
-
+            textBoxLog.Clear();
+            textBoxLog.AppendLine($"Отчет готов и сохранен:{Environment.NewLine}{pathToFile}");
             MessageShow($"Отчет готов и сохранен:{Environment.NewLine}{pathToFile}");
         }
 
@@ -504,22 +505,58 @@ namespace MobileNumbersDetailizationReportGenerator
             dtMarket?.Rows?.Clear();
             await Task.Run(() => LoadBillIntoMemoryToFilter());
 
-            string pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} CommonTable.xlsx");
+            string pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)}");
+            string[] columnsCollection;
+            string nameSheet;
 
-            try
+
+            ///////////////////
+            using (DataTable dt = dtMarket.Copy())
             {
-                await Task.Run(() => dtMarket.ExportToExcel(pathToFileMarketTable, "Selected data"));
-                textBoxLog.AppendLine("Таблица исходных данных для маркетинга экспортирована");
+                columnsCollection = new string[]
+                { "Подразделение","ФИО","NAV","Номер телефона","Имя сервиса","Номер В","Дата","Время","Длительность А","Стоимость" };
+                nameSheet = "Отфильтрованные данные";
+                try
+                {
+                    await Task.Run(() =>
+                       dt
+                        .SetColumnsOrder(columnsCollection)
+                        .ExportToExcel($"{pathToFile} MarketCommonTable.xlsx", nameSheet, TypeOfPivot.NonePivot));
+
+                    textBoxLog.AppendLine("Файл с исходными данными для маркетинга подготовлен");
+                }
+                catch (Exception err)
+                {
+                    textBoxLog.AppendLine(nameSheet);
+                    textBoxLog.AppendLine(err.ToString());
+                    MessageShow(nameSheet+"\n" + err.ToString());
+                }
             }
-            catch (Exception err)
+
+            ///////////////////
+            using (DataTable dt = dtMarket.Copy())
             {
-                textBoxLog.AppendLine("dtMarket.ExportToExcel");
-                textBoxLog.AppendLine(err.ToString());
-                MessageShow("dtMarket.ExportToExcel\n" + err.ToString());
+                nameSheet = "Исходная таблица";
+                try
+                {
+                    await Task.Run(() =>
+                       dt
+                        .SetColumnsOrder(columnsCollection)
+                        .ExportToExcel($"{pathToFile} MarketSource.xlsx", nameSheet, TypeOfPivot.NonePivot));
+
+                    textBoxLog.AppendLine("Файл с исходной таблицей для маркетинга подготовлен");
+                }
+                catch (Exception err)
+                {
+                    textBoxLog.AppendLine(nameSheet);
+                    textBoxLog.AppendLine(err.ToString());
+                    MessageShow(nameSheet + ":\n" + err.ToString());
+                }
             }
 
-            string[] columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В" };
 
+            ///////////////////
+            columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Имя сервиса", "Номер В", "Длительность А" };
             ConditionForMakingPivotTable condition = new ConditionForMakingPivotTable
             {                                                           // columns 'dcFullBill' in the table 'dtMarket'
                 KeyColumnName = "Номер телефона",                       // column "ФИО" //groupby
@@ -531,49 +568,69 @@ namespace MobileNumbersDetailizationReportGenerator
                 //  TypeResultCalcultedData = typeResult,                   
                 ColumnsCollectionAtRightOrder = columnsCollection
             };
+            MakerPivotTable pivotData = new MakerPivotTable(dtMarket, condition);
+            nameSheet = "Сводная";
 
-            MakerPivotTable makingPivotData = new MakerPivotTable(dtMarket, condition);
-
-            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)}  PivotTable.xlsx");
-
-            try
+            using (DataTable dt = pivotData.MakePivot())
             {
-                await Task.Run(() => makingPivotData.MakePivot().ExportToExcel(pathToFileMarketTable, "Сводная"));
-                textBoxLog.AppendLine("Сводная таблица для Маркетинга экспортирована");
-            }
-            catch (Exception err)
-            {
-                textBoxLog.AppendLine("makingPivotData.MakePivot().ExportToExcel");
-                textBoxLog.AppendLine(err.ToString());
-                MessageShow("makingPivotData.MakePivot().ExportToExcel\n" + err.ToString());
+                columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Имя сервиса", "Номер В", "Суммарно, МБ", "Количество" };
+                try
+                {
+                    await Task.Run(() => dt
+                    .SetColumnsOrder(columnsCollection)
+                    .ExportToExcel($"{pathToFile} MarketPivotTable.xlsx", nameSheet, TypeOfPivot.NonePivot)
+                    );
+                    textBoxLog.AppendLine("Файл со сводной таблицей для маркетинга подготовлен");
+                }
+                catch (Exception err)
+                {
+                    textBoxLog.AppendLine(nameSheet);
+                    textBoxLog.AppendLine(err.ToString());
+                    MessageShow(nameSheet + "\n" + err.ToString());
+                }
             }
 
-
-            columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В", "Имя сервиса", "Длительность В", "Дата" };
-            pathToFileMarketTable = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)} CommonAndPivotTables.xlsx");
-            string nameSheet = "Common";
+            ///////////////////
+            columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Номер В", "Имя сервиса", "Длительность А", "Дата", "Время", "Стоимость" };
             string[] redColumns = { };
             string[] greenColumns = { };
-
-            condition.ColumnsCollectionAtRightOrder = columnsCollection;
-            makingPivotData = new MakerPivotTable(dtMarket, condition);
-
-            DataTable dt = makingPivotData.Source;
-
-            try
+            nameSheet = "Данные";
+            condition = new ConditionForMakingPivotTable
+            {                                                           // columns 'dcFullBill' in the table 'dtMarket'
+                KeyColumnName = "Номер телефона",                       // column "ФИО" //groupby
+                FilteringService = "internet",                          // it is used by column - "Номер В", //Передача даних  
+                NameColumnWithFilteringService = "Номер В",             // column "Номер В",
+                NameColumnWithFilteringServiceValue = "Длительность А", // column "Длительность А", it is used by column 'Summary'
+                NameNewColumnWithSummary = "Суммарно, МБ",              // column 'Summary' - result data format for column Summary
+                NameNewColumnWithCount = "Количество",
+                ColumnsCollectionAtRightOrder = columnsCollection
+            };
+            pivotData = new MakerPivotTable(dtMarket, condition);
+            
+            using (DataTable dt = pivotData.Source)
             {
-                dt.ExportToExcelPivotTable(pathToFileMarketTable, nameSheet, redColumns, greenColumns, false);
-                textBoxLog.AppendLine("Таблица исходных данных и сводная таблица для маркетинга экспортирована");
-            }
-            catch (Exception err)
-            {
-                textBoxLog.AppendLine("dt.ExportToExcelPivotTabl");
-                textBoxLog.AppendLine(err.ToString());
-                MessageShow("dt.ExportToExcelPivotTable(pathToFileMarketPivotTabl\n" + err.ToString());
+                columnsCollection = new string[] { "Подразделение", "ФИО", "NAV", "Номер телефона", "Имя сервиса", "Номер В", "Длительность А", "Дата", "Время", "Стоимость", "Суммарно, МБ", "Количество" };
+                try
+                {
+                    await Task.Run(() => dt
+                    .SetColumnsOrder(columnsCollection)
+                    .ExportToExcel($"{pathToFile} MarketCommonAndPivotTables.xlsx", nameSheet, TypeOfPivot.Market, redColumns, greenColumns));
+                    textBoxLog.AppendLine("Файл с исходными данными и сводной таблицей для маркетинга подготовлен");
+                }
+                catch (Exception err)
+                {
+                    textBoxLog.AppendLine(nameSheet);
+                    textBoxLog.AppendLine(err.ToString());
+                    MessageShow(nameSheet + "\n" + err.ToString());
+                }
             }
 
-            textBoxLog.AppendLine("Экспорт завершен");
+            condition = null;
+            pivotData = null;
+
+            textBoxLog.AppendLine("Задача по экспорту и генерации файлов завершена");
             MessageShow("Готово!");
+            textBoxLog.AppendLine();
         }
 
         private void MessageShow(string text)
@@ -853,7 +910,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         {
                             using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
                             {
-                                while ((loadedString = Reader.ReadLine()?.Trim()) != null && !endLoadData && listRows.Count < listMaxLength)
+                                while ((loadedString = Reader?.ReadLine()?.Trim())!=null && !endLoadData && listRows.Count < listMaxLength)
                                 {
                                     //Set label Date
                                     if (loadedString.Contains("Особовий рахунок")) { checkRahunok = true; }
@@ -870,16 +927,24 @@ namespace MobileNumbersDetailizationReportGenerator
                                     else if (loadedString.StartsWith(endStringLoad))
                                     { endLoadData = true; }
 
-                                    if (startLoadData)
+                                    if (startLoadData && loadedString?.Trim()?.Length > 0)
                                     {
-                                        foreach (string parameterString in listParameters)
+                                        if (listParameters.Count > 2)
                                         {
-                                            if (loadedString.StartsWith(parameterString) && !loadedString.Contains(excepted))
+                                            foreach (string parameterString in listParameters)
                                             {
-                                                listRows.Add(loadedString);
-                                                counter++;
-                                                break;
+                                                if (loadedString.StartsWith(parameterString) && !loadedString.Contains(excepted))
+                                                {
+                                                    listRows.Add(loadedString);
+                                                    counter++;
+                                                    break;
+                                                }
                                             }
+                                        }
+                                        else
+                                        {
+                                            listRows.Add(loadedString);
+                                            counter++;
                                         }
                                     }
                                     countStepProgressBar--;
@@ -940,6 +1005,7 @@ namespace MobileNumbersDetailizationReportGenerator
             newModels = false;
             makeReportAccountantItem.Enabled = false;
             makeFullReportItem.Enabled = false;
+            //analyzeBillItem.Enabled = false;
             openBillItem.Enabled = false;
 
             infoStatusBar = "";
@@ -1085,6 +1151,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
                         makeReportAccountantItem.Enabled = true;
                         makeFullReportItem.Enabled = true;
+                        analyzeBillItem.Enabled = true;
 
                         StatusLabel1.Text = "Предварительная обработка счета из файла " + Path.GetFileName(filePathSourceTxt) + " завершена!";
                         StatusLabel1.ToolTipText = "Данные для генерации отчета для бухгалтерии подготовлены";
@@ -1110,6 +1177,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                     makeReportAccountantItem.Enabled = true;
                     makeFullReportItem.Enabled = true;
+                    analyzeBillItem.Enabled = true;
                 }
 
                 filepathLoadedData = filePathSourceTxt;
@@ -1387,38 +1455,38 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     Invoice invoice = new Invoice
                     {
-                        invoicePathToFile = filePathSourceTxt,
-                        invoiceFileName = Path.GetFileName(filePathSourceTxt)
+                        PathToFile = filePathSourceTxt,
+                        FileName = Path.GetFileName(filePathSourceTxt)
                     };
 
-                    ControlSetItsText(labelFile, invoice.invoiceFileName);
+                    ControlSetItsText(labelFile, invoice.FileName);
                     toolTip1.SetToolTip(labelFile, Properties.Resources.SelectedInvoice);
 
-                    using (StreamReader Reader = new StreamReader(invoice.invoicePathToFile, Encoding.GetEncoding(1251)))
+                    using (StreamReader Reader = new StreamReader(invoice.PathToFile, Encoding.GetEncoding(1251)))
                     {
                         string s, tmp;
                         bool mystatusbegin = false;
                         bool startModuleWithDiscountWholeBill = false;
                         int lenghtData = 0;
 
-                        ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + invoice.invoicePathToFile);
+                        ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + invoice.PathToFile);
                         while ((s = Reader.ReadLine()) != null)
                         {
                             if (s.Contains("Особовий рахунок"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
-                                invoice.invoiceInternalHoldingNumber = substrings[substrings.Length - 1].Trim();
+                                invoice.InternalHoldingNumber = substrings[substrings.Length - 1].Trim();
 
                                 ControlVisibleEnabled(labelAccount, true);
-                                ControlSetItsText(labelAccount, invoice.invoiceInternalHoldingNumber);
+                                ControlSetItsText(labelAccount, invoice.InternalHoldingNumber);
                             }
                             else if (s.Contains("Номер рахунку"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
-                                invoice.invoiceNumber = substrings[substrings.Length - 3].Trim();
+                                invoice.Nubmer = substrings[substrings.Length - 3].Trim();
 
                                 ControlVisibleEnabled(labelBill, true);
-                                ControlSetItsText(labelBill, invoice.invoiceNumber);
+                                ControlSetItsText(labelBill, invoice.Nubmer);
                             }
                             else if (s.Contains(pStop)) //finished to look for contracts and start data for the bill's delivery cost
                             {
@@ -1429,21 +1497,21 @@ namespace MobileNumbersDetailizationReportGenerator
                             {
                                 lenghtData = s.Split(' ').Length;
                                 tmp = s.Split(' ')[lenghtData - 1];
-                                BillDeliveryCost = Convert.ToDouble(Regex.Replace(tmp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
-                                invoice.invoiceDeliveryCost = BillDeliveryCost;
+                                BillDeliveryValue = Convert.ToDouble(Regex.Replace(tmp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                                invoice.BillDeliveryValue = BillDeliveryValue;
                             }
                             else if (startModuleWithDiscountWholeBill && s.Contains(pBillDeliveryCostDiscount)) //discount calculating for the whole bill after all of contracts
                             {
                                 lenghtData = s.Split(' ').Length;
                                 tmp = s.Split(' ')[lenghtData - 1];
-                                BillDeliveryCostDiscount = Convert.ToDouble(Regex.Replace(tmp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
-                                invoice.invoiceDeliveryCostDiscount = BillDeliveryCostDiscount;
+                                DiscountOnBillDeliveryValue = Convert.ToDouble(Regex.Replace(tmp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                                invoice.DiscountOnBillDeliveryValue = DiscountOnBillDeliveryValue;
                             }
                             else if (s.Contains("Розрахунковий період"))
                             {
                                 string[] substrings = Regex.Split(s, ": ");
                                 periodInvoice = substrings[substrings.Length - 1].Trim();
-                                invoice.invoicePeriod = periodInvoice;
+                                invoice.Period = periodInvoice;
 
                                 ControlVisibleEnabled(labelPeriod, true);
                                 ControlSetItsText(labelPeriod, periodInvoice);
@@ -1472,8 +1540,8 @@ namespace MobileNumbersDetailizationReportGenerator
                     ChosenFile = true;
 
                     // вычисление скидки предоставленной Вудафон на данный счет(зависит от ИТОГОВОЙ суммы счета)
-                    resultOfCalculatingDiscount = Math.Abs(BillDeliveryCostDiscount / BillDeliveryCost * 100);
-                    amountBillAfterDiscount = 1 - Math.Abs(BillDeliveryCostDiscount / BillDeliveryCost);
+                    resultOfCalculatingDiscount = Math.Abs(DiscountOnBillDeliveryValue / BillDeliveryValue * 100);
+                    amountBillAfterDiscount = 1 - Math.Abs(DiscountOnBillDeliveryValue / BillDeliveryValue);
 
                     ControlVisibleEnabled(labelDiscount, true);
                     ControlSetItsText(labelDiscount, resultOfCalculatingDiscount.ToString() + "%");
@@ -1529,89 +1597,89 @@ namespace MobileNumbersDetailizationReportGenerator
 
             for (int i = 0; i < arrayTarif.Length; i++)
             {
-                if (mobileContractPerson.modelCompensation.Contains(arrayTarif[i]))
+                if (mobileContractPerson.ModelCompensation.Contains(arrayTarif[i]))
                 {
                     switch (i)
                     {
                         case (0):     // "L100% корпорация",     //0
-                            result = mobileContractPerson.content + mobileContractPerson.romingData;
+                            result = mobileContractPerson.PaidExtraContentOfTarifPackage + mobileContractPerson.RomingDetalization;
                             break;
 
                         case (1):     // "L100% сотрудник",      //1
-                            result = mobileContractPerson.totalCostWithTax;
+                            result = mobileContractPerson.TotalCostWithTax;
                             break;
 
                         case (2):     // "L100%,R80%",           //2
-                            result = mobileContractPerson.content + (mobileContractPerson.roming - mobileContractPerson.romingData) * 0.2 + mobileContractPerson.romingData;
+                            result = mobileContractPerson.PaidExtraContentOfTarifPackage + (mobileContractPerson.RoamingSummary - mobileContractPerson.RomingDetalization) * 0.2 + mobileContractPerson.RomingDetalization;
                             break;
 
                         case (3):      // "L50,R0%",              //3
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - 50 - mobileContractPerson.content) < 0 ?
-                                      mobileContractPerson.roming + mobileContractPerson.content :
-                                     (mobileContractPerson.totalCostWithTax - 50);
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - 50 - mobileContractPerson.PaidExtraContentOfTarifPackage) < 0 ?
+                                      mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage :
+                                     (mobileContractPerson.TotalCostWithTax - 50);
                             break;
 
                         case (4):     // "L80,R0%",              //4
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - 80 - mobileContractPerson.content) < 0 ?
-                                      mobileContractPerson.roming + mobileContractPerson.content :
-                                     (mobileContractPerson.totalCostWithTax - 80);
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - 80 - mobileContractPerson.PaidExtraContentOfTarifPackage) < 0 ?
+                                      mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage :
+                                     (mobileContractPerson.TotalCostWithTax - 80);
                             break;
 
                         case (5):     // "L100,R0%",             //5
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - 100 - mobileContractPerson.content) < 0 ?
-                                      mobileContractPerson.roming + mobileContractPerson.content :
-                                     (mobileContractPerson.totalCostWithTax - 100);
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - 100 - mobileContractPerson.PaidExtraContentOfTarifPackage) < 0 ?
+                                      mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage :
+                                     (mobileContractPerson.TotalCostWithTax - 100);
                             break;
 
                         case (6):     // "L160,R0%",             //6
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - 160 - mobileContractPerson.content) < 0 ?
-                                      mobileContractPerson.roming + mobileContractPerson.content :
-                                     (mobileContractPerson.totalCostWithTax - 160);
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - 160 - mobileContractPerson.PaidExtraContentOfTarifPackage) < 0 ?
+                                      mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage :
+                                     (mobileContractPerson.TotalCostWithTax - 160);
                             break;
 
                         case (7):     // "L250,R0%",             //7
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - 250 - mobileContractPerson.content) < 0 ?
-                                      mobileContractPerson.roming + mobileContractPerson.content :
-                                     (mobileContractPerson.totalCostWithTax - 250);
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - 250 - mobileContractPerson.PaidExtraContentOfTarifPackage) < 0 ?
+                                      mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage :
+                                     (mobileContractPerson.TotalCostWithTax - 250);
                             break;
 
                         case (8):      // "L50%,R0%",             //8
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - mobileContractPerson.content) * 0.5 +
-                                      mobileContractPerson.roming + mobileContractPerson.content;
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - mobileContractPerson.PaidExtraContentOfTarifPackage) * 0.5 +
+                                      mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage;
                             break;
 
                         case (9):     // "L50%,R80%",            //9
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - mobileContractPerson.content) * 0.5 +
-                                     (mobileContractPerson.roming - mobileContractPerson.romingData) * 0.2 + mobileContractPerson.romingData +
-                                      mobileContractPerson.content;
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - mobileContractPerson.PaidExtraContentOfTarifPackage) * 0.5 +
+                                     (mobileContractPerson.RoamingSummary - mobileContractPerson.RomingDetalization) * 0.2 + mobileContractPerson.RomingDetalization +
+                                      mobileContractPerson.PaidExtraContentOfTarifPackage;
                             break;
 
                         case (10):    // "L50%,R100%",           //10
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - mobileContractPerson.content) * 0.5 +
-                                      mobileContractPerson.romingData + mobileContractPerson.content;
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - mobileContractPerson.PaidExtraContentOfTarifPackage) * 0.5 +
+                                      mobileContractPerson.RomingDetalization + mobileContractPerson.PaidExtraContentOfTarifPackage;
                             break;
 
                         case (11):    // "L90%,R100%",           //11
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - mobileContractPerson.content) * 0.1 +
-                                      mobileContractPerson.romingData + mobileContractPerson.content;
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - mobileContractPerson.PaidExtraContentOfTarifPackage) * 0.1 +
+                                      mobileContractPerson.RomingDetalization + mobileContractPerson.PaidExtraContentOfTarifPackage;
                             break;
 
                         case (12):     // "Lpack100%,R0%,Paid0%", //12
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.monthCost - mobileContractPerson.roming - mobileContractPerson.content - mobileContractPerson.extraServiceOrdered) < 0 ?
-                                      mobileContractPerson.roming + mobileContractPerson.content + mobileContractPerson.extraServiceOrdered :
-                                     (mobileContractPerson.totalCostWithTax - mobileContractPerson.monthCost);
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.NumberMonthCost - mobileContractPerson.RoamingSummary - mobileContractPerson.PaidExtraContentOfTarifPackage - mobileContractPerson.PaidExtraOfTarifPackageServices) < 0 ?
+                                      mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage + mobileContractPerson.PaidExtraOfTarifPackageServices :
+                                     (mobileContractPerson.TotalCostWithTax - mobileContractPerson.NumberMonthCost);
                             break;
 
                         case (13):     // "Lмоб200,R0%,Paid0%"    //13
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.outToCity - mobileContractPerson.roming - mobileContractPerson.content - mobileContractPerson.extraInternetOrdered - 200) < 0 ?
-                                      mobileContractPerson.outToCity + mobileContractPerson.roming + mobileContractPerson.content + mobileContractPerson.extraInternetOrdered :
-                                     (mobileContractPerson.totalCostWithTax - 200);
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.PaidExtraOfTarifOutCallsToCity - mobileContractPerson.RoamingSummary - mobileContractPerson.PaidExtraContentOfTarifPackage - mobileContractPerson.PaidExtraOfTarifPackageInternetService - 200) < 0 ?
+                                      mobileContractPerson.PaidExtraOfTarifOutCallsToCity + mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage + mobileContractPerson.PaidExtraOfTarifPackageInternetService :
+                                     (mobileContractPerson.TotalCostWithTax - 200);
                             break;
 
                         case (14):    // "L200,R0%",             //14
-                            result = (mobileContractPerson.totalCostWithTax - mobileContractPerson.roming - 200 - mobileContractPerson.content) < 0 ?
-                                      mobileContractPerson.roming + mobileContractPerson.content :
-                                     (mobileContractPerson.totalCostWithTax - 200);
+                            result = (mobileContractPerson.TotalCostWithTax - mobileContractPerson.RoamingSummary - 200 - mobileContractPerson.PaidExtraContentOfTarifPackage) < 0 ?
+                                      mobileContractPerson.RoamingSummary + mobileContractPerson.PaidExtraContentOfTarifPackage :
+                                     (mobileContractPerson.TotalCostWithTax - 200);
                             break;
 
 
@@ -1657,60 +1725,60 @@ namespace MobileNumbersDetailizationReportGenerator
                         //перед началов учета парсеров этого контракта сначала записываем все собранные данные по предыдущему контракту
                         //для последнего в счете контракта маркером окночания данных является ключевое слово в переменной 'pStop'
                         isCheckFinishedTitles = false;
-                        if (mcpCurrent.contractName?.Length > 1)
+                        if (mcpCurrent.Сontract?.Length > 1)
                         {
-                            mcpCurrent.dateBillStart = dataStart;
-                            mcpCurrent.dateBillEnd = dataEnd;
-                            mcpCurrent.tax = CalculateTax(mcpCurrent.totalCost);
-                            mcpCurrent.pF = CalculatePf(mcpCurrent.totalCost);
-                            mcpCurrent.totalCostWithTax = mcpCurrent.totalCost * 1.275;  //number spend+НДС+ПФ
+                            mcpCurrent.StartDatePeriodBill = dataStart;
+                            mcpCurrent.EndDayPeriodBill = dataEnd;
+                            mcpCurrent.TaxCost = CalculateTax(mcpCurrent.TotalCost);
+                            mcpCurrent.PFCost = CalculatePf(mcpCurrent.TotalCost);
+                            mcpCurrent.TotalCostWithTax = mcpCurrent.TotalCost * 1.275;  //number spend+НДС+ПФ
 
-                            searchNumber = mcpCurrent.mobNumberName;
+                            searchNumber = mcpCurrent.CellNumber;
                             foreach (DataRow dr in dtOwnerOfMobileWithinSelectedPeriod.Rows)
                             {
                                 if (dr.ItemArray[0].ToString().Contains(searchNumber))
                                 {
-                                    mcpCurrent.ownerName = dr.ItemArray[1].ToString();
+                                    mcpCurrent.OwnerName = dr.ItemArray[1].ToString();
                                     mcpCurrent.NAV = dr.ItemArray[2].ToString();
-                                    mcpCurrent.orgUnit = dr.ItemArray[3].ToString();
-                                    mcpCurrent.startDate = dr.ItemArray[5].ToString();
-                                    mcpCurrent.modelCompensation = dr.ItemArray[6].ToString();
+                                    mcpCurrent.Department = dr.ItemArray[3].ToString();
+                                    mcpCurrent.StartDayOfModelCompensation = dr.ItemArray[5].ToString();
+                                    mcpCurrent.ModelCompensation = dr.ItemArray[6].ToString();
                                     break;
                                 }
                             }
                             mcpCurrent.payOwner = ClaculateAmountPaymentOfContractOwner(mcpCurrent);
-                            mcpCurrent.isUsed = isUsedCurrent;
-                            if (mcpCurrent.totalCostWithTax > 0)
-                            { mcpCurrent.isUnblocked = true; }
+                            mcpCurrent.isUsedNumber = isUsedCurrent;
+                            if (mcpCurrent.TotalCostWithTax > 0)
+                            { mcpCurrent.isUnblockedNumber = true; }
 
                             row = dtMobile.NewRow();
-                            row[0] = mcpCurrent.ownerName;
-                            row[1] = mcpCurrent.contractName;
-                            row[2] = mcpCurrent.mobNumberName;
-                            row[3] = mcpCurrent.tarifPackageName;
-                            row[4] = Math.Round(mcpCurrent.monthCost, 2);
-                            row[5] = Math.Round(mcpCurrent.roming, 2);
-                            row[6] = Math.Round(mcpCurrent.discount, 2);
-                            row[7] = Math.Round(mcpCurrent.totalCost, 2);
-                            row[8] = Math.Round(mcpCurrent.tax, 2);
-                            row[9] = Math.Round(mcpCurrent.pF, 2);
-                            row[10] = Math.Round(mcpCurrent.totalCostWithTax, 2);
-                            row[11] = Math.Round(mcpCurrent.romingData, 2);
-                            row[12] = Math.Round(mcpCurrent.extraInternetOrdered, 2);
-                            row[13] = Math.Round(mcpCurrent.outToCity, 2);
-                            row[14] = Math.Round(mcpCurrent.extraService, 2);
-                            row[15] = Math.Round(mcpCurrent.content, 2);
-                            row[16] = mcpCurrent.dateBillStart;
-                            row[17] = mcpCurrent.dateBillEnd;
+                            row[0] = mcpCurrent.OwnerName;
+                            row[1] = mcpCurrent.Сontract;
+                            row[2] = mcpCurrent.CellNumber;
+                            row[3] = mcpCurrent.NumberTarifPackageName;
+                            row[4] = Math.Round(mcpCurrent.NumberMonthCost, 2);
+                            row[5] = Math.Round(mcpCurrent.RoamingSummary, 2);
+                            row[6] = Math.Round(mcpCurrent.ContractDiscount, 2);
+                            row[7] = Math.Round(mcpCurrent.TotalCost, 2);
+                            row[8] = Math.Round(mcpCurrent.TaxCost, 2);
+                            row[9] = Math.Round(mcpCurrent.PFCost, 2);
+                            row[10] = Math.Round(mcpCurrent.TotalCostWithTax, 2);
+                            row[11] = Math.Round(mcpCurrent.RomingDetalization, 2);
+                            row[12] = Math.Round(mcpCurrent.PaidExtraOfTarifPackageInternetService, 2);
+                            row[13] = Math.Round(mcpCurrent.PaidExtraOfTarifOutCallsToCity, 2);
+                            row[14] = Math.Round(mcpCurrent.ExtraService, 2);
+                            row[15] = Math.Round(mcpCurrent.PaidExtraContentOfTarifPackage, 2);
+                            row[16] = mcpCurrent.StartDatePeriodBill;
+                            row[17] = mcpCurrent.EndDayPeriodBill;
                             row[18] = mcpCurrent.NAV;
-                            row[19] = mcpCurrent.orgUnit;
-                            row[20] = mcpCurrent.startDate;
-                            row[21] = mcpCurrent.modelCompensation;
+                            row[19] = mcpCurrent.Department;
+                            row[20] = mcpCurrent.StartDayOfModelCompensation;
+                            row[21] = mcpCurrent.ModelCompensation;
                             row[22] = Math.Round(mcpCurrent.payOwner, 2);
-                            row[23] = Math.Round(mcpCurrent.extraServiceOrdered, 2);
+                            row[23] = Math.Round(mcpCurrent.PaidExtraOfTarifPackageServices, 2);
                             //проверки контракта
-                            row[24] = mcpCurrent.isUsed;
-                            row[25] = mcpCurrent.isUnblocked;
+                            row[24] = mcpCurrent.isUsedNumber;
+                            row[25] = mcpCurrent.isUnblockedNumber;
 
                             //запись сформированной строки в таблицу
                             dtMobile.Rows.Add(row);
@@ -1718,43 +1786,43 @@ namespace MobileNumbersDetailizationReportGenerator
 
                         mcpCurrent = new MobileContractPerson();
                         substrings = s.Split('№')[s.Split('№').Length - 1].Trim().Split(' ');
-                        mcpCurrent.contractName = substrings[0].Trim();
+                        mcpCurrent.Сontract = substrings[0].Trim();
 
                         if (s.Contains(p[2]))
                         {
                             substrings = s.Split(':')[s.Split(':').Length - 1].Trim().Split(' ');
-                            mcpCurrent.mobNumberName = substrings[substrings.Length - 1].Trim();
+                            mcpCurrent.CellNumber = substrings[substrings.Length - 1].Trim();
                         }
                     }
                     else if (s.Contains(p[3]))
                     {
                         substrings = s.Split(':');
-                        mcpCurrent.tarifPackageName = substrings[substrings.Length - 1].Trim();
+                        mcpCurrent.NumberTarifPackageName = substrings[substrings.Length - 1].Trim();
                     }
                     else if (s.Contains(p[4]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.monthCost = Convert.ToDouble(Regex.Replace(temp, "[,]",
+                        mcpCurrent.NumberMonthCost = Convert.ToDouble(Regex.Replace(temp, "[,]",
                             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * amountBillAfterDiscount * 1.275;
                     }
                     else if (s.Contains(p[5]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.roming = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
+                        mcpCurrent.RoamingSummary = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
                     else if (s.Contains(p[6]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.discount = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                        mcpCurrent.ContractDiscount = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                     }
                     else if (s.Contains(p[7]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.totalCost = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                        mcpCurrent.TotalCost = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                         isCheckFinishedTitles = true;
                         isUsedCurrent = false;
                     }
@@ -1762,37 +1830,37 @@ namespace MobileNumbersDetailizationReportGenerator
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.romingData += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
+                        mcpCurrent.RomingDetalization += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
                     else if (s.Contains(p[12]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraInternetOrdered += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
+                        mcpCurrent.PaidExtraOfTarifPackageInternetService += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
                     else if (s.Contains(p[13]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.outToCity += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
+                        mcpCurrent.PaidExtraOfTarifOutCallsToCity += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
                     else if (s.Contains(p[14]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraService += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+                        mcpCurrent.ExtraService += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                     }
                     else if (s.Contains(p[15]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.content += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
+                        mcpCurrent.PaidExtraContentOfTarifPackage += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
                     else if (s.Contains(p[23]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
-                        mcpCurrent.extraServiceOrdered += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
+                        mcpCurrent.PaidExtraOfTarifPackageServices += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
                     else if (isCheckFinishedTitles)
                     { isUsedCurrent = true; }
@@ -1801,21 +1869,21 @@ namespace MobileNumbersDetailizationReportGenerator
                 //additional payment for detalisation (at the end of the current bill)
                 mcpCurrent = new MobileContractPerson
                 {
-                    totalCost = Math.Abs(BillDeliveryCost * amountBillAfterDiscount),
-                    discount = Math.Abs(BillDeliveryCostDiscount)
+                    TotalCost = Math.Abs(BillDeliveryValue * amountBillAfterDiscount),
+                    ContractDiscount = Math.Abs(DiscountOnBillDeliveryValue)
                 };
-                mcpCurrent.tax = CalculateTax(mcpCurrent.totalCost);
-                mcpCurrent.pF = CalculatePf(mcpCurrent.totalCost);
-                mcpCurrent.totalCostWithTax = mcpCurrent.totalCost * 1.275;  //number spend+НДС+ПФ
+                mcpCurrent.TaxCost = CalculateTax(mcpCurrent.TotalCost);
+                mcpCurrent.PFCost = CalculatePf(mcpCurrent.TotalCost);
+                mcpCurrent.TotalCostWithTax = mcpCurrent.TotalCost * 1.275;  //number spend+НДС+ПФ
 
                 row = dtMobile.NewRow();
                 row[0] = "за детализацию счета, коррекция суммы";
-                row[4] = Math.Round(BillDeliveryCost, 2);
-                row[6] = Math.Round(mcpCurrent.discount, 2);
-                row[7] = Math.Round(mcpCurrent.totalCost, 2);
-                row[8] = Math.Round(mcpCurrent.tax, 2);
-                row[9] = Math.Round(mcpCurrent.pF, 2);
-                row[10] = Math.Round(mcpCurrent.totalCostWithTax, 2);
+                row[4] = Math.Round(BillDeliveryValue, 2);
+                row[6] = Math.Round(mcpCurrent.ContractDiscount, 2);
+                row[7] = Math.Round(mcpCurrent.TotalCost, 2);
+                row[8] = Math.Round(mcpCurrent.TaxCost, 2);
+                row[9] = Math.Round(mcpCurrent.PFCost, 2);
+                row[10] = Math.Round(mcpCurrent.TotalCostWithTax, 2);
                 row[16] = dataStart;
                 row[17] = dataEnd;
                 row[18] = "E22";
@@ -2282,6 +2350,38 @@ namespace MobileNumbersDetailizationReportGenerator
                 foundSavedData = true;
             }
             catch (Exception expt) { MessageShow("Ошибки с доступом для записи пути к счету. Данные сохранены не корректно.\n" + expt.Message); }
+        }
+
+        private void analyzeBillItem_Click(object sender, EventArgs e)
+        {
+            textBoxLog.Clear();
+            p[1] = ControlReturnText(textBoxP1);
+            p[2] = ControlReturnText(textBoxP2);
+
+            textBoxLog.Visible = false;
+         //   textBoxLog.Enabled = false;
+
+            List<string> billList = LoadDataUsingParameters(new List<string> { p[1], p[2] }, parametrStart, pStop, null);
+
+
+            ParsingStringDetalizationOfBill parsing = new ParsingStringDetalizationOfBill();
+            ParsedStringOfBill parsed;
+
+            parsing.SetString(sRowBill);
+            parsed = parsing.ParseString();
+
+
+            textBoxLog.AppendLine("В списке строк: "+billList.Count.ToString());
+
+
+
+            string str = string.Join(Environment.NewLine, billList.ToArray());
+
+                textBoxLog.AppendLine(str);
+
+          //  textBoxLog.Visible = true;
+            textBoxLog.Enabled = true;
+
         }
     }
 }

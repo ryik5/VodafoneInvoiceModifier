@@ -27,11 +27,13 @@ namespace MobileNumbersDetailizationReportGenerator
                 if (cell != null && cell.Contains(condition.FilteringService.ToUpper()))
                 {
                     row[condition.NameNewColumnWithSummary] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb");// ?? 0;
-                    row[condition.NameNewColumnWithCount] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb") > 0 ? 1 : 0;
+                    row[condition.NameNewColumnWithCount] = row[condition.NameColumnWithFilteringServiceValue]?.ToString()?.ToInternetTrafic("Mb") > 0 ? 1 : 0; //только для тех у кого был трафик будет отличный от нуля результат
                 }
+                // иначе при генерации сводной таблицы в линк-запросе в MakePivot() будет ошибка (не обрабатывает данные)
+                // или же предварительно перед MakePivot() выполнять фильтрование записей в Filter() - будут отсутствовать записи с отсутствующим значением, т.е. там где был не трафик, а звонки или смс
                 else
                 {
-                    row[condition.NameNewColumnWithSummary] = 0; // иначе при генерации сводной в MakePivot ошибка (не обрабатывает данные)
+                    row[condition.NameNewColumnWithSummary] = 0; 
                     row[condition.NameNewColumnWithCount] = 0;
                 }
             }
@@ -119,8 +121,25 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public virtual DataTable MakePivot()
         {
+
             // DataTable dt = Filter(_source, _condition);
             DataTable dt = _source.Copy();
+
+            //{ //return if has dbNull
+            //    var hasEmpty = dt
+            //      .AsEnumerable()
+            //      .Any(x => x.HasErrors);
+
+            //    if (hasEmpty) return dt;
+            //}
+            //{ //return if has dbNull
+            //    var hasEmpty = dt
+            //      .AsEnumerable()
+            //      .Any(x => x.IsNull(_condition.NameNewColumnWithSummary)||x.IsNull(_condition.NameNewColumnWithCount));
+
+            //    if (hasEmpty) return dt;
+            //}
+
 
             var pivotData = dt.AsEnumerable()
                         .Select(r => new
@@ -175,7 +194,6 @@ namespace MobileNumbersDetailizationReportGenerator
         public DataTable Filter(DataTable source, ConditionForMakingPivotTable condition)
         {
             DataTable result = source
-                .SetColumnsCollectionInDataTable(condition.ColumnsCollectionAtRightOrder)
                 .AsEnumerable()
                 .Where(myRow => myRow.Field<string>(condition.NameColumnWithFilteringService)
                         .Contains(condition.FilteringService))

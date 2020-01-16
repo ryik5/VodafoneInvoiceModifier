@@ -64,6 +64,7 @@
             this.prepareBillItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeReportAccountantItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeFullReportItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.analyzeBillItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearTextboxItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -336,6 +337,7 @@
             this.makeReportMarketingMenuItem,
             this.makeReportAccountantItem,
             this.makeFullReportItem,
+            this.analyzeBillItem,
             this.clearTextboxItem,
             this.aboutItem,
             this.exitItem});
@@ -402,6 +404,13 @@
             this.makeFullReportItem.Size = new System.Drawing.Size(200, 22);
             this.makeFullReportItem.Text = "Сводный отчет";
             this.makeFullReportItem.Click += new System.EventHandler(this.makeFullReportItem_Click);
+            // 
+            // analyzeBillItem
+            // 
+            this.analyzeBillItem.Name = "analyzeBillItem";
+            this.analyzeBillItem.Size = new System.Drawing.Size(200, 22);
+            this.analyzeBillItem.Text = "Анализ счета";
+            this.analyzeBillItem.Click += new System.EventHandler(this.analyzeBillItem_Click);
             // 
             // clearTextboxItem
             // 
@@ -548,6 +557,7 @@
         private System.Windows.Forms.Label labelDiscountName;
         private System.Windows.Forms.Label labelFile;
         private System.Windows.Forms.ToolStripProgressBar ProgressBar1;
+        private System.Windows.Forms.ToolStripMenuItem analyzeBillItem;
     }
 }
 

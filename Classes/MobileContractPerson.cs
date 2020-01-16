@@ -3,33 +3,32 @@ namespace MobileNumbersDetailizationReportGenerator
 {
     public struct MobileContractPerson
     {
-        public string ownerName { get; set; }// = "";
-        public string contractName { get; set; }//= "";
-        public string mobNumberName { get; set; }//= "";
-        public string tarifPackageName { get; set; }// = "";
-        public double monthCost { get; set; }//= 0;
-        public double roming { get; set; }//= 0;
-        public double discount { get; set; }// = 0;
-        public double totalCost { get; set; }// = 0;
-        public double tax { get; set; }//= 0;
-        public double pF { get; set; }//= 0;
-        public double totalCostWithTax { get; set; }//= 0;
-        public double totalCostWithoutTaxBeforDiscount { get; set; }// = 0;
-        public double romingData { get; set; }//= 0;
-        public double extraServiceOrdered { get; set; }//= 0;
-        public double extraInternetOrdered { get; set; }//= 0;
-        public double outToCity { get; set; }// = 0;
-        public double extraService { get; set; }//= 0;
-        public double content { get; set; }//= 0;
-        public string dateBillStart { get; set; }// = "";
-        public string dateBillEnd { get; set; }//= "";
+        public string OwnerName { get; set; }// = "";
+        public string Сontract { get; set; }//= "";
+        public string CellNumber { get; set; }//= "";
+        public string NumberTarifPackageName { get; set; }// = "";
+        public double NumberMonthCost { get; set; }//= 0;
+        public double RoamingSummary { get; set; }//= 0;
+        public double ContractDiscount { get; set; }// = 0;
+        public double TotalCost { get; set; }// = 0;//Zatraty na Contract do nalogov
+        public double TaxCost { get; set; }//= 0;//nalog na dob.stoimost
+        public double PFCost { get; set; }//= 0;//Pensioniy fond
+        public double TotalCostWithTax { get; set; }//= 0;
+        public double RomingDetalization { get; set; }//= 0;
+        public double PaidExtraOfTarifPackageServices { get; set; }//= 0;
+        public double PaidExtraOfTarifPackageInternetService { get; set; }//= 0;
+        public double PaidExtraOfTarifOutCallsToCity { get; set; }// = 0;
+        public double ExtraService { get; set; }//= 0;
+        public double PaidExtraContentOfTarifPackage { get; set; }//= 0;
+        public string StartDatePeriodBill { get; set; }// = "";
+        public string EndDayPeriodBill { get; set; }//= "";
 
         public string NAV { get; set; }// = "";
-        public string orgUnit { get; set; }//= "";
-        public string startDate { get; set; }//;
-        public string modelCompensation { get; set; }//= "";
+        public string Department { get; set; }//= "";
+        public string StartDayOfModelCompensation { get; set; }//;
+        public string ModelCompensation { get; set; }//= "";
         public double payOwner { get; set; }//= 0;
-        public bool isUsed { get; set; }//= false;
-        public bool isUnblocked { get; set; }//= false;
+        public bool isUsedNumber { get; set; }//= false;
+        public bool isUnblockedNumber { get; set; }//= false;
     }
 }

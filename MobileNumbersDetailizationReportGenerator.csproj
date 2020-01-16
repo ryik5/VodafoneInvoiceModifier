@@ -112,7 +112,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\ColumnInfo.cs" />
+    <Compile Include="Classes\UnUsedColumnInfo.cs" />
+    <Compile Include="Classes\UnUsedDataTableExtensions.cs" />
     <Compile Include="Classes\ListExtensions.cs" />
     <Compile Include="Classes\MakingPivotTable.cs" />
     <Compile Include="Classes\DataTableExtensions.cs" />
