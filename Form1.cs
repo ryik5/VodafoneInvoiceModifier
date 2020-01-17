@@ -327,7 +327,7 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 dt
                     .SetColumnsOrder(columnsCollection)
-                    .ExportToExcel(pathToFile, nameSheet, pivot, redColumns, greenColumns);
+                    .ExportToExcel(pathToFile, nameSheet, pivot, redColumns, greenColumns,true);
             }
             textBoxLog.Clear();
             textBoxLog.AppendLine($"Отчет готов и сохранен:{Environment.NewLine}{pathToFile}");
@@ -466,7 +466,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     await Task.Run(() =>
                        dt
                         .SetColumnsOrder(columnsCollection)
-                        .ExportToExcel($"{pathToFile} MarketCommonTable.xlsx", nameSheet, TypeOfPivot.NonePivot));
+                        .ExportToExcel($"{pathToFile} MarketCommonTable.xlsx", nameSheet, TypeOfPivot.NonePivot,null,null,true));
 
                     textBoxLog.AppendLine("Файл с исходными данными для маркетинга подготовлен");
                 }
@@ -487,7 +487,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     await Task.Run(() =>
                        dt
                         .SetColumnsOrder(columnsCollection)
-                        .ExportToExcel($"{pathToFile} MarketSource.xlsx", nameSheet, TypeOfPivot.NonePivot));
+                        .ExportToExcel($"{pathToFile} MarketSource.xlsx", nameSheet, TypeOfPivot.NonePivot, null, null, true));
 
                     textBoxLog.AppendLine("Файл с исходной таблицей для маркетинга подготовлен");
                 }
@@ -523,7 +523,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     await Task.Run(() => dt
                     .SetColumnsOrder(columnsCollection)
-                    .ExportToExcel($"{pathToFile} MarketPivotTable.xlsx", nameSheet, TypeOfPivot.NonePivot)
+                    .ExportToExcel($"{pathToFile} MarketPivotTable.xlsx", nameSheet, TypeOfPivot.NonePivot, null, null, true)
                     );
                     textBoxLog.AppendLine("Файл со сводной таблицей для маркетинга подготовлен");
                 }
@@ -559,7 +559,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     await Task.Run(() => dt
                     .SetColumnsOrder(columnsCollection)
-                    .ExportToExcel($"{pathToFile} MarketCommonAndPivotTables.xlsx", nameSheet, TypeOfPivot.Market, redColumns, greenColumns));
+                    .ExportToExcel($"{pathToFile} MarketCommonAndPivotTables.xlsx", nameSheet, TypeOfPivot.Market, redColumns, greenColumns,true));
                     textBoxLog.AppendLine("Файл с исходными данными и сводной таблицей для маркетинга подготовлен");
                 }
                 catch (Exception err)
@@ -674,7 +674,7 @@ namespace MobileNumbersDetailizationReportGenerator
                         96-106	стоимость
                         */
                         ParsingStringDetalizationOfBill parsing = new ParsingStringDetalizationOfBill();
-                        ParsedStringOfBill parsed = new ParsedStringOfBill();
+                        ParsedContractOfBill parsed = new ParsedContractOfBill();
 
                         try
                         {
@@ -694,7 +694,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     {
                                         if (rowTarif["Номер телефона"].ToString().Contains(sNumber))
                                         {
-                                            parsed = new ParsedStringOfBill
+                                            parsed = new ParsedContractOfBill
                                             {
                                                 fio = rowTarif["ФИО"].ToString(),
                                                 nav = rowTarif["NAV"].ToString(),
@@ -2319,16 +2319,17 @@ namespace MobileNumbersDetailizationReportGenerator
             List<string> billList = LoadDataUsingParameters(new List<string> { p[1], p[2] }, parametrStart, pStop, null);
             textBoxLog.AppendLine("В прочитаном счете строк: " + billList.Count.ToString());
 
-            List<ParsedStringOfBill> parsedList = new List<ParsedStringOfBill>();
+            List<ParsedContractOfBill> parsedList = new List<ParsedContractOfBill>();
             ParsingStringDetalizationOfBill detalization = new ParsingStringDetalizationOfBill();
-            ParsedStringOfBill parsedBodyContract = new ParsedStringOfBill();
-            ParsedStringOfBill parsedHeaderContract = new ParsedStringOfBill();
+            ParsedContractOfBill parsedBodyContract = new ParsedContractOfBill();
+            ParsedContractOfBill parsedHeaderContract = new ParsedContractOfBill();
             bool headerExist = false;
             bool headerFinished = false;
             string str;
 
             foreach (var row in billList)
             {
+                //contract's Header
                 if (row.StartsWith(parametrStart))
                 {
                     headerExist = detalization.ParseHeaderContract(row);
@@ -2353,6 +2354,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     headerFinished = true;
                 }
+                //contract's body(detalization)
                 else if (headerExist && headerFinished)
                 {
                     detalization = new ParsingStringDetalizationOfBill(row, parsedHeaderContract);
@@ -2363,9 +2365,11 @@ namespace MobileNumbersDetailizationReportGenerator
             }
             detalization.status -= MessageShow;
 
-            int amount = parsedList.Select(x => x.numberOwner).Distinct().ToArray().Length;
             textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString());
+
+            int amount = parsedList.Select(x => x.numberOwner).Distinct().ToArray().Length;
             textBoxLog.AppendLine("Всего номеров: " + amount);
+
             amount = parsedList.Select(x => x.serviceName).Distinct().ToArray().Length;
             textBoxLog.AppendLine("Список сервисов: "+ amount + Environment.NewLine);
             textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.serviceName).Distinct().ToArray()));

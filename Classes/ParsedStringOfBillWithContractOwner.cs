@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-    public class ParsedStringOfBill
+    public class ParsedContractOfBill
     {
         public string contract { get; set; }
         public string numberOwner { get; set; }
@@ -41,20 +41,20 @@ namespace MobileNumbersDetailizationReportGenerator
         string detalisation;
         string Detalization { get { return detalisation; } set { detalisation = value; } }
 
-        ParsedStringOfBill ParsedString { get; set; }
+        ParsedContractOfBill ParsedString { get; set; }
 
         public ParsingStringDetalizationOfBill() { }
 
         public ParsingStringDetalizationOfBill(string detalizationString)
         { Detalization = detalizationString; }
 
-        public ParsingStringDetalizationOfBill(string detalizationString, ParsedStringOfBill parsedString)
+        public ParsingStringDetalizationOfBill(string detalizationString, ParsedContractOfBill parsedString)
         {
             Detalization = detalizationString;
             ParsedString = parsedString;
         }
 
-        public ParsingStringDetalizationOfBill(ParsedStringOfBill parsedString)
+        public ParsingStringDetalizationOfBill(ParsedContractOfBill parsedString)
         { ParsedString = parsedString; }
 
         public bool Parse()
@@ -63,7 +63,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 return false;
 
             if (ParsedString == null)
-            { ParsedString = new ParsedStringOfBill(); }
+            { ParsedString = new ParsedContractOfBill(); }
 
             status?.Invoke(this, new TextEventArgs(Detalization));
 
@@ -83,9 +83,11 @@ namespace MobileNumbersDetailizationReportGenerator
             if (!(headerContract?.Trim()?.Length > 0))
                 return false;
 
-            ParsedString = new ParsedStringOfBill();
-            ParsedString.contract = Regex.Split(headerContract.Substring(headerContract.IndexOf('№') + 1).Trim(), " ")[0].Trim();
-           
+            ParsedString = new ParsedContractOfBill
+            {
+                contract = Regex.Split(headerContract.Substring(headerContract.IndexOf('№') + 1).Trim(), " ")[0].Trim()
+            };
+
             string tempRow = headerContract.Substring(headerContract.IndexOf(':') + 1).Trim();
  
             //set format number like '+380...'
@@ -105,7 +107,7 @@ namespace MobileNumbersDetailizationReportGenerator
             return true;
         }
 
-        public ParsedStringOfBill Get()
+        public ParsedContractOfBill Get()
         { return ParsedString; }
     }
 }

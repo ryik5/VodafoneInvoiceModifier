@@ -103,7 +103,15 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="nameSheet">name of the sheet</param>
         /// <param name="columnsRedColor">caption columns which data backgroud will be filled red color</param>
         /// <param name="columnsGreenColor">caption columns which data backgroud will be filled green color</param>
-        public static void ExportToExcel(this DataTable source, string pathToFile, string nameSheet, TypeOfPivot selector, string[] columnsRedColor = null, string[] columnsGreenColor = null)
+        /// <param name="tabular">do pivot table like Tabular</param>
+        public static void ExportToExcel(
+            this DataTable source,
+            string pathToFile,
+            string nameSheet,
+            TypeOfPivot selector,
+            string[] columnsRedColor = null,
+            string[] columnsGreenColor = null,
+            bool tabular = false)
         {
             DataTable table = source;
             System.IO.FileInfo fileInfo = new System.IO.FileInfo(pathToFile);
@@ -201,7 +209,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     dataRange.AutoFitColumns();
 
                     switch (selector)
-                    {                      
+                    {
                         case TypeOfPivot.Accountant:  //Сводная из бухгалтерских данных
                             {
                                 var wsPivot = excel.Workbook.Worksheets.Add("Сводная");
@@ -211,10 +219,11 @@ namespace MobileNumbersDetailizationReportGenerator
                                     new string[] { "ФИО сотрудника", "ТАРИФНАЯ МОДЕЛЬ", "Номер телефона абонента" },
                                     new string[] { "Итого по контракту, грн", "К оплате владельцем номера, грн" },
                                     new string[] { },
-                                    new string[] { "Подразделение" }
+                                    new string[] { "Подразделение" },
+                                    tabular
                                     );
                                 break;
-                            }                       
+                            }
                         case TypeOfPivot.Market: // Сводная из данных для маркетинга
                             {
                                 var wsPivot = excel.Workbook.Worksheets.Add("Сводная");
@@ -224,7 +233,8 @@ namespace MobileNumbersDetailizationReportGenerator
                                     new string[] { },
                                     new string[] { "Суммарно, МБ", "Количество" },
                                     new string[] { },
-                                    new string[] { "Подразделение", "ФИО", "Номер телефона" }
+                                    new string[] { "Подразделение", "ФИО", "Номер телефона" },
+                                    tabular
                                     );
                                 break;
                             }
@@ -255,25 +265,44 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="dataFileds">список колонок из DataTable для рассчета вычисляемых данных (их названия идут в список колонок)</param>
         /// <param name="columnFileds">список колонок из DataTable для колонок сводной таблицы</param>
         /// <param name="rowFileds">список колонок из DataTable для формирования строк сводной таблицы</param>
+        /// <param name="tabular">do pivot table like Tabular</param>
         /// <returns></returns>
         public static ExcelPivotTable AddPivotTable(this ExcelPivotTable table,
             string nameTable,
             string[] pageFields,
             string[] dataFileds,
             string[] columnFileds,
-            string[] rowFileds
+            string[] rowFileds,
+            bool tabular = false
             )
         {
             var pivotTable = table;
 
-            pivotTable.MultipleFieldFilters = true;
-            pivotTable.RowGrandTotals = true;
-            pivotTable.ColumGrandTotals = true;
-            pivotTable.Compact = true;
-            pivotTable.CompactData = true;
-            pivotTable.GridDropZones = false;
+            if (tabular)
+            {
+                pivotTable.Compact = false;
+                pivotTable.CompactData = false;
+                pivotTable.Indent = 0;
+                pivotTable.RowGrandTotals = false;
+                pivotTable.ShowMemberPropertyTips = false;
             pivotTable.Outline = false;
             pivotTable.OutlineData = false;
+            }
+            else
+            {
+                pivotTable.Compact = true;
+                pivotTable.CompactData = true;
+                pivotTable.RowGrandTotals = true;
+                pivotTable.Outline = true;
+                pivotTable.OutlineData = true;
+            }
+
+
+            pivotTable.MultipleFieldFilters = true;
+            pivotTable.ColumGrandTotals = true;
+            pivotTable.GridDropZones = false;
+
+
             pivotTable.ShowError = true;
             pivotTable.ErrorCaption = "[error]";
             pivotTable.ShowHeaders = true;
@@ -288,13 +317,21 @@ namespace MobileNumbersDetailizationReportGenerator
             //Filter(PageFields)
             if (pageFields?.Length > 0)
             {
-                foreach (var field in pageFields)
+                foreach (var columnName in pageFields)
                 {
-                    if (field.Trim()?.Length > 0)
+                    if (columnName.Trim()?.Length > 0)
                     {
-                        var pageField = pivotTable.Fields[field];//Дата счета
-                        pageField.Sort = eSortType.Ascending;
-                        pivotTable.PageFields.Add(pageField);
+                        var field = pivotTable.Fields[columnName];//Дата счета
+                        field.Sort = eSortType.Ascending;
+                        if (tabular)
+                        {
+                            field.Outline = false;
+                            field.Compact = false;
+                            field.ShowAll = false;
+                            field.SubtotalTop = false;
+                        }
+
+                        pivotTable.PageFields.Add(field);
                     }
                 }
             }
@@ -302,17 +339,30 @@ namespace MobileNumbersDetailizationReportGenerator
             //Вычисляемые данные(DataFields)
             if (dataFileds?.Length > 0)
             {
-                foreach (var field in dataFileds)
+                foreach (var columnName in dataFileds)
                 {
-                    if (field.Trim()?.Length > 0)
+                    if (columnName.Trim()?.Length > 0)
                     {
-                        var dataField = pivotTable.DataFields.Add(pivotTable.Fields[field]); //"Суммарно, МБ" - имя вычисляемой колонки
-                        dataField.Name = field;
+                        var field = pivotTable.Fields[columnName];
+                        if (tabular)
+                        {
+                            field.Outline = false;
+                            field.Compact = false;
+                            field.ShowAll = false;
+                            field.SubtotalTop = false;
+                        }
+                        else
+                        {
+                            field.Compact = true;
+                            field.Outline = true;                     //Отображать результат в колонках 
+                            field.ShowInFieldList = true;                 //Отображать результат в колонках
+                        }
+
+                        var dataField = pivotTable.DataFields.Add(field); //"Суммарно, МБ" - имя вычисляемой колонки
+                        dataField.Name = columnName;
                         dataField.Function = DataFieldFunctions.Sum; //результат - сумма данных в ячейках
                         dataField.Field.SubTotalFunctions = eSubTotalFunctions.Sum; //результат - сумма данных в ячейках
                         dataField.Format = "0.00";
-                        dataField.Field.Outline = true;                     //Отображать результат в колонках 
-                        dataField.Field.ShowInFieldList = true;                 //Отображать результат в колонках
                     }
                 }
             }
@@ -320,12 +370,19 @@ namespace MobileNumbersDetailizationReportGenerator
             //Columns(ColumnFields)
             if (columnFileds?.Length > 0)
             {
-                foreach (var field in columnFileds)
+                foreach (var columnName in columnFileds)
                 {
-                    if (field.Trim()?.Length > 0)
+                    if (columnName.Trim()?.Length > 0)
                     {
-                        //var columnField = 
-                        pivotTable.ColumnFields.Add(pivotTable.Fields[field]);
+                        var field = pivotTable.Fields[columnName];
+                        if (tabular)
+                        {
+                            field.Outline = false;
+                            field.Compact = false;
+                            field.ShowAll = false;
+                            field.SubtotalTop = false;
+                        }
+                        pivotTable.ColumnFields.Add(field);
                     }
                 }
             }
@@ -333,12 +390,21 @@ namespace MobileNumbersDetailizationReportGenerator
             //Rows(Caption)
             if (rowFileds?.Length > 0)
             {
-                foreach (var field in rowFileds)
+                foreach (var columnName in rowFileds)
                 {
-                    if (field.Trim()?.Length > 0)
+                    if (columnName.Trim()?.Length > 0)
                     {
-                        var rowField = pivotTable.RowFields.Add(pivotTable.Fields[field]);
+                        var field = pivotTable.Fields[columnName];
+                        var rowField = pivotTable.RowFields.Add(field);
                         rowField.Sort = eSortType.Ascending;
+
+                        if (tabular)
+                        {
+                            field.Outline = false;
+                            field.Compact = false;
+                            field.ShowAll = false;
+                            field.SubtotalTop = false;
+                        }
                     }
                 }
             }
