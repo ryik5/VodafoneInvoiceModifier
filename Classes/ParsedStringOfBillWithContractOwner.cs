@@ -57,7 +57,7 @@ namespace MobileNumbersDetailizationReportGenerator
         public ParsingStringDetalizationOfBill(ParsedContractOfBill parsedString)
         { ParsedString = parsedString; }
 
-        public bool Parse()
+        public bool ParseRowFromTheBodyDetalizationContract()
         {
             if (!(Detalization?.Length>0)|| Detalization?.Length < 102)
                 return false;
@@ -95,15 +95,15 @@ namespace MobileNumbersDetailizationReportGenerator
             { ParsedString.numberOwner = tempRow; }
             else
             { ParsedString.numberOwner = "+" + tempRow; }
-            
+
             //   "Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
             //    "Возможно поменялся формат." + Environment.NewLine +
             //    "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
-            //    NUMBER_OF_CONTRACT + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
-            //    "Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
+            //    @"Моб.номер" + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
+            //    @"Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
             //    "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
             //    row + Environment.NewLine + "Ошибка: " + err.ToString()
-            
+
             return true;
         }
 

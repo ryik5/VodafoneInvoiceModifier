@@ -37,16 +37,14 @@ namespace MobileNumbersDetailizationReportGenerator
         string pConnectionServer = ""; //string connection to MS SQL DB
         string pConnectionUserName = ""; //string connection to MS SQL DB
         string pConnectionUserPasswords = ""; //string connection to MS SQL DB
-        const string NUMBER_OF_CONTRACT = @"Контракт №";
-        const string MOBILE_NUMBER = @"Моб.номер";
-        const string NAME_OF_TARIF = @"Ціновий Пакет";
-        readonly string[] p = new string[] //Features of the mobile contract and db that have the values
+        
+        string[] p = new string[] //Features of the mobile contract and db that have the values
        {
             // со счета
             @"Владелец",                                        //0     //owner
-            NUMBER_OF_CONTRACT,                                    //1     //number of contract
-            MOBILE_NUMBER,                                             //2     //number
-            NAME_OF_TARIF,                                      //3     //name of tarif package
+            @"Контракт №",                                    //1     //number of contract
+            @"Моб.номер",                                             //2     //number
+            @"Ціновий Пакет",                                      //3     //name of tarif package
             @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА",                 //4     //cost of package
             @"ПОСЛУГИ МІЖНАРОДНОГО РОУМІНГУ",                   //5     //rouming -суммарно
             @"ЗНИЖКИ",                                          //6     //discount
@@ -79,7 +77,7 @@ namespace MobileNumbersDetailizationReportGenerator
             @"GPRS",                                        //29        //GPRS
             @"CDMA"                                        //30         //CDMA
        };
-        
+
         StringBuilder sbError = new StringBuilder();
         DataTable dtMobile = new DataTable("MobileData");
         readonly DataColumn[] dcMobile ={
@@ -327,7 +325,7 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 dt
                     .SetColumnsOrder(columnsCollection)
-                    .ExportToExcel(pathToFile, nameSheet, pivot, redColumns, greenColumns,true);
+                    .ExportToExcel(pathToFile, nameSheet, pivot, redColumns, greenColumns, true);
             }
             textBoxLog.Clear();
             textBoxLog.AppendLine($"Отчет готов и сохранен:{Environment.NewLine}{pathToFile}");
@@ -466,7 +464,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     await Task.Run(() =>
                        dt
                         .SetColumnsOrder(columnsCollection)
-                        .ExportToExcel($"{pathToFile} MarketCommonTable.xlsx", nameSheet, TypeOfPivot.NonePivot,null,null,true));
+                        .ExportToExcel($"{pathToFile} MarketCommonTable.xlsx", nameSheet, TypeOfPivot.NonePivot, null, null, true));
 
                     textBoxLog.AppendLine("Файл с исходными данными для маркетинга подготовлен");
                 }
@@ -559,7 +557,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     await Task.Run(() => dt
                     .SetColumnsOrder(columnsCollection)
-                    .ExportToExcel($"{pathToFile} MarketCommonAndPivotTables.xlsx", nameSheet, TypeOfPivot.Market, redColumns, greenColumns,true));
+                    .ExportToExcel($"{pathToFile} MarketCommonAndPivotTables.xlsx", nameSheet, TypeOfPivot.Market, redColumns, greenColumns, true));
                     textBoxLog.AppendLine("Файл с исходными данными и сводной таблицей для маркетинга подготовлен");
                 }
                 catch (Exception err)
@@ -600,9 +598,6 @@ namespace MobileNumbersDetailizationReportGenerator
             string numberMobile = "";
             string tempRow;
             string exceptedStringContains = @". . .";
-            // NUMBER_OF_CONTRACT,       //1     //number of contract
-            // MOBILE_NUMBER,           //2     //number
-            // NAME_OF_TARIF,            //3     //name of tarif package
 
             p[1] = ControlReturnText(textBoxP1);
             p[2] = ControlReturnText(textBoxP2);
@@ -652,7 +647,7 @@ namespace MobileNumbersDetailizationReportGenerator
                             MessageShow("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
                                 "Возможно поменялся формат." + Environment.NewLine +
                                 "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
-                                NUMBER_OF_CONTRACT + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
+                                @"Контракт №" + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
                                 "Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
                                 "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
                                 sRowBill + Environment.NewLine +
@@ -707,7 +702,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     }
 
                                     parsing = new ParsingStringDetalizationOfBill(sRowBill, parsed);
-                                    parsing.Parse();
+                                    parsing.ParseRowFromTheBodyDetalizationContract();
                                     parsed = parsing.Get();
 
                                     //for dump
@@ -881,7 +876,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
                                     if (startLoadData && loadedString?.Trim()?.Length > 0)
                                     {
-                                        if (listParameters.Count > 2)
+                                        if (listParameters?.Count > 2)
                                         {
                                             foreach (string parameterString in listParameters)
                                             {
@@ -2316,51 +2311,80 @@ namespace MobileNumbersDetailizationReportGenerator
 
             textBoxLog.Visible = false;
 
-            List<string> billList = LoadDataUsingParameters(new List<string> { p[1], p[2] }, parametrStart, pStop, null);
+            List<string> billList = LoadDataUsingParameters(null, parametrStart, pStop, null);
             textBoxLog.AppendLine("В прочитаном счете строк: " + billList.Count.ToString());
 
             List<ParsedContractOfBill> parsedList = new List<ParsedContractOfBill>();
             ParsingStringDetalizationOfBill detalization = new ParsingStringDetalizationOfBill();
             ParsedContractOfBill parsedBodyContract = new ParsedContractOfBill();
             ParsedContractOfBill parsedHeaderContract = new ParsedContractOfBill();
-            bool headerExist = false;
+            StringOfDetalizationsOfContract contract = new StringOfDetalizationsOfContract();
+            bool headerCorrect = false;
             bool headerFinished = false;
-            string str;
+            bool firstStringAtDetalizationContract = false;
 
             foreach (var row in billList)
             {
+
                 //contract's Header
                 if (row.StartsWith(parametrStart))
                 {
-                    headerExist = detalization.ParseHeaderContract(row);
-                    headerFinished = false;
-                    parsedHeaderContract = detalization.Get();
-
-                    //MessageShow("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
-                    //    "Возможно поменялся формат." + Environment.NewLine +
-                    //    "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
-                    //    NUMBER_OF_CONTRACT + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
-                    //    "Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
-                    //    "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
-                    //    row + Environment.NewLine +
-                    //    "Ошибка: " + err.ToString()
-                    //    );
+                    contract = StringOfDetalizationsOfContract.FirstRow;
+                }
+                else if (row.StartsWith(p[3]))
+                {
+                    contract = StringOfDetalizationsOfContract.Header;
+                    continue;
                 }
                 else if (row.StartsWith(pStop))
                 {
+                    contract = StringOfDetalizationsOfContract.Stop;
                     break;
                 }
-                else if (headerExist && row.StartsWith(p[7]))
+                else if (row.StartsWith(p[7]))
                 {
-                    headerFinished = true;
+                    contract = StringOfDetalizationsOfContract.Body;
+                    //строку обработать
+                    continue;
                 }
-                //contract's body(detalization)
-                else if (headerExist && headerFinished)
+                /
+         @"Ціновий Пакет",                                      //3     //name of tarif package
+            @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)",           //7     //total without tax and pf
+
+
+                switch (contract)
                 {
-                    detalization = new ParsingStringDetalizationOfBill(row, parsedHeaderContract);
-                    detalization.Parse();
-                    parsedBodyContract = detalization.Get();
-                    parsedList.Add(parsedBodyContract);
+                    case StringOfDetalizationsOfContract.FirstRow:
+                        {
+                            //Parse the Contract's first row Header of detalization
+                            headerCorrect = detalization.ParseHeaderContract(row);
+                            parsedHeaderContract = detalization.Get();
+                            //    ("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
+                            //    "Возможно поменялся формат." + Environment.NewLine +
+                            //    "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
+                            //    @"Контракт №" + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
+                            //    "Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
+                            //    "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
+                            //    row + Environment.NewLine + "Ошибка: " + err.ToString());
+                            break;
+                        }
+                    case StringOfDetalizationsOfContract.Header: //If Contract was started but the its header isn't finished yet
+                        {
+                            //Parse start of Contract's Header of detalization
+                            //it is contract's header parsing
+                            break;
+                        }
+                    case StringOfDetalizationsOfContract.Body:  //If Contract was started, its header finished but detalization isn't finished yet
+                        {
+                            //it is contract's body detalization parsing
+                            detalization = new ParsingStringDetalizationOfBill(row, parsedHeaderContract);
+                            detalization.ParseRowFromTheBodyDetalizationContract();
+                            parsedBodyContract = detalization.Get();
+                            parsedList.Add(parsedBodyContract);
+                            break;
+                        }
+                    case StringOfDetalizationsOfContract.Stop:
+                        break;
                 }
             }
             detalization.status -= MessageShow;
@@ -2371,15 +2395,26 @@ namespace MobileNumbersDetailizationReportGenerator
             textBoxLog.AppendLine("Всего номеров: " + amount);
 
             amount = parsedList.Select(x => x.serviceName).Distinct().ToArray().Length;
-            textBoxLog.AppendLine("Список сервисов: "+ amount + Environment.NewLine);
+            textBoxLog.AppendLine("Список сервисов: " + amount + Environment.NewLine);
             textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.serviceName).Distinct().ToArray()));
 
             textBoxLog.Visible = true;
         }
+
 
         private string MessageWrite(object sender, TextEventArgs e)
         { return e.Message; }
 
 
     }
+
+    public enum StringOfDetalizationsOfContract
+    {
+        None = 0,
+        FirstRow = 1,
+        Header = 4,
+        Body = 8,
+        Stop = 16
+    }
+
 }
