@@ -112,6 +112,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ParserDetalization.cs" />
     <Compile Include="Classes\UnUsedColumnInfo.cs" />
     <Compile Include="Classes\UnUsedDataTableExtensions.cs" />
     <Compile Include="Classes\ListExtensions.cs" />

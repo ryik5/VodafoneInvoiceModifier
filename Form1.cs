@@ -29,16 +29,16 @@ namespace MobileNumbersDetailizationReportGenerator
         string dataStart = ""; // дата начала периода счета
         string dataEnd = "";  // дата конца периода счета
         string periodInvoice = ""; //Период
-        bool checkRahunok = false;
-        bool checkNomerRahunku = false;
-        bool checkPeriod = false;
+        bool checkedRahunok = false;
+        bool checkedNomerRahunku = false;
+        bool checkedPeriod = false;
 
         //  private string pConnection = ""; //string connection to MS SQL DB
         string pConnectionServer = ""; //string connection to MS SQL DB
         string pConnectionUserName = ""; //string connection to MS SQL DB
         string pConnectionUserPasswords = ""; //string connection to MS SQL DB
         
-        string[] p = new string[] //Features of the mobile contract and db that have the values
+        string[] parsers = new string[] //Features of the mobile contract and db that have the values
        {
             // со счета
             @"Владелец",                                        //0     //owner
@@ -599,13 +599,13 @@ namespace MobileNumbersDetailizationReportGenerator
             string tempRow;
             string exceptedStringContains = @". . .";
 
-            p[1] = ControlReturnText(textBoxP1);
-            p[2] = ControlReturnText(textBoxP2);
+            parsers[1] = ControlReturnText(textBoxP1);
+            parsers[2] = ControlReturnText(textBoxP2);
 
             List<string> filterBill = new List<string>
             {
-                p[1],
-                p[2]
+                parsers[1],
+                parsers[2]
             };
 
             if (listServices?.Count == 0) { listServices = listSavedServices; }
@@ -630,7 +630,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 //todo parsing strings of the filtered bill
                 foreach (string sRowBill in loadedBillWithServicesFiltered)
                 {
-                    if (sRowBill.StartsWith(p[1]))
+                    if (sRowBill.StartsWith(parsers[1]))
                     {
                         try
                         {
@@ -810,9 +810,9 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private List<string> LoadDataUsingParameters(List<string> listParameters, string startStringLoad, string endStringLoad, string excepted) //max List length = 500 000 rows
         {
-            checkRahunok = false;
-            checkNomerRahunku = false;
-            checkPeriod = false;
+            checkedRahunok = false;
+            checkedNomerRahunku = false;
+            checkedPeriod = false;
             int? countParameters = listParameters?.Count;
             int countStepProgressBar = 500;
             int listMaxLength = 500000;
@@ -860,13 +860,13 @@ namespace MobileNumbersDetailizationReportGenerator
                                 while ((loadedString = Reader?.ReadLine()?.Trim()) != null && !endLoadData && listRows.Count < listMaxLength)
                                 {
                                     //Set label Date
-                                    if (loadedString.Contains("Особовий рахунок")) { checkRahunok = true; }
-                                    if (loadedString.Contains("Номер рахунку")) { checkNomerRahunku = true; }
+                                    if (loadedString.Contains("Особовий рахунок")) { checkedRahunok = true; }
+                                    if (loadedString.Contains("Номер рахунку")) { checkedNomerRahunku = true; }
                                     if (loadedString.Contains("Розрахунковий період"))
                                     {
                                         string[] substrings = Regex.Split(loadedString, ": ");
                                         periodInvoice = substrings[substrings.Length - 1].Trim();
-                                        checkPeriod = true;
+                                        checkedPeriod = true;
                                     }
 
                                     if (loadedString.StartsWith(startStringLoad))
@@ -903,7 +903,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                 }
                             }
 
-                            if (checkPeriod && checkRahunok && checkNomerRahunku)
+                            if (checkedPeriod && checkedRahunok && checkedNomerRahunku)
                             {
                                 ControlSetItsText(labelPeriod, periodInvoice);
                             }
@@ -957,13 +957,13 @@ namespace MobileNumbersDetailizationReportGenerator
 
             infoStatusBar = "";
             //Чтение параметров парсинга с textbox`es
-            p[1] = textBoxP1.Text;
-            p[2] = textBoxP2.Text;
-            p[3] = textBoxP3.Text;
-            p[4] = textBoxP4.Text;
-            p[5] = textBoxP5.Text;
-            p[6] = textBoxP6.Text;
-            p[7] = textBoxP7.Text;
+            parsers[1] = textBoxP1.Text;
+            parsers[2] = textBoxP2.Text;
+            parsers[3] = textBoxP3.Text;
+            parsers[4] = textBoxP4.Text;
+            parsers[5] = textBoxP5.Text;
+            parsers[6] = textBoxP6.Text;
+            parsers[7] = textBoxP7.Text;
             pStop = textBoxP8.Text;
 
             StatusLabel1.Text = "Обрабатываю исходные данные...";
@@ -1217,11 +1217,11 @@ namespace MobileNumbersDetailizationReportGenerator
                                     pBillDeliveryCostDiscount = ParseParameterNameAndValueFromReadString("=", s, pBillDeliveryCostDiscount);
                                 }
 
-                                for (int i = 0; i < p?.Length; i++)
+                                for (int i = 0; i < parsers?.Length; i++)
                                 {
                                     if (s.StartsWith($"p{i.ToString()}="))
                                     {
-                                        p[i] = ParseParameterNameAndValueFromReadString("=", s);
+                                        parsers[i] = ParseParameterNameAndValueFromReadString("=", s);
                                     }
                                 }
                             }
@@ -1242,13 +1242,13 @@ namespace MobileNumbersDetailizationReportGenerator
                 toolTip1.SetToolTip(groupBox1, info);
             }
 
-            textBoxP1.Text = p[1];
-            textBoxP2.Text = p[2];
-            textBoxP3.Text = p[3];
-            textBoxP4.Text = p[4];
-            textBoxP5.Text = p[5];
-            textBoxP6.Text = p[6];
-            textBoxP7.Text = p[7];
+            textBoxP1.Text = parsers[1];
+            textBoxP2.Text = parsers[2];
+            textBoxP3.Text = parsers[3];
+            textBoxP4.Text = parsers[4];
+            textBoxP5.Text = parsers[5];
+            textBoxP6.Text = parsers[6];
+            textBoxP7.Text = parsers[7];
             textBoxP8.Text = pStop;
             if (!(pConnectionServer?.Length > 1 && pConnectionUserName?.Length > 1 && pConnectionUserPasswords?.Length > 1))
             {
@@ -1362,10 +1362,10 @@ namespace MobileNumbersDetailizationReportGenerator
                 sb.AppendLine(@"; " + @"Author " + myFileVersionInfo.LegalCopyright);
                 sb.AppendLine(@"");
 
-                for (int i = 0; i < p.Length; i++)
+                for (int i = 0; i < parsers.Length; i++)
                 {
-                    if (p[i]?.Length > 0)
-                    { sb.AppendLine("p" + i + "=" + p[i]); }
+                    if (parsers[i]?.Length > 0)
+                    { sb.AppendLine("p" + i + "=" + parsers[i]); }
                     else { sb.AppendLine("p" + i + "="); }
                 }
 
@@ -1463,13 +1463,13 @@ namespace MobileNumbersDetailizationReportGenerator
                                 ControlSetItsText(labelPeriod, periodInvoice);
                             }
 
-                            if (s.Contains(p[1]))
+                            if (s.Contains(parsers[1]))
                             {
                                 mystatusbegin = true;
                                 i++;
                             }
 
-                            foreach (string contractCollectedData in p)
+                            foreach (string contractCollectedData in parsers)
                             {
                                 if ((s.Contains(contractCollectedData) || s.Contains(pStop)) && mystatusbegin)
                                 {
@@ -1496,12 +1496,12 @@ namespace MobileNumbersDetailizationReportGenerator
 
                     Dictionary<string, int> countParser = new Dictionary<string, int>();
 
-                    foreach (string parser in p)
+                    foreach (string parser in parsers)
                     { countParser.Add(parser, 0); }
 
                     foreach (string str in listTempContract.ToArray())
                     {
-                        foreach (string parser in p)
+                        foreach (string parser in parsers)
                         {
                             if (str.Contains(parser))
                             {
@@ -1510,16 +1510,16 @@ namespace MobileNumbersDetailizationReportGenerator
                         }
                     }
 
-                    if (!(countParser[p[1]] != 0 &&                   //Количество контрактов должно быть больше нуля
-                        countParser[p[1]] == countParser[p[2]] &&   //Количество контрактов должно соответствовать 
-                        countParser[p[2]] == countParser[p[3]]))     //количеству номеров и наименованию тарифных пакетов
+                    if (!(countParser[parsers[1]] != 0 &&                   //Количество контрактов должно быть больше нуля
+                        countParser[parsers[1]] == countParser[parsers[2]] &&   //Количество контрактов должно соответствовать 
+                        countParser[parsers[2]] == countParser[parsers[3]]))     //количеству номеров и наименованию тарифных пакетов
                     {
                         ChosenFile = false;
                         string message = "Счет для анализа выбран с некорректными парсерами." + Environment.NewLine +
                                          "Количество этих параметров должны быть одинаковое и больше нуля:" + Environment.NewLine +
-                                         "'" + p[1] + @"' =  " + countParser[p[1]] + Environment.NewLine +
-                                         "'" + p[2] + @"' =  " + countParser[p[2]] + Environment.NewLine +
-                                         "'" + p[3] + @"' =  " + countParser[p[3]];
+                                         "'" + parsers[1] + @"' =  " + countParser[parsers[1]] + Environment.NewLine +
+                                         "'" + parsers[2] + @"' =  " + countParser[parsers[2]] + Environment.NewLine +
+                                         "'" + parsers[3] + @"' =  " + countParser[parsers[3]];
                         MessageBox.Show(message);
                         StatusLabel1.ToolTipText = message;
                     }
@@ -1665,7 +1665,7 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 foreach (string s in listTempContract.ToArray())
                 {
-                    if (s.Contains(p[1]) || s.Contains(pStop))  //Начало учетов парсеров каждого кокретного контракта после упоминания ключевого слова в переменной 'p[1]'
+                    if (s.Contains(parsers[1]) || s.Contains(pStop))  //Начало учетов парсеров каждого кокретного контракта после упоминания ключевого слова в переменной 'p[1]'
                     {
                         //Начало учетов парсеров контракта начинаем после упоминания ключевого слова в переменной 'p[1]'
                         //перед началов учета парсеров этого контракта сначала записываем все собранные данные по предыдущему контракту
@@ -1734,37 +1734,37 @@ namespace MobileNumbersDetailizationReportGenerator
                         substrings = s.Split('№')[s.Split('№').Length - 1].Trim().Split(' ');
                         mcpCurrent.Сontract = substrings[0].Trim();
 
-                        if (s.Contains(p[2]))
+                        if (s.Contains(parsers[2]))
                         {
                             substrings = s.Split(':')[s.Split(':').Length - 1].Trim().Split(' ');
                             mcpCurrent.CellNumber = substrings[substrings.Length - 1].Trim();
                         }
                     }
-                    else if (s.Contains(p[3]))
+                    else if (s.Contains(parsers[3]))
                     {
                         substrings = s.Split(':');
                         mcpCurrent.NumberTarifPackageName = substrings[substrings.Length - 1].Trim();
                     }
-                    else if (s.Contains(p[4]))
+                    else if (s.Contains(parsers[4]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.NumberMonthCost = Convert.ToDouble(Regex.Replace(temp, "[,]",
                             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * amountBillAfterDiscount * 1.275;
                     }
-                    else if (s.Contains(p[5]))
+                    else if (s.Contains(parsers[5]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.RoamingSummary = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
-                    else if (s.Contains(p[6]))
+                    else if (s.Contains(parsers[6]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.ContractDiscount = Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                     }
-                    else if (s.Contains(p[7]))
+                    else if (s.Contains(parsers[7]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
@@ -1772,37 +1772,37 @@ namespace MobileNumbersDetailizationReportGenerator
                         isCheckFinishedTitles = true;
                         isUsedCurrent = false;
                     }
-                    else if (s.Contains(p[11]))
+                    else if (s.Contains(parsers[11]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.RomingDetalization += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
-                    else if (s.Contains(p[12]))
+                    else if (s.Contains(parsers[12]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.PaidExtraOfTarifPackageInternetService += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
-                    else if (s.Contains(p[13]))
+                    else if (s.Contains(parsers[13]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.PaidExtraOfTarifOutCallsToCity += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275 * amountBillAfterDiscount;
                     }
-                    else if (s.Contains(p[14]))
+                    else if (s.Contains(parsers[14]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.ExtraService += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
                     }
-                    else if (s.Contains(p[15]))
+                    else if (s.Contains(parsers[15]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
                         mcpCurrent.PaidExtraContentOfTarifPackage += Convert.ToDouble(Regex.Replace(temp, "[,]", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) * 1.275;
                     }
-                    else if (s.Contains(p[23]))
+                    else if (s.Contains(parsers[23]))
                     {
                         substrings = s.Split(' ');
                         temp = substrings[substrings.Length - 1].Trim();
@@ -2187,7 +2187,7 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
         //Save and Recover Data in Registry
-        public void ListsRegistryDataCheck() //Read previously Saved Parameters from Registry
+        public void ListsRegistryDataCheck() //Read previously Saved parsers from Registry
         {
             listSavedServices = new List<string>();
             listSavedNumbers = new List<string>();
@@ -2281,7 +2281,7 @@ namespace MobileNumbersDetailizationReportGenerator
             }
         }
 
-        public void ParameterLastInvoiceRegistrySave() //Save Parameters into Registry and variables
+        public void ParameterLastInvoiceRegistrySave() //Save parsers into Registry and variables
         {
             try
             {
@@ -2306,88 +2306,23 @@ namespace MobileNumbersDetailizationReportGenerator
         private void AnalyzeBill()
         {
             textBoxLog.Clear();
-            p[1] = ControlReturnText(textBoxP1);
-            p[2] = ControlReturnText(textBoxP2);
-
             textBoxLog.Visible = false;
-
             List<string> billList = LoadDataUsingParameters(null, parametrStart, pStop, null);
             textBoxLog.AppendLine("В прочитаном счете строк: " + billList.Count.ToString());
 
-            List<ParsedContractOfBill> parsedList = new List<ParsedContractOfBill>();
-            ParsingStringDetalizationOfBill detalization = new ParsingStringDetalizationOfBill();
-            ParsedContractOfBill parsedBodyContract = new ParsedContractOfBill();
-            ParsedContractOfBill parsedHeaderContract = new ParsedContractOfBill();
-            StringOfDetalizationsOfContract contract = new StringOfDetalizationsOfContract();
-            bool headerCorrect = false;
-            bool headerFinished = false;
-            bool firstStringAtDetalizationContract = false;
+            parsers[1] = ControlReturnText(textBoxP1);
+            parsers[2] = ControlReturnText(textBoxP2);
 
-            foreach (var row in billList)
-            {
+             List<string> parsersList = parsers.ToList();
+            parsersList.Add(pStop);
+            parsersList.Add(pBillDeliveryCost);
+            parsersList.Add(pBillDeliveryCostDiscount);
 
-                //contract's Header
-                if (row.StartsWith(parametrStart))
-                {
-                    contract = StringOfDetalizationsOfContract.FirstRow;
-                }
-                else if (row.StartsWith(p[3]))
-                {
-                    contract = StringOfDetalizationsOfContract.Header;
-                    continue;
-                }
-                else if (row.StartsWith(pStop))
-                {
-                    contract = StringOfDetalizationsOfContract.Stop;
-                    break;
-                }
-                else if (row.StartsWith(p[7]))
-                {
-                    contract = StringOfDetalizationsOfContract.Body;
-                    //строку обработать
-                    continue;
-                }
-                /
-         @"Ціновий Пакет",                                      //3     //name of tarif package
-            @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)",           //7     //total without tax and pf
+            string[] parsersBill = parsersList.ToArray();
 
+            ParserDetalization parsedDetalization = new ParserDetalization(billList, parsersBill,parametrStart,pStop);
 
-                switch (contract)
-                {
-                    case StringOfDetalizationsOfContract.FirstRow:
-                        {
-                            //Parse the Contract's first row Header of detalization
-                            headerCorrect = detalization.ParseHeaderContract(row);
-                            parsedHeaderContract = detalization.Get();
-                            //    ("Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
-                            //    "Возможно поменялся формат." + Environment.NewLine +
-                            //    "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
-                            //    @"Контракт №" + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
-                            //    "Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
-                            //    "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
-                            //    row + Environment.NewLine + "Ошибка: " + err.ToString());
-                            break;
-                        }
-                    case StringOfDetalizationsOfContract.Header: //If Contract was started but the its header isn't finished yet
-                        {
-                            //Parse start of Contract's Header of detalization
-                            //it is contract's header parsing
-                            break;
-                        }
-                    case StringOfDetalizationsOfContract.Body:  //If Contract was started, its header finished but detalization isn't finished yet
-                        {
-                            //it is contract's body detalization parsing
-                            detalization = new ParsingStringDetalizationOfBill(row, parsedHeaderContract);
-                            detalization.ParseRowFromTheBodyDetalizationContract();
-                            parsedBodyContract = detalization.Get();
-                            parsedList.Add(parsedBodyContract);
-                            break;
-                        }
-                    case StringOfDetalizationsOfContract.Stop:
-                        break;
-                }
-            }
-            detalization.status -= MessageShow;
+            parsedDetalization.status -= MessageShow;
 
             textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString());
 
