@@ -65,6 +65,18 @@ namespace MobileNumbersDetailizationReportGenerator
         public ParsedHeaderOfContract ParsedHeaderOfContract { get; set; }
     }
 
+    public class ParsedContractFullInfo: ParsedContractOfBillDetalization
+    {
+
+        //From DB
+        public string FIO { get; set; }
+        public string NAV { get; set; }
+        public string Department { get; set; }
+
+        public string ModelCompensation { get; set; }
+
+    }
+
     public class ParsedContractOfBill : ParsedStringOfBodyOfContract
     {
         public string contract { get; set; }
