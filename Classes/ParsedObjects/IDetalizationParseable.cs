@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-    public class ServiceInDetalization
+    public interface IParseable
     {
-        public string Name { get; set; }
+        void Parse();
 
-        public double Amount { get; set; }
     }
 }

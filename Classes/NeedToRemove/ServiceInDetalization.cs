@@ -6,10 +6,5 @@ using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-    public interface IDetalizationParseable<T>
-    {
-        void Parse();
 
-     //   List<T> InputList { get; set; }
-    }
 }

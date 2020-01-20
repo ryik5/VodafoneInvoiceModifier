@@ -1429,10 +1429,10 @@ namespace MobileNumbersDetailizationReportGenerator
                             else if (s.Contains("Номер рахунку"))
                             {
                                 string[] substrings = Regex.Split(s, ":| ");
-                                invoice.Nubmer = substrings[substrings.Length - 3].Trim();
+                                invoice.NumberBill = substrings[substrings.Length - 3].Trim();
 
                                 ControlVisibleEnabled(labelBill, true);
-                                ControlSetItsText(labelBill, invoice.Nubmer);
+                                ControlSetItsText(labelBill, invoice.NumberBill);
                             }
                             else if (s.Contains(pStop)) //finished to look for contracts and start data for the bill's delivery cost
                             {
@@ -1457,7 +1457,7 @@ namespace MobileNumbersDetailizationReportGenerator
                             {
                                 string[] substrings = Regex.Split(s, ": ");
                                 periodInvoice = substrings[substrings.Length - 1].Trim();
-                                invoice.Period = periodInvoice;
+                                invoice.PeriodBilling = periodInvoice;
 
                                 ControlVisibleEnabled(labelPeriod, true);
                                 ControlSetItsText(labelPeriod, periodInvoice);
@@ -2320,7 +2320,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             string[] parsersBill = parsersList.ToArray();
 
-            IDetalizationParseable<ParsedContract> parsedBill = new ParsedBilL();
+            IParseable parsedBill = new ParsedBill();
 
 
             ParserDetalization parsedDetalization = new ParserDetalization(billList, parsersBill,parametrStart,pStop);

@@ -61,7 +61,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     //строку обработать
                     continue;
                 }
-                /
+                
          @"Ціновий Пакет",                                      //3     //name of tarif package
             @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)",           //7     //total without tax and pf
 
@@ -109,45 +109,5 @@ namespace MobileNumbersDetailizationReportGenerator
         }
     }
 
-    public class ParsedBilL : IDetalizationParseable<ParsedContract>
-    {
-        public List<ParsedContract> InputList { get; set; }
-
-        private List<string> bill;
-
-        public ParsedBilL(List<string> bill)
-        { this.bill = bill; }
-
-        public void Parse()
-        {
-
-        }
-
-    }
-
-    public class ParsedContract
-    {
-        public Contract ContractIdentification { get; set; }
-
-        public ParsedHeaderOfContract ParsedHeaderOfContract { get; set; }
-
-        public ParsedBodyOfContract ParsedBodyOfContract { get; set; }
-
-    }
-
-
-
-
-    public class Contract
-    {
-        public string MobileNumber { get; set; }
-
-        public string ContractId { get; set; }
-
-        public string TarifPackage { get; set; }
-
-    }
-
-
-
+   
 }
