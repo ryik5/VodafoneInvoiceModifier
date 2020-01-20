@@ -3,22 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-    public class ParsedContractOfBill
-    {
-        public string contract { get; set; }
-        public string numberOwner { get; set; }
-        public string serviceName { get; set; }
-        public string numberTarget { get; set; }
-        public string date { get; set; }
-        public string time { get; set; }
-        public string durationA { get; set; }
-        public string durationB { get; set; }
-        public string cost { get; set; }
 
-        public string fio { get; set; }
-        public string nav { get; set; }
-        public string department { get; set; }
-    }
 
     /// <summary>
     /// inline string of detalization Bill must be a char position
@@ -38,47 +23,50 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public event Status status;
 
-        string detalisation;
-        string Detalization { get { return detalisation; } set { detalisation = value; } }
+        string DetalizationString { get; set; }
 
         ParsedContractOfBill ParsedString { get; set; }
 
         public ParsingStringDetalizationOfBill() { }
 
         public ParsingStringDetalizationOfBill(string detalizationString)
-        { Detalization = detalizationString; }
+        { DetalizationString = detalizationString; }
 
         public ParsingStringDetalizationOfBill(string detalizationString, ParsedContractOfBill parsedString)
         {
-            Detalization = detalizationString;
+            DetalizationString = detalizationString;
             ParsedString = parsedString;
         }
 
         public ParsingStringDetalizationOfBill(ParsedContractOfBill parsedString)
         { ParsedString = parsedString; }
 
-        public bool ParseRowFromTheBodyDetalizationContract()
+        /// <summary>
+        /// if string of Detalization has correct's length (from 95 to) it will return true
+        /// </summary>
+        /// <returns></returns>
+        public bool ParseStringOfBodyOfContractOfBill()
         {
-            if (!(Detalization?.Length>0)|| Detalization?.Length < 102)
+            if (!(DetalizationString?.Length>0)|| DetalizationString?.Length < 102)
                 return false;
 
             if (ParsedString == null)
             { ParsedString = new ParsedContractOfBill(); }
 
-            status?.Invoke(this, new TextEventArgs(Detalization));
+            status?.Invoke(this, new TextEventArgs(DetalizationString));
 
-            ParsedString.serviceName = Detalization?.Substring(0, 38)?.Trim()??"";
-            ParsedString.numberTarget = Detalization?.Substring(38, 13)?.Trim() ?? "";
-            ParsedString.date = Detalization?.Substring(52, 10)?.Trim() ?? "";
-            ParsedString.time = Detalization?.Substring(65, 8)?.Trim() ?? "";
-            ParsedString.durationA = Detalization?.Substring(74, 9)?.Trim() ?? "";
-            ParsedString.durationB = Detalization?.Substring(84, 9)?.Trim() ?? "";
-            ParsedString.cost = Detalization?.Substring(95)?.Trim() ?? "";
+            ParsedString.ServiceName = DetalizationString?.Substring(0, 38)?.Trim()??"";
+            ParsedString.NumberTarget = DetalizationString?.Substring(38, 13)?.Trim() ?? "";
+            ParsedString.Date = DetalizationString?.Substring(52, 10)?.Trim() ?? "";
+            ParsedString.Time = DetalizationString?.Substring(65, 8)?.Trim() ?? "";
+            ParsedString.DurationA = DetalizationString?.Substring(74, 9)?.Trim() ?? "";
+            ParsedString.DurationB = DetalizationString?.Substring(84, 9)?.Trim() ?? "";
+            ParsedString.Cost = DetalizationString?.Substring(95)?.Trim() ?? "";
           
             return true;
         }
 
-        public bool ParseHeaderContract(string headerContract)
+        public bool ParseFirstStringOfHeaderOfContractOfBill(string headerContract)
         {
             if (!(headerContract?.Trim()?.Length > 0))
                 return false;

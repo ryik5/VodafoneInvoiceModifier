@@ -691,9 +691,9 @@ namespace MobileNumbersDetailizationReportGenerator
                                         {
                                             parsed = new ParsedContractOfBill
                                             {
-                                                fio = rowTarif["ФИО"].ToString(),
-                                                nav = rowTarif["NAV"].ToString(),
-                                                department = rowTarif["Подразделение"].ToString(),
+                                                FIO = rowTarif["ФИО"].ToString(),
+                                                NAV = rowTarif["NAV"].ToString(),
+                                                Department = rowTarif["Подразделение"].ToString(),
                                                 contract = contract,
                                                 numberOwner = sNumber
                                             };
@@ -702,26 +702,26 @@ namespace MobileNumbersDetailizationReportGenerator
                                     }
 
                                     parsing = new ParsingStringDetalizationOfBill(sRowBill, parsed);
-                                    parsing.ParseRowFromTheBodyDetalizationContract();
+                                    parsing.ParseStringOfBodyOfContractOfBill();
                                     parsed = parsing.Get();
 
                                     //for dump
-                                    tempRow = $"{parsed.numberOwner}\t{parsed.fio}\t{parsed.nav}\t{parsed.department}\t{parsed.serviceName}\t" +
-                                        $"{parsed.numberTarget}\t{parsed.date}\t{parsed.time}\t{parsed.durationA}\t{parsed.durationB}\t{parsed.cost}";
+                                    tempRow = $"{parsed.numberOwner}\t{parsed.FIO}\t{parsed.NAV}\t{parsed.Department}\t{parsed.ServiceName}\t" +
+                                        $"{parsed.NumberTarget}\t{parsed.Date}\t{parsed.Time}\t{parsed.DurationA}\t{parsed.DurationB}\t{parsed.Cost}";
 
                                     DataRow rowMarket = dtMarket.NewRow(); //for Market
                                     rowMarket["Контракт"] = parsed.contract;
                                     rowMarket["Номер телефона"] = parsed.numberOwner;
-                                    rowMarket["Имя сервиса"] = parsed.serviceName;
-                                    rowMarket["Номер В"] = parsed.numberTarget;
-                                    rowMarket["Дата"] = parsed.date;
-                                    rowMarket["Время"] = parsed.time;
-                                    rowMarket["Длительность А"] = parsed.durationA;
-                                    rowMarket["Длительность В"] = parsed.durationB ?? parsed.durationA;
-                                    rowMarket["Стоимость"] = parsed.cost;
-                                    rowMarket["ФИО"] = parsed.fio;
-                                    rowMarket["NAV"] = parsed.nav;
-                                    rowMarket["Подразделение"] = parsed.department;
+                                    rowMarket["Имя сервиса"] = parsed.ServiceName;
+                                    rowMarket["Номер В"] = parsed.NumberTarget;
+                                    rowMarket["Дата"] = parsed.Date;
+                                    rowMarket["Время"] = parsed.Time;
+                                    rowMarket["Длительность А"] = parsed.DurationA;
+                                    rowMarket["Длительность В"] = parsed.DurationB ?? parsed.DurationA;
+                                    rowMarket["Стоимость"] = parsed.Cost;
+                                    rowMarket["ФИО"] = parsed.FIO;
+                                    rowMarket["NAV"] = parsed.NAV;
+                                    rowMarket["Подразделение"] = parsed.Department;
 
                                     dtMarket.Rows.Add(rowMarket);
                                     countRowsInTable++;
@@ -2320,18 +2320,21 @@ namespace MobileNumbersDetailizationReportGenerator
 
             string[] parsersBill = parsersList.ToArray();
 
+            IDetalizationParseable<ParsedContract> parsedBill = new ParsedBilL();
+
+
             ParserDetalization parsedDetalization = new ParserDetalization(billList, parsersBill,parametrStart,pStop);
 
-            parsedDetalization.status -= MessageShow;
+            parsedDetalization.status += MessageShow;
 
-            textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString());
+         //   textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString());
 
-            int amount = parsedList.Select(x => x.numberOwner).Distinct().ToArray().Length;
-            textBoxLog.AppendLine("Всего номеров: " + amount);
+         //   int amount = parsedList.Select(x => x.numberOwner).Distinct().ToArray().Length;
+        //    textBoxLog.AppendLine("Всего номеров: " + amount);
 
-            amount = parsedList.Select(x => x.serviceName).Distinct().ToArray().Length;
-            textBoxLog.AppendLine("Список сервисов: " + amount + Environment.NewLine);
-            textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.serviceName).Distinct().ToArray()));
+         //   amount = parsedList.Select(x => x.serviceName).Distinct().ToArray().Length;
+        //    textBoxLog.AppendLine("Список сервисов: " + amount + Environment.NewLine);
+         //   textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.serviceName).Distinct().ToArray()));
 
             textBoxLog.Visible = true;
         }

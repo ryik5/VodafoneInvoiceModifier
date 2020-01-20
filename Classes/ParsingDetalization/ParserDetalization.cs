@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
-    public class ParserDetalization : IDetalizationParseable
+    public class ParserDetalization 
     {
+
         List<string> detalization;
         List<string> result;
         string[] parsers;
-            List<ParsedContractOfBill> parsedList = new List<ParsedContractOfBill>();
-            ParsingStringDetalizationOfBill parsed = new ParsingStringDetalizationOfBill();
-            ParsedContractOfBill parsedBodyContract = new ParsedContractOfBill();
-            ParsedContractOfBill parsedHeaderContract = new ParsedContractOfBill();
-            StringOfDetalizationsOfContract contract = new StringOfDetalizationsOfContract();
+        List<ParsedContractOfBill> parsedList = new List<ParsedContractOfBill>();
+        ParsingStringDetalizationOfBill parsed = new ParsingStringDetalizationOfBill();
+        ParsedContractOfBill parsedBodyContract = new ParsedContractOfBill();
+        ParsedContractOfBill parsedHeaderContract = new ParsedContractOfBill();
+        StringOfDetalizationsOfContract contract = new StringOfDetalizationsOfContract();
         string parametrStart, pStop;
 
         public delegate void Status(object sender, TextEventArgs e);
@@ -23,8 +24,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
 
         public ParserDetalization() { }
-        
-        public ParserDetalization(List<string> billDetalizationList, string[] parsers, string parametrStart, string pStop)
+
+        public ParserDetalization(List<string> billDetalizationList, string[] parsers, string startOfContract, string stopParsing)
         {
             detalization = billDetalizationList;
             this.parsers = parsers;
@@ -101,16 +102,52 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
             }
         }
-        
+
         public void Get()
         {
 
         }
     }
 
-   public interface IDetalizationParseable
+    public class ParsedBilL : IDetalizationParseable<ParsedContract>
     {
-        void Parse();
-        void Get();
+        public List<ParsedContract> InputList { get; set; }
+
+        private List<string> bill;
+
+        public ParsedBilL(List<string> bill)
+        { this.bill = bill; }
+
+        public void Parse()
+        {
+
+        }
+
     }
+
+    public class ParsedContract
+    {
+        public Contract ContractIdentification { get; set; }
+
+        public ParsedHeaderOfContract ParsedHeaderOfContract { get; set; }
+
+        public ParsedBodyOfContract ParsedBodyOfContract { get; set; }
+
+    }
+
+
+
+
+    public class Contract
+    {
+        public string MobileNumber { get; set; }
+
+        public string ContractId { get; set; }
+
+        public string TarifPackage { get; set; }
+
+    }
+
+
+
 }
