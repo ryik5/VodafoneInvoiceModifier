@@ -34,7 +34,7 @@ namespace MobileNumbersDetailizationReportGenerator
             bool headerFinished = false;
             bool firstStringAtDetalizationContract = false;
 
-            List<string> contractRaw;
+            List<string> contractRaw = new List<string>();
 
             foreach (var row in detalization)
             {
@@ -42,26 +42,18 @@ namespace MobileNumbersDetailizationReportGenerator
                 //contract's Header
                 if (row.StartsWith(parametrStart))
                 {
-                    contractRaw = new List<string>();
-                    contractRaw.Add(row);
+                    contractRaw = new List<string>
+                    {
+                        row
+                    };
 
-                //    contract = StringOfDetalizationsOfContract.ContractIdentification;
-                }
-                else if (row.StartsWith(parsers[3]))
-                {
-              //      contract = StringOfDetalizationsOfContract.Header;
-              //      continue;
                 }
                 else if (row.StartsWith(pStop))
                 {
-               //     contract = StringOfDetalizationsOfContract.Stop;
-            //        break;
                 }
-                else if (row.StartsWith(parsers[7]))
+                else 
                 {
-             //       contract = StringOfDetalizationsOfContract.Body;
-                    //строку обработать
-            //        continue;
+                    contractRaw.Add(row);
                 }
 
           //      @"Ціновий Пакет",                                      //3     //name of tarif package
