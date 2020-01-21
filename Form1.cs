@@ -2320,7 +2320,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             string[] parsersBill = parsersList.ToArray();
 
-            IParseable parsedBill = new ParsedBill();
+            ParsedBill parsedBill = new ParsedBill();
 
 
             ParserDetalization parsedDetalization = new ParserDetalization(billList, parsersBill,parametrStart,pStop);

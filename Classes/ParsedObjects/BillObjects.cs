@@ -13,14 +13,10 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public List<ContractOfBill> ContractsOfBill { get; set; }
 
+        public ParsedBill()        {  }
 
-        public List<string> Source;
-
-        public ParsedBill(List<string> source)
-        { this.Source = source; }
-
-    //    public void Parse()
-      //  {        }
+        //    public void Parse()
+        //  {        }
 
     }
 
@@ -36,6 +32,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public DetalizationOfContractOfBill DetalizationOfContract { get; set; }
 
+        public List<string> Source { get; set; }
     }
 
 

@@ -34,24 +34,28 @@ namespace MobileNumbersDetailizationReportGenerator
             bool headerFinished = false;
             bool firstStringAtDetalizationContract = false;
 
+            //Raw Contract data
             List<string> contractRaw = new List<string>();
+            List<ContractOfBill> contracts = new List<ContractOfBill>();
 
             foreach (var row in detalization)
             {
+                if (contractRaw?.Count > 1)
+                    contracts.Add(contractRaw);
 
                 //contract's Header
                 if (row.StartsWith(parametrStart))
                 {
-                    contractRaw = new List<string>
-                    {
-                        row
-                    };
 
+                    //run new block
+                    contractRaw = new List<string> { row };
                 }
                 else if (row.StartsWith(pStop))
                 {
+
+                    break;
                 }
-                else 
+                else
                 {
                     contractRaw.Add(row);
                 }
