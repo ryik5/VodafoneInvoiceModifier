@@ -114,9 +114,9 @@
   <ItemGroup>
     <Compile Include="Classes\NeedToRemove\ParsedContractOfBill.cs" />
     <Compile Include="Classes\ParsedObjects\IDetalizationParseable.cs" />
-    <Compile Include="Classes\ParsedObjects\AbstractParsedPartOfContractDetalization.cs" />
+    <Compile Include="Classes\ParsedObjects\AbstractPartOfContractDetalization.cs" />
     <Compile Include="Classes\ParsingDetalization\MobileNumberOwner.cs" />
-    <Compile Include="Classes\ParsedObjects\ParsedData.cs" />
+    <Compile Include="Classes\ParsedObjects\BillObjects.cs" />
     <Compile Include="Classes\ParsingDetalization\ParserDetalization.cs" />
     <Compile Include="Classes\NeedToRemove\UnUsedColumnInfo.cs" />
     <Compile Include="Classes\NeedToRemove\UnUsedDataTableExtensions.cs" />

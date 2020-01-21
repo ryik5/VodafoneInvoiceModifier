@@ -2349,7 +2349,7 @@ namespace MobileNumbersDetailizationReportGenerator
     public enum StringOfDetalizationsOfContract
     {
         None = 0,
-        FirstRow = 1,
+        ContractIdentification = 1,
         Header = 4,
         Body = 8,
         Stop = 16
