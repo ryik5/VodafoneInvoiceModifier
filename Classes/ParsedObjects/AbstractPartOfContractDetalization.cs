@@ -10,7 +10,7 @@ namespace MobileNumbersDetailizationReportGenerator
     {
         public HeaderOfContractOfBill Contract { get; set; }
 
-        public List<string> Input { get; set; }
+        public List<string> Source { get; set; }
 
         public List<T> Output { get; set; }
 
@@ -18,7 +18,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public AbstractPartOfContractDetalization(List<string> source)
         {
-            this.Input = source;
+            this.Source = source;
         }
     }
 }

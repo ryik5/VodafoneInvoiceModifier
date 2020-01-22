@@ -72,7 +72,19 @@ namespace MobileNumbersDetailizationReportGenerator
 
 
 
-    public class StringOfDetalizationOfContractOfBill
+    
+    public class HeaderOfContractOfBill 
+    {
+        public List<string> Source { get; set; }
+
+        public string ContractId { get; set; }
+
+        public string MobileNumber { get; set; }
+        
+        public string TarifPackage { get; set; }
+
+    }
+   public class StringOfDetalizationOfContractOfBill
     {
         public string ServiceName { get; set; }
         public string NumberTarget { get; set; }
@@ -82,18 +94,7 @@ namespace MobileNumbersDetailizationReportGenerator
         public string DurationB { get; set; }
         public string Cost { get; set; }
     }
-    
-    public class HeaderOfContractOfBill
-    {
-
-        public string ContractId { get; set; }
-
-        public string MobileNumber { get; set; }
-        
-        public string TarifPackage { get; set; }
-
-    }
-
+ 
     public class ServiceOfBill
     {
         public string Name { get; set; }

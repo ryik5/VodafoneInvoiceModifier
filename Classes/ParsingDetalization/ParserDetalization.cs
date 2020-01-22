@@ -8,6 +8,8 @@ namespace MobileNumbersDetailizationReportGenerator
 {
     public class ParserDetalization
     {
+        List<ContractOfBill> contracts;
+        List<string> contractRaw;
 
         List<string> detalization;
         List<string> result;
@@ -28,38 +30,39 @@ namespace MobileNumbersDetailizationReportGenerator
             this.parsers = parsers;
         }
 
-        public void Parse()
+        public void SplitBillToContracts()
         {
             bool headerCorrect = false;
             bool headerFinished = false;
             bool firstStringAtDetalizationContract = false;
 
             //Raw Contract data
-            List<string> contractRaw = new List<string>();
-            List<ContractOfBill> contracts = new List<ContractOfBill>();
+            contractRaw = new List<string>();
+            contracts = new List<ContractOfBill>();
 
             foreach (var row in detalization)
             {
-                if (contractRaw?.Count > 1)
-                    contracts.Add(contractRaw);
-
                 //contract's Header
                 if (row.StartsWith(parametrStart))
                 {
+                    if (contractRaw?.Count > 1) //if a contract already has all strings
+                    {
+                        contracts.Add(new ContractOfBill { Source = contractRaw });
+                    }
 
-                    //run new block
-                    contractRaw = new List<string> { row };
+                    //Start new Making contract
+                    contractRaw = new List<string> { row }; 
                 }
-                else if (row.StartsWith(pStop))
+                else if (row.StartsWith(pStop)) //After this parameter have no any Contract
                 {
-
+                    contracts.Add(new ContractOfBill { Source = contractRaw });
                     break;
                 }
                 else
                 {
                     contractRaw.Add(row);
                 }
-
+            }
           //      @"Ціновий Пакет",                                      //3     //name of tarif package
         //    @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)",           //7     //total without tax and pf
 
@@ -98,7 +101,26 @@ namespace MobileNumbersDetailizationReportGenerator
                 //    case StringOfDetalizationsOfContract.Stop:
                 //        break;
                 //}
-           
+                       
+        }
+
+        public void SplitContractToParts(ContractOfBill contract, string[] parsers)
+        {
+            HeaderOfContractOfBill header = new HeaderOfContractOfBill();
+            ServicesOfContractOfBill services = new ServicesOfContractOfBill();
+            DetalizationOfContractOfBill detalization = new DetalizationOfContractOfBill();
+
+            List<string> partOfContract = new List<string>();
+            if (contract?.Source?.Count > 0)
+            {
+                foreach (var row in contract.Source)
+                {
+                    partOfContract.Add(row);
+                    if (row.StartsWith(parsers[3]))
+                    {
+
+                    }
+                }
             }
         }
 
