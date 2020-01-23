@@ -12,7 +12,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public List<string> Source { get; set; }
 
-        public List<T> Output { get; set; }
+        public List<T> Output { get; protected set; }
 
         //  public virtual void Parse() { }
 

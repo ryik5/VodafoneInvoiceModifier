@@ -40,7 +40,11 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     if (contractRaw?.Count > 1) //if a contract already has all strings
                     {
-                        contracts.Add(new ContractOfBill(contractRaw)); //create new contract with collected  of the List 'contractRaw' 
+                        contracts.Add(
+                            new ContractOfBill(
+                                contractRaw.SplitContractToSeparatedMainParts(parsers)
+                                )
+                            ); //create new contract with collected  of the List 'contractRaw' 
                     }
 
                     //Start new the List 'contractRaw'  and add first row 
@@ -58,12 +62,18 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
             }
         }
+
+        public List<ContractOfBill> GetContracts()
+        {
+            return contracts;
+        }
     }
 
 
     public static class ParserDetalizationExtensions
     {
-        public static ContractOfBill SplitContractToSeparatedMainParts(this ContractOfBill contractOfBill, string[] parsers)
+        public static ContractOfBill SplitContractToSeparatedMainParts(this List<string> theWholeContract, string[] parsers)
+       //public static ContractOfBill SplitContractToSeparatedMainParts(this ContractOfBill contractOfBill, string[] parsers)
         {
             HeaderOfContractOfBill header = null;
             ServicesOfContractOfBill services = null;
@@ -71,9 +81,9 @@ namespace MobileNumbersDetailizationReportGenerator
 
             List<string> partOfContract = new List<string>();
 
-            if (contractOfBill?.Source?.Count > 0)
+            if (theWholeContract?.Count > 0)
             {
-                foreach (var row in contractOfBill.Source)
+                foreach (var row in theWholeContract)
                 {
                     partOfContract.Add(row);
 
@@ -90,6 +100,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                     else if (row.StartsWith(parsers[7]))// Stop Services // @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)"
                     {
+                        partOfContract.ParseServicesOfContractOfBill(parsers);
                         services = new ServicesOfContractOfBill(partOfContract);
                         partOfContract = new List<string>(); //start part of Detalization
                     }
@@ -98,7 +109,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 billDetalizationList = new DetalizationOfContractOfBill(partOfContract);
             }
 
-            return new ContractOfBill(header, services, billDetalizationList); //contractOfBill;
+            return new ContractOfBill(header, services, billDetalizationList);  //contractOfBill;
         }
 
         /// <summary>
@@ -109,9 +120,10 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="contractOfBill">wait ContractOfBill.Header.Source is not empty</param>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static HeaderOfContractOfBill ParseHeaderOfContractOfBill(this ContractOfBill contractOfBill, string[] parsers)
+        public static ContractOfBill ParseHeaderOfContractOfBill(this ContractOfBill contractOfBill, string[] parsers)
         {
-            List<string> list = contractOfBill.Header.Source;
+            ContractOfBill parsedContract = new ContractOfBill(contractOfBill); ;
+            List<string> list = parsedContract.Header.Source;
 
             if (!(list?.Count > 0))
             { return null; }
@@ -144,35 +156,35 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
             }
 
-            return new HeaderOfContractOfBill(contractId, mobileNumber, tarifPackage);
+            parsedContract.Header = new HeaderOfContractOfBill(contractId, mobileNumber, tarifPackage);
+
+            return parsedContract;
         }
 
+
+
         /// <summary>
-        /// Now is empty. Todo logic
+        /// wait List<string> where string likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'
         /// </summary>
         /// <param name="contractOfBill">wait ContractOfBill.ServicesOfContract.Source is not empty</param>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static ServicesOfContractOfBill ParseServicesOfContractOfBill(this ContractOfBill contractOfBill, string[] parsers)
+        public static ServicesOfContractOfBill ParseServicesOfContractOfBill(this List<string> list, string[] parsers)
         {
-            List<string> list = contractOfBill.ServicesOfContract.Source;
-
             if (!(list?.Count > 0))
             { return null; }
 
             List<ServiceOfBill> services = new List<ServiceOfBill>();
-
             double cost = 0;
-
 
             foreach (var rawData in list)
             {
                 foreach (string parser in parsers)
                 {
-                    if (rawData.Contains(parser)&& rawData.Length>96)           //"Контракт №"
+                    if (rawData.Contains(parser) && rawData.Length > 96)
                     {
-                        string parsed = rawData.Substring(rawData.LastIndexOf(' '))?.Trim();
-                        if (double.TryParse(parsed, out cost)) //raw data = 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'
+                        string parsed = rawData.Substring(rawData.LastIndexOf(' '))?.Trim(); //rawData likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'
+                        if (double.TryParse(parsed, out cost))
                         {
                             services.Add(new ServiceOfBill(parser, cost));
                         }
@@ -185,43 +197,49 @@ namespace MobileNumbersDetailizationReportGenerator
             return new ServicesOfContractOfBill(services);
         }
 
-
+        /// <summary>
+        /// Return new DetalizationOfContractOfBill which contained parsed detalization
+        /// </summary>
+        /// <param name="contractOfBill"></param>
+        /// <param name="parsers"></param>
+        /// <returns></returns>
         public static DetalizationOfContractOfBill ParseDetalizationOfContractOfBill(this ContractOfBill contractOfBill, string[] parsers)
         {
+            List<string> list = contractOfBill?.DetalizationOfContract?.Source;
+            if (!(list?.Count > 0)) { return null; }
 
+            List<StringOfDetalizationOfContractOfBill> strings = new List<StringOfDetalizationOfContractOfBill>();
 
-            return new DetalizationOfContractOfBill();
+            foreach (var stringOfDetalization in list)
+            {
+                strings.Add(stringOfDetalization.ParseStringOfDetalizationOfContractOfBill());
+            }
+
+            return new DetalizationOfContractOfBill(strings);
         }
 
-
-
-
-
-        public static ParsedContractOfBill ParseStringOfBodyOfContractOfBill(string DetalizationString)
+        /// <summary>
+        /// Return StringOfDetalizationOfContractOfBill which concluded a Parsed String Of Detalization Of Contract Of Bill
+        /// </summary>
+        /// <param name="DetalizationString"> The whole parsed parameters of string of detalization</param>
+        /// <returns></returns>
+        public static StringOfDetalizationOfContractOfBill ParseStringOfDetalizationOfContractOfBill(this string DetalizationString)
         {
-
-            if (!(DetalizationString?.Length > 0) || DetalizationString?.Length < 100)
-                return null;
-
-            ParsedContractOfBill ParsedString = new ParsedContractOfBill();
-
-            if (DetalizationString == null)
+            if (DetalizationString?.Length < 100)
             { return null; }
 
-           // status?.Invoke(this, new TextEventArgs(DetalizationString));
+            // status?.Invoke(this, new TextEventArgs(DetalizationString));
 
-            ParsedString.ServiceName = DetalizationString?.Substring(0, 38)?.Trim() ?? "";
-            ParsedString.NumberTarget = DetalizationString?.Substring(38, 13)?.Trim() ?? "";
-            ParsedString.Date = DetalizationString?.Substring(52, 10)?.Trim() ?? "";
-            ParsedString.Time = DetalizationString?.Substring(65, 8)?.Trim() ?? "";
-            ParsedString.DurationA = DetalizationString?.Substring(74, 9)?.Trim() ?? "";
-            ParsedString.DurationB = DetalizationString?.Substring(84, 9)?.Trim() ?? "";
-            ParsedString.Cost = DetalizationString?.Substring(95)?.Trim() ?? "";
-
-            return ParsedString;
+            return new StringOfDetalizationOfContractOfBill
+            {
+                ServiceName = DetalizationString?.Substring(0, 38)?.Trim() ?? "",
+                NumberTarget = DetalizationString?.Substring(38, 13)?.Trim() ?? "",
+                Date = DetalizationString?.Substring(52, 10)?.Trim() ?? "",
+                Time = DetalizationString?.Substring(65, 8)?.Trim() ?? "",
+                DurationA = DetalizationString?.Substring(74, 9)?.Trim() ?? "",
+                DurationB = DetalizationString?.Substring(84, 9)?.Trim() ?? "",
+                Cost = DetalizationString?.Substring(95)?.Trim() ?? ""
+            }; 
         }
-
     }
-
-
 }

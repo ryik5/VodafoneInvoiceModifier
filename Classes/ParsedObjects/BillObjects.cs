@@ -26,15 +26,13 @@ namespace MobileNumbersDetailizationReportGenerator
     /// </summary>
     public class ContractOfBill
     {
-        public HeaderOfContractOfBill Header { get; private set; }
+        public HeaderOfContractOfBill Header { get;  set; }
 
-        public ServicesOfContractOfBill ServicesOfContract { get; private set; }
+        public ServicesOfContractOfBill ServicesOfContract { get;  set; }
 
-        public DetalizationOfContractOfBill DetalizationOfContract { get; private set; }
+        public DetalizationOfContractOfBill DetalizationOfContract { get;  set; }
 
         public List<string> Source { get; private set; }
-
-        public ContractOfBill(List<string> source) { Source = source; }
 
         public ContractOfBill(HeaderOfContractOfBill header, ServicesOfContractOfBill services, DetalizationOfContractOfBill detalization)
         {
@@ -42,48 +40,43 @@ namespace MobileNumbersDetailizationReportGenerator
             ServicesOfContract = services;
             DetalizationOfContract = detalization;
         }
-    }
 
+        public ContractOfBill(List<string> source) { Source = source; }
+
+        public ContractOfBill(ContractOfBill contract)
+        {
+            Header = contract.Header;
+            ServicesOfContract = contract.ServicesOfContract;
+            DetalizationOfContract = contract.DetalizationOfContract;
+        }
+
+
+
+    }
 
 
     public class ServicesOfContractOfBill : AbstractPartOfContractDetalization<ServiceOfBill>//, IParseable
     {
         public ServicesOfContractOfBill(List<string> source) : base(source) { }
 
-        public ServicesOfContractOfBill(List<ServiceOfBill> list )
+        public ServicesOfContractOfBill(List<ServiceOfBill> list)
         { Output = list; }
-       
-        //public override void Parse()
-        //{
-        //    if (!(Output?.Count > 0))
-        //    {
-        //        Output = new List<ServiceOfBill>();
-        //    }
 
-        //    //todo - parse header of Contract
-        //}
     }
 
 
     public class DetalizationOfContractOfBill : AbstractPartOfContractDetalization<StringOfDetalizationOfContractOfBill>//, IParseable
     {
+        public DetalizationOfContractOfBill() { }
 
         public DetalizationOfContractOfBill(List<string> source) : base(source) { }
 
-        public DetalizationOfContractOfBill() { }
-        //public override void Parse()
-        //{
-        //    if (!(Output?.Count > 0))
-        //    {
-        //        Output = new List<StringOfDetalizationOfContractOfBill>();
-        //    }
+        public DetalizationOfContractOfBill(List<StringOfDetalizationOfContractOfBill> list)
+        {
+            Output = list;
+        }
 
-        //    //todo - parse Body
-
-        //}
     }
-
-
 
 
     public class HeaderOfContractOfBill
@@ -97,10 +90,7 @@ namespace MobileNumbersDetailizationReportGenerator
             TarifPackage = tarif;
         }
 
-        public HeaderOfContractOfBill(List<string> source)
-        {
-            Source = source;
-        }
+        public HeaderOfContractOfBill(List<string> source) { Source = source; }
 
         public List<string> Source { get; private set; }
 
@@ -112,6 +102,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
     }
 
+
     public class StringOfDetalizationOfContractOfBill
     {
         public string ServiceName { get; set; }
@@ -122,6 +113,7 @@ namespace MobileNumbersDetailizationReportGenerator
         public string DurationB { get; set; }
         public string Cost { get; set; }
     }
+
 
     public class ServiceOfBill
     {
@@ -135,5 +127,4 @@ namespace MobileNumbersDetailizationReportGenerator
             Amount = amount;
         }
     }
-
 }
