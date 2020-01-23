@@ -195,6 +195,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
 
 
+
+
         public static ParsedContractOfBill ParseStringOfBodyOfContractOfBill(string DetalizationString)
         {
 
