@@ -68,7 +68,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public bool ParseFirstStringOfHeaderOfContractOfBill(string headerContract)
         {
-            if (!(headerContract?.Trim()?.Length > 0))
+            if (!(headerContract?.Length > 0))
                 return false;
 
             ParsedString = new ParsedContractOfBill

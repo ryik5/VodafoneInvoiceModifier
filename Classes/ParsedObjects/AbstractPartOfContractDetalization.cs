@@ -14,7 +14,9 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public List<T> Output { get; set; }
 
-      //  public virtual void Parse() { }
+        //  public virtual void Parse() { }
+
+        public AbstractPartOfContractDetalization() { }
 
         public AbstractPartOfContractDetalization(List<string> source)
         {

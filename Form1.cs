@@ -817,7 +817,7 @@ namespace MobileNumbersDetailizationReportGenerator
             int countStepProgressBar = 500;
             int listMaxLength = 500000;
             List<string> listRows = new List<string>(listMaxLength);
-            string loadedString = "";
+            string loadedString = "",clearedLoadedString;
             bool oldSavedInvoice = strSavedPathToInvoice?.Length > 2 ? true : false;
             bool currentInvoice = filepathLoadedData?.Length > 2 ? true : false;
             try
@@ -859,30 +859,32 @@ namespace MobileNumbersDetailizationReportGenerator
                             {
                                 while ((loadedString = Reader?.ReadLine()?.Trim()) != null && !endLoadData && listRows.Count < listMaxLength)
                                 {
+                                    clearedLoadedString = loadedString?.Trim();
+
                                     //Set label Date
-                                    if (loadedString.Contains("Особовий рахунок")) { checkedRahunok = true; }
-                                    if (loadedString.Contains("Номер рахунку")) { checkedNomerRahunku = true; }
-                                    if (loadedString.Contains("Розрахунковий період"))
+                                    if (clearedLoadedString.Contains("Особовий рахунок")) { checkedRahunok = true; }
+                                    if (clearedLoadedString.Contains("Номер рахунку")) { checkedNomerRahunku = true; }
+                                    if (clearedLoadedString.Contains("Розрахунковий період"))
                                     {
-                                        string[] substrings = Regex.Split(loadedString, ": ");
+                                        string[] substrings = Regex.Split(clearedLoadedString, ": ");
                                         periodInvoice = substrings[substrings.Length - 1].Trim();
                                         checkedPeriod = true;
                                     }
 
-                                    if (loadedString.StartsWith(startStringLoad))
+                                    if (clearedLoadedString.StartsWith(startStringLoad))
                                     { startLoadData = true; }
-                                    else if (loadedString.StartsWith(endStringLoad))
+                                    else if (clearedLoadedString.StartsWith(endStringLoad))
                                     { endLoadData = true; }
 
-                                    if (startLoadData && loadedString?.Trim()?.Length > 0)
+                                    if (startLoadData && clearedLoadedString?.Length > 0)
                                     {
                                         if (listParameters?.Count > 2)
                                         {
                                             foreach (string parameterString in listParameters)
                                             {
-                                                if (loadedString.StartsWith(parameterString) && !loadedString.Contains(excepted))
+                                                if (clearedLoadedString.StartsWith(parameterString) && !clearedLoadedString.Contains(excepted))
                                                 {
-                                                    listRows.Add(loadedString);
+                                                    listRows.Add(clearedLoadedString);
                                                     counter++;
                                                     break;
                                                 }
@@ -890,7 +892,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                         }
                                         else
                                         {
-                                            listRows.Add(loadedString);
+                                            listRows.Add(clearedLoadedString);
                                             counter++;
                                         }
                                     }
