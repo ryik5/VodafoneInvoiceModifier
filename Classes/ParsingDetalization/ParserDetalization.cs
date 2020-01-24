@@ -10,6 +10,8 @@ namespace MobileNumbersDetailizationReportGenerator
     {
         List<ContractOfBill> contracts;
         List<string> contractRaw;
+        ContractsRawOfBill wholeContractsRaw;
+
         List<string> billDetalizationList;
         string[] parsers;
         string startOfContract, stopParsing;
@@ -25,13 +27,21 @@ namespace MobileNumbersDetailizationReportGenerator
             this.parsers = parsers;
             this.startOfContract = startOfContract;
             this.stopParsing = stopParsing;
+
+            status?.Invoke(this, new TextEventArgs("исходный список, строк: "+ this.billDetalizationList.Count.ToString()));
+
         }
 
         public void SplitWholeBillToSeparatedContracts()
         {
+            //second variant
             //Raw Contract data
             contractRaw = new List<string>(); //the whole list of contract detalization
             contracts = new List<ContractOfBill>();//List of Contracts with splited on separated parts
+
+            //first variant
+            wholeContractsRaw = new ContractsRawOfBill();
+            //  ContractRawList ContractRaw = new ContractRawList();
 
             foreach (var row in billDetalizationList)
             {
@@ -40,9 +50,15 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     if (contractRaw?.Count > 1) //if a contract already has all strings
                     {
+                        //first variant
+                        wholeContractsRaw.Add(contractRaw);
+
+
+                        //second variant - check
+                        //delelete?
                         contracts.Add(
                             new ContractOfBill(
-                                contractRaw.SplitContractToSeparatedMainParts(parsers)
+                                contractRaw.SplitWholeContractToSeparatedMainParts(parsers)
                                 )
                             ); //create new contract with collected  of the List 'contractRaw' 
                     }
@@ -52,6 +68,13 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
                 else if (row.StartsWith(stopParsing)) //After this parameter have no any Contract
                 {
+                    //first variant
+                    //first variant
+                    wholeContractsRaw.Add(contractRaw);
+
+
+                    //second variant - check
+                    //delelete?
                     contracts.Add(new ContractOfBill(contractRaw)); //write last prepared contract
 
                     break;                  //After this parameter have no any Contract
@@ -61,22 +84,36 @@ namespace MobileNumbersDetailizationReportGenerator
                     contractRaw.Add(row);   // add rows to created new the List 'contractRaw'  and add first row 
                 }
             }
+            status?.Invoke(this, new TextEventArgs("контрактов с сырыми данными, шт: " + this.contracts.Count.ToString()));
+
         }
 
-        public List<ContractOfBill> GetContracts()
+        public List<ContractOfBill> ParseContracts()
         {
-            return contracts;
+           // var contracts = wholeContractsRaw.Select(s => s.SplitWholeContractToSeparatedMainParts(parsers));
+            
+            List<ContractOfBill> result = new List<ContractOfBill>();
+
+            foreach (var contractRaw in wholeContractsRaw)
+            {
+                ContractOfBill contract = new ContractOfBill(contractRaw.SplitWholeContractToSeparatedMainParts(parsers));
+
+                result.Add(contract);
+            }
+
+            status?.Invoke(this, new TextEventArgs("Распарсеных контрактов, шт: " + result.Count.ToString()));
+
+            return result;
         }
     }
 
 
     public static class ParserDetalizationExtensions
     {
-        public static ContractOfBill SplitContractToSeparatedMainParts(this List<string> theWholeContract, string[] parsers)
-       //public static ContractOfBill SplitContractToSeparatedMainParts(this ContractOfBill contractOfBill, string[] parsers)
+        public static ContractOfBill SplitWholeContractToSeparatedMainParts(this List<string> theWholeContract, string[] parsers)
         {
             HeaderOfContractOfBill header = null;
-            ServicesOfContractOfBill services = null;
+            ServicesOfBill services = null;
             DetalizationOfContractOfBill billDetalizationList = null;
 
             List<string> partOfContract = new List<string>();
@@ -94,19 +131,19 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                     else if (row.StartsWith(parsers[3])) // Stop Header // "Ціновий Пакет" or "Тарифний Пакет"
                     {
-                        header = new HeaderOfContractOfBill(partOfContract);
+                        header = new HeaderOfContractOfBill(partOfContract.ParseHeaderOfContractOfBill(parsers));
 
                         partOfContract = new List<string>(); //start part of Services
                     }
                     else if (row.StartsWith(parsers[7]))// Stop Services // @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)"
                     {
-                        partOfContract.ParseServicesOfContractOfBill(parsers);
-                        services = new ServicesOfContractOfBill(partOfContract);
+                        services = new ServicesOfBill(partOfContract.ParseServicesOfBill(parsers));
+
                         partOfContract = new List<string>(); //start part of Detalization
                     }
                 }
 
-                billDetalizationList = new DetalizationOfContractOfBill(partOfContract);
+                billDetalizationList = new DetalizationOfContractOfBill(partOfContract.ParseDetalizationOfContractOfBill());
             }
 
             return new ContractOfBill(header, services, billDetalizationList);  //contractOfBill;
@@ -114,19 +151,18 @@ namespace MobileNumbersDetailizationReportGenerator
 
         /// <summary>
         /// in source List: 
-        /// first string looks like ' Контракт № 395409092966  Моб.номер: 380500251894' 
+        /// first string should look like 'Контракт № 395409092966  Моб.номер: 380500251894' 
         /// second line - 'Ціновий Пакет: RED Business M'
         /// </summary>
-        /// <param name="contractOfBill">wait ContractOfBill.Header.Source is not empty</param>
+        /// <param name="list"> wait List<string> as the first 2 strings of the whole Contract</param>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static ContractOfBill ParseHeaderOfContractOfBill(this ContractOfBill contractOfBill, string[] parsers)
+        public static HeaderOfContractOfBill ParseHeaderOfContractOfBill(this List<string> list, string[] parsers)
         {
-            ContractOfBill parsedContract = new ContractOfBill(contractOfBill); ;
-            List<string> list = parsedContract.Header.Source;
+            HeaderOfContractOfBill header = new HeaderOfContractOfBill();
 
             if (!(list?.Count > 0))
-            { return null; }
+            { return header; }
 
             string contractId = "", mobileNumber = "", tarifPackage = "", tempRow;
 
@@ -155,12 +191,10 @@ namespace MobileNumbersDetailizationReportGenerator
                     tarifPackage = System.Text.RegularExpressions.Regex.Split(rawData.Substring(rawData.IndexOf(':') + 1).Trim(), " ")[0].Trim();
                 }
             }
+            header = new HeaderOfContractOfBill(contractId, mobileNumber, tarifPackage);
 
-            parsedContract.Header = new HeaderOfContractOfBill(contractId, mobileNumber, tarifPackage);
-
-            return parsedContract;
+            return header;
         }
-
 
 
         /// <summary>
@@ -169,7 +203,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="contractOfBill">wait ContractOfBill.ServicesOfContract.Source is not empty</param>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static ServicesOfContractOfBill ParseServicesOfContractOfBill(this List<string> list, string[] parsers)
+        public static ServicesOfBill ParseServicesOfBill(this List<string> list, string[] parsers)
         {
             if (!(list?.Count > 0))
             { return null; }
@@ -183,19 +217,38 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     if (rawData.Contains(parser) && rawData.Length > 96)
                     {
-                        string parsed = rawData.Substring(rawData.LastIndexOf(' '))?.Trim(); //rawData likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'
-                        if (double.TryParse(parsed, out cost))
-                        {
-                            services.Add(new ServiceOfBill(parser, cost));
-                        }
+                        services.Add(new ServiceOfBill(parser, rawData.ParseCostOfServiceOfBill()));
 
                         break;
                     }
                 }
             }
 
-            return new ServicesOfContractOfBill(services);
+            return new ServicesOfBill(services);
         }
+
+        /// <summary>
+        /// rawData likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'
+        /// it will be returned double '141.1760'
+        /// </summary>
+        /// <param name="rawString">likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'</param>
+        public static double ParseCostOfServiceOfBill(this string rawString)
+        {
+            if (!rawString.Contains(' '))
+                return 0;
+
+            double cost = 0;
+            string parsed = rawString.Substring(rawString.LastIndexOf(' '))?.Trim();
+            if (double.TryParse(parsed, out cost))
+            {
+                return cost;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
 
         /// <summary>
         /// Return new DetalizationOfContractOfBill which contained parsed detalization
@@ -203,19 +256,24 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="contractOfBill"></param>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static DetalizationOfContractOfBill ParseDetalizationOfContractOfBill(this ContractOfBill contractOfBill, string[] parsers)
+        public static DetalizationOfContractOfBill ParseDetalizationOfContractOfBill(this List<string> list)
         {
-            List<string> list = contractOfBill?.DetalizationOfContract?.Source;
-            if (!(list?.Count > 0)) { return null; }
+            DetalizationOfContractOfBill detalization = new DetalizationOfContractOfBill();
+            if (!(list?.Count > 0))
+            { return detalization; }
 
-            List<StringOfDetalizationOfContractOfBill> strings = new List<StringOfDetalizationOfContractOfBill>();
+            List<StringOfDetalizationOfContractOfBill> detalizationStrings = new List<StringOfDetalizationOfContractOfBill>();
 
             foreach (var stringOfDetalization in list)
             {
-                strings.Add(stringOfDetalization.ParseStringOfDetalizationOfContractOfBill());
+                detalizationStrings.Add(
+                    stringOfDetalization.ParseStringOfDetalizationOfContractOfBill() //each string is detalized to object StringOfDetalizationOfContractOfBill 
+                    );
             }
 
-            return new DetalizationOfContractOfBill(strings);
+            detalization = new DetalizationOfContractOfBill(detalizationStrings);
+
+            return detalization;
         }
 
         /// <summary>
@@ -239,7 +297,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 DurationA = DetalizationString?.Substring(74, 9)?.Trim() ?? "",
                 DurationB = DetalizationString?.Substring(84, 9)?.Trim() ?? "",
                 Cost = DetalizationString?.Substring(95)?.Trim() ?? ""
-            }; 
+            };
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,15 +10,17 @@ namespace MobileNumbersDetailizationReportGenerator
 
     public class ParsedBill //: IParseable
     {
+        List<string> wholeBill { get; set; }
         public List<ServiceOfBill> ServicesOfHeaderOfBill { get; set; }
 
         public List<ContractOfBill> ContractsOfBill { get; set; }
 
         public ParsedBill() { }
 
-        //    public void Parse()
-        //  {        }
-
+        public ParsedBill(List<string> wholeBill)
+        {
+            this.wholeBill = wholeBill;
+        }
     }
 
 
@@ -28,39 +31,133 @@ namespace MobileNumbersDetailizationReportGenerator
     {
         public HeaderOfContractOfBill Header { get;  set; }
 
-        public ServicesOfContractOfBill ServicesOfContract { get;  set; }
+        public ServicesOfBill ServicesOfContract { get;  set; }
 
         public DetalizationOfContractOfBill DetalizationOfContract { get;  set; }
 
         public List<string> Source { get; private set; }
 
-        public ContractOfBill(HeaderOfContractOfBill header, ServicesOfContractOfBill services, DetalizationOfContractOfBill detalization)
+
+        public ContractOfBill() {
+            Header = new HeaderOfContractOfBill();
+            ServicesOfContract = new ServicesOfBill();
+            DetalizationOfContract = new DetalizationOfContractOfBill();
+        }
+
+        public ContractOfBill(List<string> source) { Source = source; }
+       
+        public ContractOfBill(HeaderOfContractOfBill header, ServicesOfBill services, DetalizationOfContractOfBill detalization)
         {
             Header = header;
             ServicesOfContract = services;
             DetalizationOfContract = detalization;
         }
-
-        public ContractOfBill(List<string> source) { Source = source; }
-
+        
         public ContractOfBill(ContractOfBill contract)
         {
             Header = contract.Header;
             ServicesOfContract = contract.ServicesOfContract;
             DetalizationOfContract = contract.DetalizationOfContract;
         }
-
-
-
     }
 
+    //public class ContractsRawOfBill
+    //{
+    //    static object check;
 
-    public class ServicesOfContractOfBill : AbstractPartOfContractDetalization<ServiceOfBill>//, IParseable
+    //    public ContractsRawOfBill()
+    //    {
+    //        this.Contracts = new List<ContractRawList>();
+    //    }
+
+    //    public ContractsRawOfBill(ContractRawList list)
+    //    {
+    //        Add(list);
+    //    }
+
+    //    public void Add(ContractRawList list)
+    //    {
+    //        if (this.Contracts == null)
+    //        {
+    //            lock (check)
+    //            {
+    //                if (this.Contracts == null)
+    //                {
+    //                    this.Contracts = new List<ContractRawList>();
+    //                }
+    //                else
+    //                {
+    //                    this.Contracts.Add(list);
+    //                }
+    //            }
+    //        }
+    //        else
+    //        {
+    //            this.Contracts.Add(list);
+    //        }
+    //    }
+
+
+    //    public List<ContractRawList> Contracts { get; private set; }
+    //}
+   
+
+
+    public class ContractsRawOfBill : IEnumerable<List<string>>
     {
-        public ServicesOfContractOfBill(List<string> source) : base(source) { }
+        private ContractRawListNode first;
 
-        public ServicesOfContractOfBill(List<ServiceOfBill> list)
+        public void Add(List<string> list)
+        {
+            if (this.first == null)
+                this.first = new ContractRawListNode
+                {
+                    Value = list
+                };
+            else
+            {
+                var node = this.first;
+                while (node.Next != null)
+                    node = node.Next;
+
+                node.Next = new ContractRawListNode
+                {
+                    Value = list
+                };
+            }
+        }
+
+        public IEnumerator<List<string>> GetEnumerator()
+        {
+            for (var node = first; node != null; node = node.Next)
+            {
+                yield return node.Value;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        private class ContractRawListNode
+        {
+            public List<string> Value { get; set; }
+            public ContractRawListNode Next { get; set; }
+        }
+    }
+
+    public class ServicesOfBill : AbstractPartOfContractDetalization<ServiceOfBill>//, IParseable
+    {
+        public ServicesOfBill() { }
+
+        public ServicesOfBill(List<string> source) : base(source) { }
+
+        public ServicesOfBill(List<ServiceOfBill> list)
         { Output = list; }
+
+        public ServicesOfBill(ServicesOfBill services)
+        { Output =services.Output; }
 
     }
 
@@ -68,6 +165,10 @@ namespace MobileNumbersDetailizationReportGenerator
     public class DetalizationOfContractOfBill : AbstractPartOfContractDetalization<StringOfDetalizationOfContractOfBill>//, IParseable
     {
         public DetalizationOfContractOfBill() { }
+        public DetalizationOfContractOfBill(DetalizationOfContractOfBill detalization)
+        {
+            Output = detalization.Output;
+        }
 
         public DetalizationOfContractOfBill(List<string> source) : base(source) { }
 
@@ -82,6 +183,19 @@ namespace MobileNumbersDetailizationReportGenerator
     public class HeaderOfContractOfBill
     {
         public HeaderOfContractOfBill() { }
+        public HeaderOfContractOfBill(ContractOfBill contract)
+        {
+            ContractId = contract.Header.ContractId;
+            MobileNumber = contract.Header.MobileNumber;
+            TarifPackage = contract.Header.TarifPackage;
+        }
+
+        public HeaderOfContractOfBill(HeaderOfContractOfBill header)
+        {
+            ContractId = header.ContractId;
+            MobileNumber = header.MobileNumber;
+            TarifPackage = header.TarifPackage;
+        }
 
         public HeaderOfContractOfBill(string id, string number, string tarif)
         {
