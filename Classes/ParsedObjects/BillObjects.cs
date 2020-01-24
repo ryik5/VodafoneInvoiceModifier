@@ -159,6 +159,16 @@ namespace MobileNumbersDetailizationReportGenerator
         public ServicesOfBill(ServicesOfBill services)
         { Output =services.Output; }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var s in Output)
+            {
+                sb.AppendLine(s.ToString());
+            }
+
+            return $"{sb.ToString()}\n";
+        }
     }
 
 
@@ -177,6 +187,16 @@ namespace MobileNumbersDetailizationReportGenerator
             Output = list;
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach(var s in Output)
+            {
+                sb.AppendLine(s.ToString());
+            }
+
+            return $"{sb.ToString()}\n";
+        }
     }
 
 
@@ -214,6 +234,10 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public string TarifPackage { get; private set; }
 
+        public override string ToString()
+        {
+            return $"{ContractId}\t{MobileNumber}\t{TarifPackage}"; ;
+        }
     }
 
 
@@ -226,6 +250,11 @@ namespace MobileNumbersDetailizationReportGenerator
         public string DurationA { get; set; }
         public string DurationB { get; set; }
         public string Cost { get; set; }
+
+        public override string ToString()
+        {
+            return $"{ServiceName}\t{NumberTarget}\t{Date}\t{Time}\t{DurationA}\t{DurationB}\t{Cost}";
+        }
     }
 
 
@@ -239,6 +268,11 @@ namespace MobileNumbersDetailizationReportGenerator
         {
             Name = name;
             Amount = amount;
+        }
+
+        public override string ToString()
+        {
+            return $"{Name}\t{Amount}";
         }
     }
 }

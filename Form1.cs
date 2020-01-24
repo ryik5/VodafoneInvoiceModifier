@@ -2333,6 +2333,7 @@ namespace MobileNumbersDetailizationReportGenerator
             ParsedBill parsedBill = new ParsedBill();
 
 
+            //to change reading of file
             ParserDetalization parsedDetalization = new ParserDetalization(billList, parsersBill,parametrStart,pStop);
 
             parsedDetalization.status += MessageShow;
@@ -2348,7 +2349,45 @@ namespace MobileNumbersDetailizationReportGenerator
             textBoxLog.AppendLine("Всего сервисов в контракте: " + contract?.ServicesOfContract?.Output?.Count);
           //  textBoxLog.AppendLine("1-й элемент в списке сервисов: " + contract?.ServicesOfContract?.Output?.ElementAt(1).Name);
             textBoxLog.AppendLine("Всего детализаций в контракте: " + contract?.DetalizationOfContract?.Output?.Count);
-          //  textBoxLog.AppendLine("5-й элемент в списке детализации: " + contract?.ServicesOfContract?.Output?.ElementAt(5).Name);
+
+            textBoxLog.AppendLine();
+            textBoxLog.AppendLine("DetalizationOfContract.ServiceName: ");
+
+            List<string> tmp = new List<string>();
+            List<string> service = new List<string>();
+            foreach (var s in contracts)
+            {
+                foreach (var x in s?.ServicesOfContract?.Output)
+                {
+                    service.Add(x.Name);
+                };
+
+            }
+
+            service.Sort();
+            //var detal = contracts
+            //     .Select(r => new
+            //     {
+            //         Service = r.ServicesOfContract.Output.Select(k=>k.Name)
+            //     })                 
+            //     .Distinct().ToList();
+
+
+            foreach (var t in service.Distinct())
+            {
+                textBoxLog.AppendLine(t);
+            }
+
+            textBoxLog.AppendLine();
+            textBoxLog.AppendLine("ServicesOfContract.Name:");
+           // detal = contract?.ServicesOfContract?.Output.Select(x => x.Name).Distinct().ToList();
+           // foreach (var t in detal)
+            {
+            //    textBoxLog.AppendLine(t);
+            }
+
+
+            //  textBoxLog.AppendLine("5-й элемент в списке детализации: " + contract?.ServicesOfContract?.Output?.ElementAt(5).Name);
 
 
             //   textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString());

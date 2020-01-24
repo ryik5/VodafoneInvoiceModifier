@@ -188,7 +188,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 }
                 else if (rawData.Contains(parsers[3]))  //@"Ціновий Пакет" //Raw data = Ціновий Пакет: RED Business M
                 {
-                    tarifPackage = System.Text.RegularExpressions.Regex.Split(rawData.Substring(rawData.IndexOf(':') + 1).Trim(), " ")[0].Trim();
+                    tarifPackage = rawData.Substring(rawData.IndexOf(':') + 1).Trim();
                 }
             }
             header = new HeaderOfContractOfBill(contractId, mobileNumber, tarifPackage);
@@ -210,15 +210,21 @@ namespace MobileNumbersDetailizationReportGenerator
 
             List<ServiceOfBill> services = new List<ServiceOfBill>();
             double cost = 0;
+            string name;
 
             foreach (var rawData in list)
             {
-                foreach (string parser in parsers)
+              //  foreach (string parser in parsers)
                 {
-                    if (rawData.Contains(parser) && rawData.Length > 96)
+                    if (rawData.Length > 96) //rawData.Contains(parser) && 
                     {
-                        services.Add(new ServiceOfBill(parser, rawData.ParseCostOfServiceOfBill()));
+                        cost = rawData.ParseCostOfServiceOfBill();
+                        name = rawData.ParseNameOfServiceOfBill(':');
 
+                        if (name != null)
+                        {
+                            services.Add(new ServiceOfBill(name, cost));
+                        }
                         break;
                     }
                 }
@@ -247,6 +253,14 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 return 0;
             }
+        }
+        public static string ParseNameOfServiceOfBill(this string rawString, char parser)
+        {
+            if (!rawString.Contains(parser))
+                return null;
+
+            string parsed = rawString.Substring(0,rawString.IndexOf(parser))?.Trim();
+            return parsed;
         }
 
 
