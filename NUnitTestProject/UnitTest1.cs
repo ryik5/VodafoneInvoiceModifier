@@ -1,5 +1,6 @@
 using MobileNumbersDetailizationReportGenerator;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace NUnitTestProject
 {
@@ -9,6 +10,30 @@ namespace NUnitTestProject
         [SetUp]
         public void Setup()
         {
+        }
+
+        [Test]
+        public void TestParsingHeaderContracts()
+        {
+            //Arrange                
+            List<string> inputed = new List<string>();
+            inputed.Add("Контракт № 395409092966  Моб.номер: 380500251894");
+            inputed.Add("Ціновий Пакет: RED Business M ");
+            
+            string[] parsers = new string[] {
+                @"Владелец",
+                @"Контракт №",
+                @"Моб.номер",
+                @"Тарифний Пакет"
+            };
+
+
+            //Act
+            var result = ParserDetalizationExtensions.ParseHeaderOfContractOfBill(inputed, parsers);
+
+
+            //Assert
+            Assert.AreEqual(200, result);
         }
 
         [Test]
