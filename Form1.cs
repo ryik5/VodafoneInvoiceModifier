@@ -44,7 +44,7 @@ namespace MobileNumbersDetailizationReportGenerator
             @"Владелец",                                        //0     //owner
             @"Контракт №",                                    //1     //number of contract
             @"Моб.номер",                                             //2     //number
-            @"Ціновий Пакет",                                      //3     //name of tarif package
+            @"Тарифний Пакет", //Ціновий Пакет                                     //3     //name of tarif package
             @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА",                 //4     //cost of package
             @"ПОСЛУГИ МІЖНАРОДНОГО РОУМІНГУ",                   //5     //rouming -суммарно
             @"ЗНИЖКИ",                                          //6     //discount
@@ -581,6 +581,9 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private void MessageShow(object sender, TextEventArgs e)
         { MessageShow(e.Message); }
+
+        private void TextLogAdd(object sender, TextEventArgs e)
+        { textBoxLog.AppendLine(e.Message); }
 
 
         private void LoadBillIntoMemoryToFilter()
@@ -2336,22 +2339,26 @@ namespace MobileNumbersDetailizationReportGenerator
             //to change reading of file
             ParserDetalization parsedDetalization = new ParserDetalization(billList, parsersBill,parametrStart,pStop);
 
-            parsedDetalization.status += MessageShow;
+            parsedDetalization.status += TextLogAdd;
 
             parsedDetalization.SplitWholeBillToSeparatedContracts();
 
             List<ContractOfBill> contracts = parsedDetalization.ParseContracts();
             textBoxLog.AppendLine("Распарсеных контрактов: " + contracts.Count);
 
-            ContractOfBill contract = contracts.ElementAt(20);
-            textBoxLog.AppendLine("20-й контракт: " + contract?.Header?.MobileNumber);
-            textBoxLog.AppendLine("тариф: " + contract?.Header?.TarifPackage);
+            ContractOfBill contract = contracts.ElementAt(1);
+            textBoxLog.AppendLine("1-й контракт:");
+            textBoxLog.AppendLine("MobileNumber: " + contract?.Header?.MobileNumber);
+            textBoxLog.AppendLine("ContractId: " + contract?.Header?.ContractId);
+            textBoxLog.AppendLine("TarifPackage: " + contract?.Header?.TarifPackage);
             textBoxLog.AppendLine("Всего сервисов в контракте: " + contract?.ServicesOfContract?.Output?.Count);
           //  textBoxLog.AppendLine("1-й элемент в списке сервисов: " + contract?.ServicesOfContract?.Output?.ElementAt(1).Name);
             textBoxLog.AppendLine("Всего детализаций в контракте: " + contract?.DetalizationOfContract?.Output?.Count);
 
             textBoxLog.AppendLine();
-            textBoxLog.AppendLine("DetalizationOfContract.ServiceName: ");
+            string[] test = billList.ToArray();
+            for (int i = 0; i < 100; i++)
+            { textBoxLog.AppendLine(test[i]); }
 
             List<string> tmp = new List<string>();
             List<string> service = new List<string>();
@@ -2361,17 +2368,9 @@ namespace MobileNumbersDetailizationReportGenerator
                 {
                     service.Add(x.Name);
                 };
-
             }
 
             service.Sort();
-            //var detal = contracts
-            //     .Select(r => new
-            //     {
-            //         Service = r.ServicesOfContract.Output.Select(k=>k.Name)
-            //     })                 
-            //     .Distinct().ToList();
-
 
             foreach (var t in service.Distinct())
             {
@@ -2379,25 +2378,9 @@ namespace MobileNumbersDetailizationReportGenerator
             }
 
             textBoxLog.AppendLine();
-            textBoxLog.AppendLine("ServicesOfContract.Name:");
-           // detal = contract?.ServicesOfContract?.Output.Select(x => x.Name).Distinct().ToList();
-           // foreach (var t in detal)
-            {
-            //    textBoxLog.AppendLine(t);
-            }
 
 
-            //  textBoxLog.AppendLine("5-й элемент в списке детализации: " + contract?.ServicesOfContract?.Output?.ElementAt(5).Name);
-
-
-            //   textBoxLog.AppendLine("Строк с детализацией: " + parsedList.Count.ToString());
-
-            //   int amount = parsedList.Select(x => x.numberOwner).Distinct().ToArray().Length;
-            //    textBoxLog.AppendLine("Всего номеров: " + amount);
-
-            //   amount = parsedList.Select(x => x.serviceName).Distinct().ToArray().Length;
-            //    textBoxLog.AppendLine("Список сервисов: " + amount + Environment.NewLine);
-            //   textBoxLog.AppendText(string.Join(Environment.NewLine, parsedList.Select(x => x.serviceName).Distinct().ToArray()));
+            parsedDetalization.status -= TextLogAdd;
 
             textBoxLog.Visible = true;
         }

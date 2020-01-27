@@ -105,6 +105,9 @@ namespace MobileNumbersDetailizationReportGenerator
 
             return result;
         }
+
+
+
     }
 
 
@@ -173,9 +176,9 @@ namespace MobileNumbersDetailizationReportGenerator
 
                 if (rawData.Contains(parsers[1]))           //"Контракт №"  //Raw data = Контракт № 395409092966  Моб.номер: 380500251894 
                 {
-
                     //\.{10,11}\s\d{11,12}\s{1,2}\.{15,16}\s\d{11,12}
                     //look for Contract's ID
+
                     contractId = System.Text.RegularExpressions.Regex.Split(rawData.Substring(rawData.IndexOf('№') + 1).Trim(), " ")[0].Trim();
 
                     //look for Contract's Mobile number
