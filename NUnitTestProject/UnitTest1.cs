@@ -1,18 +1,23 @@
-using NUnit.Framework;
 using MobileNumbersDetailizationReportGenerator;
+using NUnit.Framework;
 
-namespace NUnitTestProject1
+namespace NUnitTestProject
 {
     [TestFixture]
     public class Tests
     {
+        [SetUp]
+        public void Setup()
+        {
+        }
+
         [Test]
         public void TestToInternetTrafic_200_Mb_Wait_200()
         {
             string text = "200 Mb";
             var result = WinFormsExtensions.ToInternetTrafic(text, "Mb");
 
-           Assert.Equals(200, result);
+            Assert.AreEqual(200, result);
         }
 
         [Test()]
