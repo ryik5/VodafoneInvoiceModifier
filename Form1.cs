@@ -44,7 +44,7 @@ namespace MobileNumbersDetailizationReportGenerator
             @"Владелец",                                        //0     //owner
             @"Контракт №",                                    //1     //number of contract
             @"Моб.номер",                                             //2     //number
-            @"Тарифний Пакет", //Ціновий Пакет                                     //3     //name of tarif package
+            @"Ціновий Пакет", //Тарифний Пакет                                     //3     //name of tarif package
             @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА",                 //4     //cost of package
             @"ПОСЛУГИ МІЖНАРОДНОГО РОУМІНГУ",                   //5     //rouming -суммарно
             @"ЗНИЖКИ",                                          //6     //discount

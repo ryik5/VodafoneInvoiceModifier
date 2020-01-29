@@ -167,7 +167,7 @@ namespace MobileNumbersDetailizationReportGenerator
             if (!(list?.Count > 0))
             { return header; }
 
-            string contractId = "", mobileNumber = "", tarifPackage = "", tempRow;
+            string contractId = "", mobileNumber = "", tarifPackage = "";
 
             foreach (var rawData in list)
             {
@@ -176,27 +176,43 @@ namespace MobileNumbersDetailizationReportGenerator
 
                 if (rawData.Contains(parsers[1]))           //"Контракт №"  //Raw data = Контракт № 395409092966  Моб.номер: 380500251894 
                 {
-                    //\.{10,11}\s\d{11,12}\s{1,2}\.{15,16}\s\d{11,12}
                     //look for Contract's ID
-
-                    contractId = System.Text.RegularExpressions.Regex.Split(rawData.Substring(rawData.IndexOf('№') + 1).Trim(), " ")[0].Trim();
+                    contractId = GetContractId(rawData);
 
                     //look for Contract's Mobile number
-                    tempRow = rawData.Substring(rawData.IndexOf(':') + 1).Trim();
-                    //set format number like '+380...'
-                    if (tempRow.StartsWith("+"))
-                    { mobileNumber = tempRow; }
-                    else
-                    { mobileNumber = "+" + tempRow; }
+                    mobileNumber = GetMobileNumber(rawData);
                 }
                 else if (rawData.Contains(parsers[3]))  //@"Ціновий Пакет" //Raw data = Ціновий Пакет: RED Business M
                 {
-                    tarifPackage = rawData.Substring(rawData.IndexOf(':') + 1).Trim();
+                    tarifPackage = GetTarifPackage(rawData);
                 }
             }
             header = new HeaderOfContractOfBill(contractId, mobileNumber, tarifPackage);
 
             return header;
+        }
+
+        public static string GetContractId(string data)
+        {
+            return System.Text.RegularExpressions.Regex.Split(data.Substring(data.IndexOf('№') + 1).Trim(), " ")[0].Trim();
+        }
+
+        public static string GetMobileNumber(string data)
+        {
+            string mobileNumber;
+            string tempRow = data.Substring(data.IndexOf(':') + 1).Trim();
+            //set format number like '+380...'
+            if (tempRow.StartsWith("+"))
+            { mobileNumber = tempRow; }
+            else
+            { mobileNumber = "+" + tempRow; }
+
+            return mobileNumber;
+        }
+        
+        public static string GetTarifPackage(string data)
+        {
+            return data.Substring(data.IndexOf(':') + 1).Trim();
         }
 
 
