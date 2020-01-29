@@ -140,7 +140,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     }
                     else if (row.StartsWith(parsers[7]))// Stop Services // @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)"
                     {
-                        services = new ServicesOfBill(partOfContract.ParseServicesOfBill(parsers));
+                        services = new ServicesOfBill(partOfContract.ParseServicesOfBill());
 
                         partOfContract = new List<string>(); //start part of Detalization
                     }
@@ -222,7 +222,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="contractOfBill">wait ContractOfBill.ServicesOfContract.Source is not empty</param>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static ServicesOfBill ParseServicesOfBill(this List<string> list, string[] parsers)
+        public static ServicesOfBill ParseServicesOfBill(this List<string> list)
         {
             if (!(list?.Count > 0))
             { return null; }
@@ -235,7 +235,7 @@ namespace MobileNumbersDetailizationReportGenerator
             {
               //  foreach (string parser in parsers)
                 {
-                    if (rawData.Length > 96) //rawData.Contains(parser) && 
+                    if (rawData.Length > 96&& !rawData.Contains(' ')) //rawData.Contains(parser) && 
                     {
                         cost = rawData.ParseCostOfServiceOfBill();
                         name = rawData.ParseNameOfServiceOfBill(':');
@@ -256,14 +256,11 @@ namespace MobileNumbersDetailizationReportGenerator
         /// rawData likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'
         /// it will be returned double '141.1760'
         /// </summary>
-        /// <param name="rawString">likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'</param>
-        public static double ParseCostOfServiceOfBill(this string rawString)
+        /// <param name="rawData">likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'</param>
+        public static double ParseCostOfServiceOfBill(this string rawData)
         {
-            if (!rawString.Contains(' '))
-                return 0;
-
             double cost = 0;
-            string parsed = rawString.Substring(rawString.LastIndexOf(' '))?.Trim();
+            string parsed = rawData.Substring(rawData.LastIndexOf(' '))?.Trim();
             if (double.TryParse(parsed, out cost))
             {
                 return cost;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace NUnitTestProject
 {
- //   [TestFixture]
+    //   [TestFixture]
     public class Tests
     {
         [SetUp]
@@ -26,6 +26,19 @@ namespace NUnitTestProject
 
             //Assert
             Assert.AreEqual(141.1760, result);
+        }
+
+        [Test]
+        public void TestParseCostOfServiceOfBill_WithWrongInput()
+        {
+            //Arrange
+            string text = @"¬¿–“≤—“‹ œ¿ ≈“¿/ŸŒÃ≤—ﬂ◊Õ¿ œÀ¿“¿:  . . . . . . . . . . . . . . . . . . . .     ";
+
+            //Act
+            var result = ParserDetalizationExtensions.ParseCostOfServiceOfBill(text);
+
+            //Assert
+            Assert.AreEqual(0, result);
         }
 
         [Test]
