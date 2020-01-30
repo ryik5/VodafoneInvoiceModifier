@@ -269,6 +269,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 return 0;
             }
         }
+        
         public static string ParseNameOfServiceOfBill(this string rawString, char parser)
         {
             if (!rawString.Contains(parser))

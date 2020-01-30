@@ -8,13 +8,59 @@ namespace NUnitTestProject
     //   [TestFixture]
     public class Tests
     {
+
+        List<string> listStringsContract;
+        List<string> listStringsDetalizationContract;
+
         [SetUp]
         public void Setup()
         {
+            listStringsContract = new List<string>()
+            {
+                @"Контракт № 395381736554  Номер телефону: 380503003348",
+                @"Тарифний Пакет: RED Business M",
+                @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760",
+                @"ПОСЛУГИ, НАДАНІ ЗА МЕЖАМИ ПАКЕТА: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    78.4327",
+                @"Вихідні дзвінки по Україні  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    70.5896",
+                @"Вихідні дзвінки з України за кордон . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     7.8431",
+                @"КОНТЕНТ-ПОСЛУГИ:  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    79.6079",
+                @"НАДАНІ КОНТЕНТ-ПОСЛУГИ: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    79.6079",
+                @"SMS\USSD\MMS\довідкові\розважальні\контент та інші сервіси за спец. цінами. . . . . . . . . .    79.6079",
+                @"ЗНИЖКИ: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   -65.8826",
+                @"Знижка на суму особового рахунку . . . . .. . . . . . . . . . . . . . . . . . . . . . . . . .   -65.8826",
+                @"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ):  . . . . . . . . . . . . . . . . . . . . . . . . . . .   233.3340"
+            };
+            listStringsDetalizationContract = new List<string>()
+            {
+
+            };
         }
 
 
+        [Test]
+        public void TestParseServicesOfBill()
+        {
+            var result = ParserDetalizationExtensions.ParseServicesOfBill(listStringsContract);
 
+            Assert.AreEqual(@"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА", result.Output[0].Name);
+            Assert.AreEqual(141.176, result.Output[0].Amount);
+
+            Assert.AreEqual(@"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)", result.Output[5].Name);
+            Assert.AreEqual(233.334, result.Output[5].Amount);
+        }
+
+        [Test]
+        public void TestParseDetalizationOfContractOfBill()
+        {
+            var result = ParserDetalizationExtensions.ParseDetalizationOfContractOfBill(listStringsDetalizationContract);
+
+            Assert.AreEqual(@"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА", result.Output[0].Name);
+            Assert.AreEqual(141.176, result.Output[0].Amount);
+
+            Assert.AreEqual(@"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)", result.Output[5].Name);
+            Assert.AreEqual(233.334, result.Output[5].Amount);
+
+        }
 
         [Test]
         public void TestParseCostOfServiceOfBill()
