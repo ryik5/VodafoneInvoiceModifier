@@ -161,7 +161,7 @@ namespace NUnitTestProject
             //Assert
             Assert.AreEqual(output, result);
         }
-        
+
         //wrong multiplier
         //Arrange
         [TestCase("kolomb", "rd")]
@@ -175,8 +175,8 @@ namespace NUnitTestProject
             Assert.AreEqual("Wrong multiplier!", ex.Message);
 
             //2nd way to check
-           // Assert.That(() =>
-           // {
+            // Assert.That(() =>
+            // {
             //    WinFormsExtensions.ToInternetTrafic(input, multiplier);
             //}, Throws.TypeOf<Exception>().With.Message.EqualTo("Wrong multiplier!"));
         }

@@ -228,14 +228,14 @@ namespace MobileNumbersDetailizationReportGenerator
             { return null; }
 
             List<ServiceOfBill> services = new List<ServiceOfBill>();
-            double cost = 0;
+            double cost;
             string name;
 
             foreach (var rawData in list)
             {
-              //  foreach (string parser in parsers)
+                //  foreach (string parser in parsers)
                 {
-                    if (rawData.Length > 96&& !rawData.Contains(' ')) //rawData.Contains(parser) && 
+                    if (rawData.Length > 96 && rawData.Contains(':')) //rawData.Contains(parser) && 
                     {
                         cost = rawData.ParseCostOfServiceOfBill();
                         name = rawData.ParseNameOfServiceOfBill(':');
@@ -244,7 +244,6 @@ namespace MobileNumbersDetailizationReportGenerator
                         {
                             services.Add(new ServiceOfBill(name, cost));
                         }
-                        break;
                     }
                 }
             }
