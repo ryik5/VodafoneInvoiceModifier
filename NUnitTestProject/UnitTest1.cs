@@ -1,5 +1,6 @@
 using MobileNumbersDetailizationReportGenerator;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace NUnitTestProject
@@ -48,7 +49,7 @@ namespace NUnitTestProject
             string text = @"¬¿–“≤—“‹ œ¿ ≈“¿/ŸŒÃ≤—ﬂ◊Õ¿ œÀ¿“¿:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760";
 
             //Act
-            var result = ParserDetalizationExtensions.ParseNameOfServiceOfBill(text,':');
+            var result = ParserDetalizationExtensions.ParseNameOfServiceOfBill(text, ':');
 
             //Assert
             Assert.AreEqual("¬¿–“≤—“‹ œ¿ ≈“¿/ŸŒÃ≤—ﬂ◊Õ¿ œÀ¿“¿", result);
@@ -124,27 +125,61 @@ namespace NUnitTestProject
 
 
 
-        //Test Convert Internet Trafic
-        [Test]
-        public void TestToInternetTrafic_200_Mb_Wait_200()
+        //Test Convertor Internet Trafic
+        //Arrange
+        //correct Data
+        [TestCase("719 Gb", "Gb", 719)]
+        [TestCase("719 Gb", "GB", 719)]
+        [TestCase("200 Mb", "Mb", 200)]
+        [TestCase("200 Mb", "MB", 200)]
+        [TestCase("300 Kb", "Kb", 300)]
+        [TestCase("300 Kb", "KB", 300)]
+        [TestCase("120 b", "b", 120)]
+        [TestCase("120 b", "B", 120)]
+        [TestCase("201Mb", "b", 210763776)]
+        [TestCase("250 Mb", "Kb", 256000)]
+        [TestCase("300 Kb", "MB", 0.293)]
+        public void TestToInternetTrafic(string input, string multiplier, double output)
         {
-            string text = "200 Mb";
-            var result = WinFormsExtensions.ToInternetTrafic(text, "Mb");
-
-            Assert.AreEqual(200, result);
-        }
-
-        [Test()]
-        public void TestToInternetTrafic_10_Kb_Wait_10()
-        {
-            //Arrange
-            string text = "10 Kb";
-
             //Act
-            var result = WinFormsExtensions.ToInternetTrafic(text, "Kb");
+            var result = WinFormsExtensions.ToInternetTrafic(input, multiplier);
 
             //Assert
-            Assert.AreEqual(result, 10);
+            Assert.AreEqual(output, result);
         }
+
+        //wrong inputed data
+        //Arrange
+        [TestCase("garbage", "Mb", 0)]
+        [TestCase("", "Mb", 0)]
+        [TestCase("kolomb", "Mb", 0)]
+        public void TestToInternetTrafic_With_WrongData(string input, string multiplier, double output)
+        {
+            //Act
+            var result = WinFormsExtensions.ToInternetTrafic(input, multiplier);
+
+            //Assert
+            Assert.AreEqual(output, result);
+        }
+        
+        //wrong multiplier
+        //Arrange
+        [TestCase("kolomb", "rd")]
+        [TestCase("200 Mb", "md")]
+        public void TestToInternetTrafic_With_WrongMultiplier(string input, string multiplier)
+        {
+            //Act
+            Exception ex = Assert.Throws<Exception>(() => WinFormsExtensions.ToInternetTrafic(input, multiplier));
+
+            //Assert
+            Assert.AreEqual("Wrong multiplier!", ex.Message);
+
+            //2nd way to check
+           // Assert.That(() =>
+           // {
+            //    WinFormsExtensions.ToInternetTrafic(input, multiplier);
+            //}, Throws.TypeOf<Exception>().With.Message.EqualTo("Wrong multiplier!"));
+        }
+
     }
 }

@@ -19,15 +19,20 @@ namespace MobileNumbersDetailizationReportGenerator
         /// </summary>
         /// <param name="source">as '20 Gb' or '20 Mb' or '20 Kb' or '20 b'</param>
         /// <param name="formResult">as 'Gb' or 'Mb' or 'Kb' or 'b'</param>
-        /// <returns></returns>
+        /// <returns>20</returns>
         public static decimal ToInternetTrafic(this string source, string formResult)
         {
             string text = source?.Trim()?.ToUpper();
 
             if (!(text?.Length > 0))
-                return 0;
+            { return 0; }
 
-            string end = string.Empty;
+            if (MultiplierInternetTrafic.Multiplier(formResult) < 1)
+            {
+                throw new Exception("Wrong multiplier!");
+            }
+
+            string end;
 
             if (text.EndsWith("GB"))
             {
@@ -45,9 +50,16 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 end = "B";
             }
+            else
+            {
+                return 0;
+            }
 
-            decimal parsed;
-            decimal.TryParse(text.Replace(end, "").Trim(), out parsed);
+            decimal parsed = 0;
+            bool inputCorrect = decimal.TryParse(text.Replace(end, "").Trim(), out parsed);
+
+            if (!inputCorrect)
+            { return 0; }
 
             decimal result;
 
