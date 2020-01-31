@@ -2335,7 +2335,6 @@ namespace MobileNumbersDetailizationReportGenerator
 
             ParsedBill parsedBill = new ParsedBill();
 
-
             //to change reading of file
             ParserDetalization parsedDetalization = new ParserDetalization(billList, parsersBill,parametrStart,pStop);
 
@@ -2362,6 +2361,15 @@ namespace MobileNumbersDetailizationReportGenerator
 
             List<string> tmp = new List<string>();
             List<string> service = new List<string>();
+
+            var res = contracts.Select(
+                n => new
+                {
+                 //   n.ServicesOfContract.Output.Select(
+                   //         x => x.Name)
+                }
+                ) ;
+
             foreach (var s in contracts)
             {
                 foreach (var x in s?.ServicesOfContract?.Output)

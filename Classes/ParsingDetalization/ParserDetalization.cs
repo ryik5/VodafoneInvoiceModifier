@@ -221,7 +221,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <returns></returns>
         public static ServicesOfBill ParseServicesOfBill(this List<string> list)
         {
-            if (list==null || !(list?.Count > 0))
+            if (!(list?.Count > 0))
             { return null; }
 
             List<ServiceOfBill> services = new List<ServiceOfBill>();
@@ -286,9 +286,8 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <returns></returns>
         public static DetalizationOfContractOfBill ParseDetalizationOfContractOfBill(this List<string> list)
         {
-            DetalizationOfContractOfBill detalization = new DetalizationOfContractOfBill();
             if (list == null || !(list?.Count > 0))
-            { return null; }
+            { return new DetalizationOfContractOfBill(); }
 
             List<StringOfDetalizationOfContractOfBill> detalizationStrings = new List<StringOfDetalizationOfContractOfBill>();
 
@@ -299,7 +298,7 @@ namespace MobileNumbersDetailizationReportGenerator
                     );
             }
 
-            detalization = new DetalizationOfContractOfBill(detalizationStrings);
+            DetalizationOfContractOfBill detalization = new DetalizationOfContractOfBill(detalizationStrings);
 
             return detalization;
         }
