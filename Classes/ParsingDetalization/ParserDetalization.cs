@@ -28,7 +28,7 @@ namespace MobileNumbersDetailizationReportGenerator
             this.startOfContract = startOfContract;
             this.stopParsing = stopParsing;
 
-            status?.Invoke(this, new TextEventArgs("исходный список, строк: "+ this.billDetalizationList.Count.ToString()));
+            status?.Invoke(this, new TextEventArgs("исходный список, строк: " + this.billDetalizationList.Count.ToString()));
 
         }
 
@@ -90,8 +90,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public List<ContractOfBill> ParseContracts()
         {
-           // var contracts = wholeContractsRaw.Select(s => s.SplitWholeContractToSeparatedMainParts(parsers));
-            
+            // var contracts = wholeContractsRaw.Select(s => s.SplitWholeContractToSeparatedMainParts(parsers));
+
             List<ContractOfBill> result = new List<ContractOfBill>();
 
             foreach (var contractRaw in wholeContractsRaw)
@@ -105,9 +105,6 @@ namespace MobileNumbersDetailizationReportGenerator
 
             return result;
         }
-
-
-
     }
 
 
@@ -209,7 +206,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             return mobileNumber;
         }
-        
+
         public static string GetTarifPackage(string data)
         {
             return data.Substring(data.IndexOf(':') + 1).Trim();
@@ -224,7 +221,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <returns></returns>
         public static ServicesOfBill ParseServicesOfBill(this List<string> list)
         {
-            if (!(list?.Count > 0))
+            if (list==null || !(list?.Count > 0))
             { return null; }
 
             List<ServiceOfBill> services = new List<ServiceOfBill>();
@@ -269,13 +266,14 @@ namespace MobileNumbersDetailizationReportGenerator
                 return 0;
             }
         }
-        
+
         public static string ParseNameOfServiceOfBill(this string rawString, char parser)
         {
-            if (!rawString.Contains(parser))
-                return null;
+            if (rawString == null || !rawString.Contains(parser))
+            { return null; }
 
-            string parsed = rawString.Substring(0,rawString.IndexOf(parser))?.Trim();
+            string parsed = rawString.Substring(0, rawString.IndexOf(parser))?.Trim();
+
             return parsed;
         }
 
@@ -289,8 +287,8 @@ namespace MobileNumbersDetailizationReportGenerator
         public static DetalizationOfContractOfBill ParseDetalizationOfContractOfBill(this List<string> list)
         {
             DetalizationOfContractOfBill detalization = new DetalizationOfContractOfBill();
-            if (!(list?.Count > 0))
-            { return detalization; }
+            if (list == null || !(list?.Count > 0))
+            { return null; }
 
             List<StringOfDetalizationOfContractOfBill> detalizationStrings = new List<StringOfDetalizationOfContractOfBill>();
 
@@ -313,7 +311,7 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <returns></returns>
         public static StringOfDetalizationOfContractOfBill ParseStringOfDetalizationOfContractOfBill(this string DetalizationString)
         {
-            if (DetalizationString?.Length < 100)
+            if (DetalizationString == null || DetalizationString?.Length < 100)
             { return null; }
 
             // status?.Invoke(this, new TextEventArgs(DetalizationString));

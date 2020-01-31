@@ -1,11 +1,12 @@
-using MobileNumbersDetailizationReportGenerator;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 
 namespace NUnitTestProject
 {
-    //   [TestFixture]
+    using MobileNumbersDetailizationReportGenerator;
+    using NUnit.Framework;
+    using System;
+    using System.Collections.Generic;
+
+    [TestFixture]
     public class Tests
     {
 
@@ -17,7 +18,7 @@ namespace NUnitTestProject
         {
             listStringsContract = new List<string>()
             {
-                @"Контракт № 395381736554  Номер телефону: 380503003348",
+                @"Контракт № 395383700054  Номер телефону: 380503003378",
                 @"Тарифний Пакет: RED Business M",
                 @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760",
                 @"ПОСЛУГИ, НАДАНІ ЗА МЕЖАМИ ПАКЕТА: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    78.4327",
@@ -32,7 +33,30 @@ namespace NUnitTestProject
             };
             listStringsDetalizationContract = new List<string>()
             {
-
+@"Вхідні дзвінки                        +380505037527 02.06.2019   20:17:47      0:30                0.0000",
+@"Вхідні повідом.                                5714 02.06.2019   20:18:41         0                0.0000",
+@"Сервіс           content Контент SD 5714#Web ресурс 02.06.2019   20:18:43         0                2.7451",
+@"Вхідні дзвінки                        +380673333305 03.06.2019   09:08:04      3:51                0.0000",
+@"Переадр. дзвінки                       380695222225 27.06.2019   12:12:32      3:41                0.0000",
+@"Переадр. дзвінки Префікс 0800         +380800777950 27.06.2019   12:12:32      3:41                0.0000",
+@"Вихідні дзвінки  Vodafone Україна     +380952254615 27.06.2019   12:36:57      0:17                0.0000",
+@"Вихідні дзвінки  lifecell             +380632888148 27.06.2019   13:37:59      0:17                0.4706",
+@"Вихідні дзвінки  Vodafone Україна     +380959997593 27.06.2019   15:06:27      2:51                0.0000",
+@"Вхідні повідом.                                5714 28.06.2019   20:49:01         0                0.0000",
+@"Сервіс           content Контент SD 5714#Web ресурс 28.06.2019   20:49:04         0                2.7451",
+@"Вхідні дзвінки                        +380507770810 29.06.2019   13:11:46      0:24                0.0000",
+@"Вхідні дзвінки                        +380503333897 29.06.2019   16:46:10      4:43                0.0000",
+@"Вхідні повідом.                                5714 29.06.2019   20:52:45         0                0.0000",
+@"Сервіс           content Контент SD 5714#Web ресурс 29.06.2019   20:52:49         0                2.7451",
+@"Вихідні дзвінки  Київстар             +380688888002 30.06.2019   11:26:10      2:27                1.4118",
+@"Вихідні дзвінки  Vodafone Україна     +380505577577 30.06.2019   13:51:08      1:34                0.0000",
+@"Вхідні повідом.                                5714 30.06.2019   20:56:22         0                0.0000",
+@"Сервіс           content Контент SD 5714#Web ресурс 30.06.2019   20:56:24         0                2.7451",
+@"GPRS/CDMA з'єд.  Передача даних            internet 01.06.2019   00:00:00  96.00 Mb                0.0000",
+@"GPRS/CDMA з'єд.  Передача даних            internet 01.06.2019   10:37:07     33 Kb                0.0000",
+@"GPRS/CDMA з'єд.  Передача даних            internet 02.06.2019   19:38:22    118 Kb                0.0000",
+@"GPRS/CDMA з'єд.  Передача даних            internet 04.06.2019   19:40:54      1 Kb                0.0000",
+@"GPRS/CDMA з'єд.  Передача даних            internet 04.06.2019   20:06:40  33.05 Mb                0.0000"
             };
         }
 
@@ -54,12 +78,74 @@ namespace NUnitTestProject
         {
             var result = ParserDetalizationExtensions.ParseDetalizationOfContractOfBill(listStringsDetalizationContract);
 
-            Assert.AreEqual(@"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА", result.Output[0].Name);
-            Assert.AreEqual(141.176, result.Output[0].Amount);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(@"Вхідні дзвінки", result.Output[0].ServiceName);
+                Assert.AreEqual(@"02.06.2019", result.Output[0].Date);
+                Assert.AreEqual(@"20:17:47", result.Output[0].Time);
+                Assert.AreEqual(@"0:30", result.Output[0].DurationA);
+                Assert.AreEqual(@"", result.Output[0].DurationB);
+                Assert.AreEqual(@"+380505037527", result.Output[0].NumberTarget);
+                Assert.AreEqual(@"0.0000", result.Output[0].Cost);
 
-            Assert.AreEqual(@"ЗАГАЛОМ ЗА КОНТРАКТОМ (БЕЗ ПДВ ТА ПФ)", result.Output[5].Name);
-            Assert.AreEqual(233.334, result.Output[5].Amount);
+                Assert.AreEqual(@"GPRS/CDMA з'єд.  Передача даних", result.Output[21].ServiceName);
+                Assert.AreEqual(@"02.06.2019", result.Output[21].Date);
+                Assert.AreEqual(@"19:38:22", result.Output[21].Time);
+                Assert.AreEqual(@"118 Kb", result.Output[21].DurationA);
+                Assert.AreEqual(@"", result.Output[21].DurationB);
+                Assert.AreEqual(@"internet", result.Output[21].NumberTarget);
+                Assert.AreEqual(@"0.0000", result.Output[21].Cost);
+            });
+        }
 
+        [Test]
+        public void TestParseDetalizationOfContractOfBill_InputNull()
+        {
+            var result = ParserDetalizationExtensions.ParseDetalizationOfContractOfBill(null);
+
+            Assert.AreEqual(null, result);
+        }
+
+        [Test]
+        public void TestParseDetalizationOfContractOfBill_InputEmpty()
+        {
+            var result = ParserDetalizationExtensions.ParseDetalizationOfContractOfBill(new List<string>());
+
+            Assert.AreEqual(null, result);
+        }
+
+        [Test]
+        public void TestParseStringOfDetalizationOfContractOfBill_InputCorrect()
+        {
+            string text = @"GPRS/CDMA з'єд.  Передача даних            internet 02.06.2019   19:38:22    118 Kb                0.0000";
+
+            var result = ParserDetalizationExtensions.ParseStringOfDetalizationOfContractOfBill(text);
+
+            Assert.Multiple(() => {
+                Assert.AreEqual(@"GPRS/CDMA з'єд.  Передача даних", result.ServiceName);
+                Assert.AreEqual(@"02.06.2019", result.Date);
+                Assert.AreEqual(@"19:38:22", result.Time);
+                Assert.AreEqual(@"118 Kb", result.DurationA);
+                Assert.AreEqual(@"", result.DurationB);
+                Assert.AreEqual(@"internet", result.NumberTarget);
+                Assert.AreEqual(@"0.0000", result.Cost);
+            });
+        }
+
+        [Test]
+        public void TestParseStringOfDetalizationOfContractOfBill_InputWrong()
+        {
+            var result = ParserDetalizationExtensions.ParseStringOfDetalizationOfContractOfBill("Wrong or bad Data");
+
+            Assert.AreEqual(null, result);
+        }
+
+        [Test]
+        public void TestParseStringOfDetalizationOfContractOfBill_InputNull()
+        {
+            var result = ParserDetalizationExtensions.ParseStringOfDetalizationOfContractOfBill(null);
+
+            Assert.AreEqual(null, result);
         }
 
         [Test]
@@ -99,6 +185,32 @@ namespace NUnitTestProject
 
             //Assert
             Assert.AreEqual("ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА", result);
+        }
+
+        [Test]
+        public void TestParseNameOfServiceOfBill_ParserExceptedInText()
+        {
+            //Arrange
+            string text = @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760";
+
+            //Act
+            var result = ParserDetalizationExtensions.ParseNameOfServiceOfBill(text, ':');
+
+            //Assert
+            Assert.AreEqual(null, result);
+        }
+
+        [Test]
+        public void TestParseNameOfServiceOfBill_InputNull()
+        {
+            //Arrange
+            string text = null;
+
+            //Act
+            var result = ParserDetalizationExtensions.ParseNameOfServiceOfBill(text, ':');
+
+            //Assert
+            Assert.AreEqual(null, result);
         }
 
         //Test Parsing Contract's Header 
