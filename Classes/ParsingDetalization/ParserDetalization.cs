@@ -225,21 +225,32 @@ namespace MobileNumbersDetailizationReportGenerator
             { return null; }
 
             List<ServiceOfBill> services = new List<ServiceOfBill>();
-            double cost;
-            string name;
+            double cost=0;
+            string name="";
+            bool isMain=false;
 
             foreach (var rawData in list)
             {
                 //  foreach (string parser in parsers)
                 {
-                    if (rawData.Length > 96 && rawData.Contains(':')) //rawData.Contains(parser) && 
+                    if (rawData.Length > 96 ) //rawData.Contains(parser) && 
                     {
                         cost = rawData.ParseCostOfServiceOfBill();
+
+                        if (rawData.Contains(':'))
+                        {
+                            isMain = true;
+                        }
+                        else
+                        {
+                            isMain = false;
+                        }
+
                         name = rawData.ParseNameOfServiceOfBill(':');
 
                         if (name != null)
                         {
-                            services.Add(new ServiceOfBill(name, cost));
+                            services.Add(new ServiceOfBill(name, cost,isMain));
                         }
                     }
                 }
@@ -269,10 +280,17 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public static string ParseNameOfServiceOfBill(this string rawString, char parser)
         {
-            if (rawString == null || !rawString.Contains(parser))
+            if (rawString == null )
             { return null; }
 
-            string parsed = rawString.Substring(0, rawString.IndexOf(parser))?.Trim();
+            string parsed;
+            if (rawString.Contains(parser))
+            { parsed = rawString.Substring(0, rawString.IndexOf(parser))?.Trim();
+            }
+            else
+            {
+                parsed = rawString.Substring(0, rawString.IndexOf(". ."))?.Trim();
+            }
 
             return parsed;
         }

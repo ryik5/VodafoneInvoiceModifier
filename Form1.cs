@@ -2356,19 +2356,28 @@ namespace MobileNumbersDetailizationReportGenerator
 
             textBoxLog.AppendLine();
             string[] test = billList.ToArray();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10; i++)
             { textBoxLog.AppendLine(test[i]); }
+            textBoxLog.AppendLine();
+            textBoxLog.AppendLine("- - - -");
+            textBoxLog.AppendLine();
+
+
+            foreach (var f in contract.ServicesOfContract.Output)
+            { textBoxLog.AppendLine(f.Name + "\t" + f.IsMain + "\t" + f.Amount); }
+            textBoxLog.AppendLine();
+            textBoxLog.AppendLine("- - - -");
+            textBoxLog.AppendLine();
+
+            foreach (var f in contract.DetalizationOfContract.Output)
+            { textBoxLog.AppendLine( f.Date + "\t" + f.DurationA+"\t"+f.NumberTarget+ "\t" + f.Cost); }
+            textBoxLog.AppendLine();
+            textBoxLog.AppendLine("- - - -");
+            textBoxLog.AppendLine();
+
 
             List<string> tmp = new List<string>();
             List<string> service = new List<string>();
-
-            var res = contracts.Select(
-                n => new
-                {
-                 //   n.ServicesOfContract.Output.Select(
-                   //         x => x.Name)
-                }
-                ) ;
 
             foreach (var s in contracts)
             {
@@ -2377,7 +2386,6 @@ namespace MobileNumbersDetailizationReportGenerator
                     service.Add(x.Name);
                 };
             }
-
             service.Sort();
 
             foreach (var t in service.Distinct())

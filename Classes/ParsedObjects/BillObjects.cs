@@ -264,15 +264,18 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public double Amount { get; set; }
 
-        public ServiceOfBill(string name, double amount)
+        public bool IsMain { get; set; }
+
+        public ServiceOfBill(string name, double amount, bool isMain=false)
         {
             Name = name;
             Amount = amount;
+            IsMain = isMain;
         }
 
         public override string ToString()
         {
-            return $"{Name}\t{Amount}";
+            return $"{Name}\t{IsMain}\t{Amount}";
         }
     }
 }
