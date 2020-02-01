@@ -1404,7 +1404,7 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 try
                 {
-                    Invoice invoice = new Invoice
+                    Bill invoice = new Bill
                     {
                         PathToFile = filePathSourceTxt,
                         FileName = Path.GetFileName(filePathSourceTxt)

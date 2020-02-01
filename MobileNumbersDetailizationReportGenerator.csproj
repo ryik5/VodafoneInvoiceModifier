@@ -114,7 +114,6 @@
     <Compile Include="Classes\NeedToRemove\ParsedContractOfBill.cs" />
     <Compile Include="Classes\ParsedObjects\IDetalizationParseable.cs" />
     <Compile Include="Classes\ParsedObjects\AbstractPartOfContractDetalization.cs" />
-    <Compile Include="Classes\ParsingDetalization\MobileNumberOwner.cs" />
     <Compile Include="Classes\ParsedObjects\BillObjects.cs" />
     <Compile Include="Classes\ParsingDetalization\ParserDetalization.cs" />
     <Compile Include="Classes\NeedToRemove\UnUsedColumnInfo.cs" />
@@ -122,14 +121,13 @@
     <Compile Include="Classes\Common\ListExtensions.cs" />
     <Compile Include="Classes\Common\MakingPivotTable.cs" />
     <Compile Include="Classes\Common\DataTableExtensions.cs" />
-    <Compile Include="Classes\ParsedObjects\Invoice.cs" />
+    <Compile Include="Classes\ParsedObjects\Bill.cs" />
     <Compile Include="Classes\NeedToRemove\MobileContractPerson.cs" />
     <Compile Include="Classes\Common\MultiplierInternetTrafic.cs" />
-    <Compile Include="Classes\ParsingDetalization\ParsedStringOfBillWithContractOwner.cs" />
+    <Compile Include="Classes\NeedToRemove\ParsedStringOfBillWithContractOwner.cs" />
     <Compile Include="Classes\Common\StringExtensions.cs" />
     <Compile Include="Classes\Common\TextEventArgs.cs" />
     <Compile Include="Classes\Common\WinFormsExtensions.cs" />
-    <Compile Include="Classes\NeedToRemove\ServiceInDetalization.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

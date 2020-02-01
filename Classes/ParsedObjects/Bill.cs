@@ -1,7 +1,7 @@
 ﻿
 namespace MobileNumbersDetailizationReportGenerator
 {
-    public class Invoice
+    public class Bill
     {
         public string FileName { get; set; }//; // имя текстового файла с детализацией
         public string PathToFile { get; set; }//; // путь к текстовому файлу с детализацией

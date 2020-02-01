@@ -300,7 +300,7 @@ namespace NUnitTestProject
         public void TestToInternetTrafic(string input, string multiplier, double output)
         {
             //Act
-            var result = WinFormsExtensions.ToInternetTrafic(input, multiplier);
+            var result = MultiplierInternetTrafic.ToInternetTrafic(input, multiplier);
 
             //Assert
             Assert.AreEqual(output, result);
@@ -314,7 +314,7 @@ namespace NUnitTestProject
         public void TestToInternetTrafic_With_WrongData(string input, string multiplier, double output)
         {
             //Act
-            var result = WinFormsExtensions.ToInternetTrafic(input, multiplier);
+            var result = MultiplierInternetTrafic.ToInternetTrafic(input, multiplier);
 
             //Assert
             Assert.AreEqual(output, result);
@@ -327,7 +327,7 @@ namespace NUnitTestProject
         public void TestToInternetTrafic_With_WrongMultiplier(string input, string multiplier)
         {
             //Act
-            Exception ex = Assert.Throws<Exception>(() => WinFormsExtensions.ToInternetTrafic(input, multiplier));
+            Exception ex = Assert.Throws<Exception>(() => MultiplierInternetTrafic.ToInternetTrafic(input, multiplier));
 
             //Assert
             Assert.AreEqual("Wrong multiplier!", ex.Message);

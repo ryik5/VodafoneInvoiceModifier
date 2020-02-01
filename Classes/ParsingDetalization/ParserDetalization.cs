@@ -225,33 +225,30 @@ namespace MobileNumbersDetailizationReportGenerator
             { return null; }
 
             List<ServiceOfBill> services = new List<ServiceOfBill>();
-            double cost=0;
-            string name="";
-            bool isMain=false;
+            double cost = 0;
+            string name = "";
+            bool isMain = false;
 
             foreach (var rawData in list)
             {
-                //  foreach (string parser in parsers)
+                if (rawData.Length > 96) //rawData.Contains(parser) && 
                 {
-                    if (rawData.Length > 96 ) //rawData.Contains(parser) && 
+                    cost = rawData.ParseCostOfServiceOfBill();
+
+                    if (rawData.Contains(':'))
                     {
-                        cost = rawData.ParseCostOfServiceOfBill();
+                        isMain = true;
+                    }
+                    else
+                    {
+                        isMain = false;
+                    }
 
-                        if (rawData.Contains(':'))
-                        {
-                            isMain = true;
-                        }
-                        else
-                        {
-                            isMain = false;
-                        }
+                    name = rawData.ParseNameOfServiceOfBill(':');
 
-                        name = rawData.ParseNameOfServiceOfBill(':');
-
-                        if (name != null)
-                        {
-                            services.Add(new ServiceOfBill(name, cost,isMain));
-                        }
+                    if (name != null)
+                    {
+                        services.Add(new ServiceOfBill(name, cost, isMain));
                     }
                 }
             }
@@ -280,12 +277,13 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public static string ParseNameOfServiceOfBill(this string rawString, char parser)
         {
-            if (rawString == null )
+            if (rawString == null)
             { return null; }
 
             string parsed;
             if (rawString.Contains(parser))
-            { parsed = rawString.Substring(0, rawString.IndexOf(parser))?.Trim();
+            {
+                parsed = rawString.Substring(0, rawString.IndexOf(parser))?.Trim();
             }
             else
             {
