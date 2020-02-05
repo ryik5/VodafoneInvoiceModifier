@@ -11,7 +11,7 @@ namespace MobileNumbersDetailizationReportGenerator
     public class ParsedBill //: IParseable
     {
         List<string> WholeBill { get; set; }
-        public List<ServiceOfBill> ServicesOfHeaderOfBill { get; set; }
+        public ServicesOfBill ServicesOfHeaderOfBill { get; set; }
 
         public List<ContractOfBill> ContractsOfBill { get; set; }
 
@@ -21,6 +21,7 @@ namespace MobileNumbersDetailizationReportGenerator
         {
             this.WholeBill = wholeBill;
         }
+
     }
 
 
@@ -56,9 +57,9 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public ContractOfBill(ContractOfBill contract)
         {
-            Header = contract.Header;
-            ServicesOfContract = contract.ServicesOfContract;
-            DetalizationOfContract = contract.DetalizationOfContract;
+            Header = contract?.Header;
+            ServicesOfContract = contract?.ServicesOfContract;
+            DetalizationOfContract = contract?.DetalizationOfContract;
         }
     }
 
@@ -123,7 +124,7 @@ namespace MobileNumbersDetailizationReportGenerator
             StringBuilder sb = new StringBuilder();
             foreach (var s in Output)
             {
-                sb.AppendLine(s.ToString());
+                sb.AppendLine($"{s.Name.PadRight(90)}\t{s.IsMain.ToString().PadRight(8)}\t{s.Amount.ToString().PadRight(15)}");
             }
 
             return $"{sb.ToString()}\n";
@@ -148,10 +149,16 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public override string ToString()
         {
+            if (Output == null)
+                return null;
+
             StringBuilder sb = new StringBuilder();
             foreach (var s in Output)
             {
-                sb.AppendLine(s.ToString());
+                sb.AppendLine(
+                    $"{s.ServiceName.PadRight(80)}\t{s.NumberTarget.PadRight(14)}\t{s.Date.PadRight(10)}\t" +
+                    $"{s.Time.PadRight(8)}\t{s.DurationA.PadRight(8)}\t{s.DurationB.PadRight(8)}\t{s.Cost.PadRight(10)}"
+                    );
             }
 
             return $"{sb.ToString()}\n";
@@ -196,7 +203,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public override string ToString()
         {
-            return $"{ContractId}\t{MobileNumber}\t{TarifPackage}"; ;
+            return $"{ContractId.PadRight(20)}\t{MobileNumber.PadRight(20)}\t{TarifPackage.PadRight(40)}"; ;
         }
     }
 
@@ -213,7 +220,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public override string ToString()
         {
-            return $"{ServiceName}\t{NumberTarget}\t{Date}\t{Time}\t{DurationA}\t{DurationB}\t{Cost}";
+            return $"{ServiceName.PadRight(80)}\t{NumberTarget.PadRight(14)}\t{Date.PadRight(10)}\t" +
+                $"{Time.PadRight(8)}\t{DurationA.PadRight(8)}\t{DurationB.PadRight(8)}\t{Cost.PadRight(10)}";
         }
     }
 

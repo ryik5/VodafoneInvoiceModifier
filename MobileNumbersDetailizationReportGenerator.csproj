@@ -111,6 +111,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Common\TaskExtensionForEachAsync.cs" />
     <Compile Include="Classes\NeedToRemove\ParsedContractOfBill.cs" />
     <Compile Include="Classes\ParsedObjects\IDetalizationParseable.cs" />
     <Compile Include="Classes\ParsedObjects\AbstractPartOfContractDetalization.cs" />

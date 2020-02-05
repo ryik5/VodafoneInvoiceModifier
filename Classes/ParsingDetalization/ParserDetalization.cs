@@ -10,98 +10,116 @@ namespace MobileNumbersDetailizationReportGenerator
     {
         List<ContractOfBill> contracts;
         List<string> contractRaw;
-        ContractsRawOfBill wholeContractsRaw;
-
         List<string> billDetalizationList;
+
         string[] parsers;
-        string startOfContract, stopParsing;
+        string beginningOfFirstLineOfContract, stopParsing;
         public delegate void Status(object sender, TextEventArgs e);
-        public event Status status;
+        public event Status Info;
 
 
         public ParserDetalization() { }
 
-        public ParserDetalization(List<string> billDetalizationList, string[] parsers, string startOfContract, string stopParsing)
+        public ParserDetalization(List<string> billDetalizationList, string[] parsers, string beginningOfFirstLineOfContract, string stopParsing)
         {
             this.billDetalizationList = billDetalizationList;
             this.parsers = parsers;
-            this.startOfContract = startOfContract;
+            this.beginningOfFirstLineOfContract = beginningOfFirstLineOfContract;
             this.stopParsing = stopParsing;
 
-            status?.Invoke(this, new TextEventArgs("исходный список, строк: " + this.billDetalizationList.Count.ToString()));
+            Info?.Invoke(this, new TextEventArgs("исходный счет, строк: " + this.billDetalizationList?.Count.ToString()));
 
+            Info?.Invoke(this, new TextEventArgs("парсеров: " + this.parsers?.Length.ToString()));
+            Info?.Invoke(this, new TextEventArgs("старт-парсер: " + this.beginningOfFirstLineOfContract));
+            Info?.Invoke(this, new TextEventArgs("стоп-парсер: " + this.stopParsing));
         }
 
-        public void SplitWholeBillToSeparatedContracts()
+        public ContractsRawOfBill SplitWholeBillToSeparatedContracts()
         {
             //second variant
             //Raw Contract data
             contractRaw = new List<string>(); //the whole list of contract detalization
             contracts = new List<ContractOfBill>();//List of Contracts with splited on separated parts
-
+            bool headerOfBillFinished = false;
             //first variant
-            wholeContractsRaw = new ContractsRawOfBill();
-            //  ContractRawList ContractRaw = new ContractRawList();
+            ContractsRawOfBill wholeContractsRaw = new ContractsRawOfBill();
 
             foreach (var row in billDetalizationList)
             {
+
                 //contract's Header
-                if (row.StartsWith(startOfContract))
+                if (row.StartsWith(beginningOfFirstLineOfContract))
                 {
-                    if (contractRaw?.Count > 1) //if a contract already has all strings
+                    headerOfBillFinished = true;//Bill's header was finished
+
+                    if (contractRaw?.Count > 2) //if a contract already has had strings
                     {
-                        //first variant
                         wholeContractsRaw.Add(contractRaw);
-
-
-                        //second variant - check
-                        //delelete?
-                        contracts.Add(
-                            new ContractOfBill(
-                                contractRaw.SplitWholeContractToSeparatedMainParts(parsers)
-                                )
-                            ); //create new contract with collected  of the List 'contractRaw' 
                     }
 
                     //Start new the List 'contractRaw'  and add first row 
                     contractRaw = new List<string> { row };
                 }
-                else if (row.StartsWith(stopParsing)) //After this parameter have no any Contract
+                else if (row.StartsWith(stopParsing)) //After this parameter the bill has no contained contracts
                 {
-                    //first variant
-                    //first variant
                     wholeContractsRaw.Add(contractRaw);
 
+                    break;
+                }
+                else
+                {
+                    contractRaw.Add(row);   // add rows to created new the List 'contractRaw'  and add first row 
+                }
 
-                    //second variant - check
-                    //delelete?
-                    contracts.Add(new ContractOfBill(contractRaw)); //write last prepared contract
+                if (!headerOfBillFinished)
+                {
+                }
+            }
+            Info?.Invoke(this, new TextEventArgs("контрактов с сырыми данными, шт: " + wholeContractsRaw.Count().ToString()));
 
-                    break;                  //After this parameter have no any Contract
+            return wholeContractsRaw;
+        }
+
+        public ServicesOfBill GetHeaderOfBill()
+        {
+            //second variant
+            //Raw Contract data
+            contractRaw = new List<string>(); //the whole list of contract detalization
+
+            foreach (var row in billDetalizationList)
+            {
+
+                //contract's Header
+                if (row.StartsWith(beginningOfFirstLineOfContract))
+                {
+                    break;
                 }
                 else
                 {
                     contractRaw.Add(row);   // add rows to created new the List 'contractRaw'  and add first row 
                 }
             }
-            status?.Invoke(this, new TextEventArgs("контрактов с сырыми данными, шт: " + this.contracts.Count.ToString()));
+            Info?.Invoke(this, new TextEventArgs("В шапке счета строк: " + contractRaw.Count().ToString()));
 
+            ServicesOfBill header = new ServicesOfBill(contractRaw.ParseServicesOfBill());
+
+            return header;
         }
 
-        public List<ContractOfBill> ParseContracts()
+        public List<ContractOfBill> ParseContracts(ContractsRawOfBill wholeContractsRaw)
         {
-            // var contracts = wholeContractsRaw.Select(s => s.SplitWholeContractToSeparatedMainParts(parsers));
-
             List<ContractOfBill> result = new List<ContractOfBill>();
 
             foreach (var contractRaw in wholeContractsRaw)
             {
+                //todo
+                //new task for every parsing
                 ContractOfBill contract = new ContractOfBill(contractRaw.SplitWholeContractToSeparatedMainParts(parsers));
 
                 result.Add(contract);
             }
 
-            status?.Invoke(this, new TextEventArgs("Распарсеных контрактов, шт: " + result.Count.ToString()));
+            Info?.Invoke(this, new TextEventArgs("Разделенных контрактов: " + result.Count.ToString()));
 
             return result;
         }
@@ -145,6 +163,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
                 billDetalizationList = new DetalizationOfContractOfBill(partOfContract.ParseDetalizationOfContractOfBill());
             }
+            if (!(header?.ContractId?.Length > 0))
+                return null;
 
             return new ContractOfBill(header, services, billDetalizationList);  //contractOfBill;
         }
@@ -225,9 +245,9 @@ namespace MobileNumbersDetailizationReportGenerator
             { return null; }
 
             List<ServiceOfBill> services = new List<ServiceOfBill>();
-            double cost = 0;
-            string name = "";
-            bool isMain = false;
+            double cost;
+            string name;
+            bool isMain;
 
             foreach (var rawData in list)
             {
@@ -275,17 +295,17 @@ namespace MobileNumbersDetailizationReportGenerator
             }
         }
 
-        public static string ParseNameOfServiceOfBill(this string rawString, char parser)
+        public static string ParseNameOfServiceOfBill(this string rawString, char parserInLineWithMainService)
         {
             if (rawString == null)
             { return null; }
 
             string parsed;
-            if (rawString.Contains(parser))
+            if (rawString.Contains(parserInLineWithMainService)) //line with main service should contains 'parserInLineWithMainService'
             {
-                parsed = rawString.Substring(0, rawString.IndexOf(parser))?.Trim();
+                parsed = rawString.Substring(0, rawString.IndexOf(parserInLineWithMainService))?.Trim();
             }
-            else
+            else                  //every line with service contains - '. . . . . . . . '
             {
                 parsed = rawString.Substring(0, rawString.IndexOf(". ."))?.Trim();
             }

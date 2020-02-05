@@ -12,5 +12,17 @@ namespace MobileNumbersDetailizationReportGenerator
             else
                 source.AppendText($"{Environment.NewLine} {value}");
         }
+
+        //Access to Control from other threads
+        public static string OpenFileDialogReturnPath(this OpenFileDialog ofd) //Return its name 
+        {
+            ofd.FileName = @"";
+            ofd.Filter = Properties.Resources.OpenDialogTextFiles;
+            ofd.ShowDialog();
+            string filePath = ofd.FileName;
+
+            return filePath;
+        }
+
     }
 }

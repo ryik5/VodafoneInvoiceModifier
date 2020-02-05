@@ -69,8 +69,8 @@ namespace NUnitTestProject
             Assert.AreEqual(@"¬¿–“≤—“‹ œ¿ ≈“¿/ŸŒÃ≤—ﬂ◊Õ¿ œÀ¿“¿", result.Output[0].Name);
             Assert.AreEqual(141.176, result.Output[0].Amount);
 
-            Assert.AreEqual(@"«¿√¿ÀŒÃ «¿  ŒÕ“–¿ “ŒÃ (¡≈« œƒ¬ “¿ œ‘)", result.Output[5].Name);
-            Assert.AreEqual(233.334, result.Output[5].Amount);
+            Assert.AreEqual(@"Õ¿ƒ¿Õ≤  ŒÕ“≈Õ“-œŒ—À”√»", result.Output[5].Name);
+            Assert.AreEqual(79.6079, result.Output[5].Amount);
         }
 
         [Test]
@@ -101,17 +101,20 @@ namespace NUnitTestProject
         [Test]
         public void TestParseDetalizationOfContractOfBill_InputNull()
         {
+            DetalizationOfContractOfBill excpected = new DetalizationOfContractOfBill();
             var result = ParserDetalizationExtensions.ParseDetalizationOfContractOfBill(null);
 
-            Assert.AreEqual(null, result);
+            Assert.AreEqual(excpected.ToString(), result.ToString());
         }
 
         [Test]
         public void TestParseDetalizationOfContractOfBill_InputEmpty()
         {
+            DetalizationOfContractOfBill excpected = new DetalizationOfContractOfBill();
+
             var result = ParserDetalizationExtensions.ParseDetalizationOfContractOfBill(new List<string>());
 
-            Assert.AreEqual(null, result);
+            Assert.AreEqual(excpected.ToString(), result.ToString());
         }
 
         [Test]
@@ -188,7 +191,7 @@ namespace NUnitTestProject
         }
 
         [Test]
-        public void TestParseNameOfServiceOfBill_ParserExceptedInText()
+        public void TestParseNameOfServiceOfBill_MissingParserInText()
         {
             //Arrange
             string text = @"¬¿–“≤—“‹ œ¿ ≈“¿/ŸŒÃ≤—ﬂ◊Õ¿ œÀ¿“¿  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760";
@@ -197,7 +200,7 @@ namespace NUnitTestProject
             var result = ParserDetalizationExtensions.ParseNameOfServiceOfBill(text, ':');
 
             //Assert
-            Assert.AreEqual(null, result);
+            Assert.AreEqual(@"¬¿–“≤—“‹ œ¿ ≈“¿/ŸŒÃ≤—ﬂ◊Õ¿ œÀ¿“¿", result);
         }
 
         [Test]

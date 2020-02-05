@@ -577,13 +577,19 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
         private void MessageShow(string text)
-        { Task.Run(() => MessageBox.Show(text)); }
+        { 
+            Task.Run(() => MessageBox.Show(text)); 
+        }
 
         private void MessageShow(object sender, TextEventArgs e)
-        { MessageShow(e.Message); }
+        { 
+            MessageShow(e.Message);
+        }
 
         private void TextLogAdd(object sender, TextEventArgs e)
-        { textBoxLog.AppendLine(e.Message); }
+        {
+            textBoxLog.AppendLine(e.Message);
+        }
 
 
         private void LoadBillIntoMemoryToFilter()
@@ -780,7 +786,7 @@ namespace MobileNumbersDetailizationReportGenerator
             string s = "";
             int i = 0; // it is not empty's rows in the selected file
 
-            string filepathLoadedData = OpenFileDialogReturnPath(openFileDialog1);
+            string filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
             if (filepathLoadedData?.Length > 0)
             {
                 try
@@ -811,12 +817,11 @@ namespace MobileNumbersDetailizationReportGenerator
             return listValue;
         }
 
-        private List<string> LoadDataUsingParameters(List<string> listParameters, string startStringLoad, string endStringLoad, string excepted) //max List length = 500 000 rows
+        private List<string> LoadDataUsingParameters(List<string> listParameters, string startStringOfLoadingBill, string stopStringOfLoadingBill, string noLoadStringWithText) //max List length = 500 000 rows
         {
             checkedRahunok = false;
             checkedNomerRahunku = false;
             checkedPeriod = false;
-            int? countParameters = listParameters?.Count;
             int countStepProgressBar = 500;
             int listMaxLength = 500000;
             List<string> listRows = new List<string>(listMaxLength);
@@ -828,103 +833,108 @@ namespace MobileNumbersDetailizationReportGenerator
                 bool startLoadData = false;
                 bool endLoadData = false;
                 var Coder = Encoding.GetEncoding(1251);
-                if (countParameters > 0)
+
+                if (oldSavedInvoice)
                 {
-                    if (oldSavedInvoice)
+                    DialogResult result = MessageBox.Show(
+                          "Использовать предыдущий выбор файла?" + Environment.NewLine + strSavedPathToInvoice,
+                          Properties.Resources.Attention,
+                          MessageBoxButtons.YesNo,
+                          MessageBoxIcon.Exclamation,
+                          MessageBoxDefaultButton.Button1);
+                    if (result == DialogResult.No)
                     {
-                        DialogResult result = MessageBox.Show(
-                              "Использовать предыдущий выбор файла?" + Environment.NewLine + strSavedPathToInvoice,
-                              Properties.Resources.Attention,
-                              MessageBoxButtons.YesNo,
-                              MessageBoxIcon.Exclamation,
-                              MessageBoxDefaultButton.Button1);
-                        if (result == DialogResult.No)
-                        {
-                            filepathLoadedData = OpenFileDialogReturnPath(openFileDialog1);
-                        }
-                        else
-                        {
-                            filepathLoadedData = strSavedPathToInvoice;
-                        }
+                        filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
                     }
-                    else if (!currentInvoice)
+                    else
                     {
-                        filepathLoadedData = OpenFileDialogReturnPath(openFileDialog1);
+                        filepathLoadedData = strSavedPathToInvoice;
                     }
+                }
+                else if (!currentInvoice)
+                {
+                    filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
+                }
 
-                    if (filepathLoadedData?.Length > 2 && File.Exists(filepathLoadedData))
+                if (filepathLoadedData?.Length > 2 && File.Exists(filepathLoadedData))
+                {
+                    ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filepathLoadedData);
+                    int counter = 0;
+                    try
                     {
-                        ToolStripStatusLabelSetText(StatusLabel1, "Обрабатываю файл:  " + filepathLoadedData);
-                        int counter = 0;
-                        try
+                        using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
                         {
-                            using (StreamReader Reader = new StreamReader(filepathLoadedData, Coder))
+                            while ((loadedString = Reader?.ReadLine()?.Trim()) != null && !endLoadData && listRows.Count < listMaxLength)
                             {
-                                while ((loadedString = Reader?.ReadLine()?.Trim()) != null && !endLoadData && listRows.Count < listMaxLength)
+                                clearedLoadedString = loadedString?.Trim();
+
+                                //Set label Date
+                                if (clearedLoadedString.Contains("Особовий рахунок")) { checkedRahunok = true; }
+                                if (clearedLoadedString.Contains("Номер рахунку")) { checkedNomerRahunku = true; }
+                                if (clearedLoadedString.Contains("Розрахунковий період"))
                                 {
-                                    clearedLoadedString = loadedString?.Trim();
+                                    string[] substrings = Regex.Split(clearedLoadedString, ": ");
+                                    periodInvoice = substrings[substrings.Length - 1].Trim();
+                                    checkedPeriod = true;
+                                }
 
-                                    //Set label Date
-                                    if (clearedLoadedString.Contains("Особовий рахунок")) { checkedRahunok = true; }
-                                    if (clearedLoadedString.Contains("Номер рахунку")) { checkedNomerRahunku = true; }
-                                    if (clearedLoadedString.Contains("Розрахунковий період"))
+                                if (clearedLoadedString.StartsWith(startStringOfLoadingBill))
+                                { startLoadData = true; }
+                                else if (clearedLoadedString.StartsWith(stopStringOfLoadingBill))
+                                { endLoadData = true; }
+
+                                if (startLoadData && clearedLoadedString?.Length > 0)
+                                {
+                                    if (listParameters?.Count > 0)
                                     {
-                                        string[] substrings = Regex.Split(clearedLoadedString, ": ");
-                                        periodInvoice = substrings[substrings.Length - 1].Trim();
-                                        checkedPeriod = true;
-                                    }
-
-                                    if (clearedLoadedString.StartsWith(startStringLoad))
-                                    { startLoadData = true; }
-                                    else if (clearedLoadedString.StartsWith(endStringLoad))
-                                    { endLoadData = true; }
-
-                                    if (startLoadData && clearedLoadedString?.Length > 0)
-                                    {
-                                        if (listParameters?.Count > 2)
+                                        foreach (string parameterString in listParameters)
                                         {
-                                            foreach (string parameterString in listParameters)
+                                            if (noLoadStringWithText!=null && clearedLoadedString.StartsWith(parameterString) && !clearedLoadedString.Contains(noLoadStringWithText))
                                             {
-                                                if (clearedLoadedString.StartsWith(parameterString) && !clearedLoadedString.Contains(excepted))
-                                                {
-                                                    listRows.Add(clearedLoadedString);
-                                                    counter++;
-                                                    break;
-                                                }
+                                                listRows.Add(clearedLoadedString);
+                                                counter++;
+                                                break;
+                                            }
+                                           else if (clearedLoadedString.StartsWith(parameterString))
+                                            {
+                                                listRows.Add(clearedLoadedString);
+                                                counter++;
+                                                break;
                                             }
                                         }
-                                        else
-                                        {
-                                            listRows.Add(clearedLoadedString);
-                                            counter++;
-                                        }
                                     }
-                                    countStepProgressBar--;
-                                    if (countStepProgressBar == 0)
+                                    else
                                     {
-                                        ProgressWork1Step();
-                                        countStepProgressBar = 500;
+                                        listRows.Add(clearedLoadedString);
+                                        counter++;
                                     }
                                 }
+                                countStepProgressBar--;
+                                if (countStepProgressBar == 0)
+                                {
+                                    ProgressWork1Step();
+                                    countStepProgressBar = 500;
+                                }
                             }
-
-                            if (checkedPeriod && checkedRahunok && checkedNomerRahunku)
-                            {
-                                ControlSetItsText(labelPeriod, periodInvoice);
-                            }
-
-                            ParameterLastInvoiceRegistrySave();
                         }
-                        catch (Exception expt)
-                        { MessageBox.Show("Error was happened on " + listRows.Count + " row" + Environment.NewLine + expt.ToString()); }
-                        textBoxLog.AppendLine("Из файла-счета: " + Environment.NewLine);
-                        textBoxLog.AppendLine(filepathLoadedData);
-                        textBoxLog.AppendLine("отобрано для построения отчета " + counter + " строк с требуемыми сервисами");
-                        if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
-                        { MessageBox.Show("Error was happened on " + (listRows.Count) + " row" + Environment.NewLine + " You've been chosen the long file!"); }
+
+                        if (checkedPeriod && checkedRahunok && checkedNomerRahunku)
+                        {
+                            ControlSetItsText(labelPeriod, periodInvoice);
+                        }
+
+                        ParameterLastInvoiceRegistrySave();
                     }
-                    else { MessageBox.Show("Did not select File!"); }
+                    catch (Exception expt)
+                    { MessageBox.Show("Error was happened on " + listRows.Count + " row" + Environment.NewLine + expt.ToString()); }
+                    textBoxLog.AppendLine("Из файла-счета: " + Environment.NewLine);
+                    textBoxLog.AppendLine(filepathLoadedData);
+                    textBoxLog.AppendLine("отобрано для построения отчета " + counter + " строк с требуемыми сервисами");
+                    if (listMaxLength - 2 < listRows.Count || listRows.Count == 0)
+                    { MessageBox.Show("Error was happened on " + (listRows.Count) + " row" + Environment.NewLine + " You've been chosen the long file!"); }
                 }
+                else { MessageBox.Show("Did not select File!"); }
+
             }
             catch (Exception expt) { MessageBox.Show(expt.ToString()); }
             return listRows;
@@ -1398,7 +1408,7 @@ namespace MobileNumbersDetailizationReportGenerator
             bool ChosenFile;
             int i = 0; //amount contracts in the current bill
             listTempContract.Clear();
-            filePathSourceTxt = OpenFileDialogReturnPath(openFileDialog1);
+            filePathSourceTxt = openFileDialog1.OpenFileDialogReturnPath();
 
             if (filePathSourceTxt?.Length > 3)
             {
@@ -2039,27 +2049,6 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
 
-        //Access to Control from other threads
-        private string OpenFileDialogReturnPath(OpenFileDialog ofd) //Return its name 
-        {
-            string filePath = "";
-            if (InvokeRequired)
-                Invoke(new MethodInvoker(delegate
-                {
-                    ofd.FileName = @"";
-                    ofd.Filter = Properties.Resources.OpenDialogTextFiles;
-                    ofd.ShowDialog();
-                    filePath = ofd.FileName;
-                }));
-            else
-            {
-                ofd.FileName = @"";
-                ofd.Filter = Properties.Resources.OpenDialogTextFiles;
-                ofd.ShowDialog();
-                filePath = ofd.FileName;
-            }
-            return filePath;
-        }
 
         private void ProgressWork1Step(string text = "") //add into progressBar Value 2 from other threads
         {
@@ -2312,91 +2301,113 @@ namespace MobileNumbersDetailizationReportGenerator
         {
             textBoxLog.Clear();
             textBoxLog.Visible = false;
+            string startBillHeader = @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА";
+            string startContract = @"Контракт №";
+            string endBillDetalization= @"ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
 
-            List<string> filterBill = new List<string>
-            {
-                parsers[1],
-                parsers[2]
-            };
-
-
-            List<string> billList = LoadDataUsingParameters(filterBill, parametrStart, pStop, null);
+            List<string> billList = LoadDataUsingParameters(null, startBillHeader, endBillDetalization, null);
             textBoxLog.AppendLine("В прочитаном счете строк: " + billList.Count.ToString());
-
-            parsers[1] = ControlReturnText(textBoxP1);
-            parsers[2] = ControlReturnText(textBoxP2);
-
-             List<string> parsersList = parsers.ToList();
-            parsersList.Add(pStop);
-            parsersList.Add(pBillDeliveryCost);
-            parsersList.Add(pBillDeliveryCostDiscount);
-
-            string[] parsersBill = parsersList.ToArray();
-
-            ParsedBill parsedBill = new ParsedBill();
-
-            //to change reading of file
-            ParserDetalization parsedDetalization = new ParserDetalization(billList, parsersBill,parametrStart,pStop);
-
-            parsedDetalization.status += TextLogAdd;
-
-            parsedDetalization.SplitWholeBillToSeparatedContracts();
-
-            List<ContractOfBill> contracts = parsedDetalization.ParseContracts();
-            textBoxLog.AppendLine("Распарсеных контрактов: " + contracts.Count);
-
-            ContractOfBill contract = contracts.ElementAt(1);
-            textBoxLog.AppendLine("1-й контракт:");
-            textBoxLog.AppendLine("MobileNumber: " + contract?.Header?.MobileNumber);
-            textBoxLog.AppendLine("ContractId: " + contract?.Header?.ContractId);
-            textBoxLog.AppendLine("TarifPackage: " + contract?.Header?.TarifPackage);
-            textBoxLog.AppendLine("Всего сервисов в контракте: " + contract?.ServicesOfContract?.Output?.Count);
-          //  textBoxLog.AppendLine("1-й элемент в списке сервисов: " + contract?.ServicesOfContract?.Output?.ElementAt(1).Name);
-            textBoxLog.AppendLine("Всего детализаций в контракте: " + contract?.DetalizationOfContract?.Output?.Count);
-
-            textBoxLog.AppendLine();
+            textBoxLog.AppendLine("Первые 10 строк счета подготовленного для парсинга:");
             string[] test = billList.ToArray();
             for (int i = 0; i < 10; i++)
             { textBoxLog.AppendLine(test[i]); }
-            textBoxLog.AppendLine();
             textBoxLog.AppendLine("- - - -");
             textBoxLog.AppendLine();
 
 
-            foreach (var f in contract.ServicesOfContract.Output)
-            { textBoxLog.AppendLine(f.Name + "\t" + f.IsMain + "\t" + f.Amount); }
-            textBoxLog.AppendLine();
+            parsers[1] = ControlReturnText(textBoxP1);
+            parsers[2] = ControlReturnText(textBoxP2);
+            parsers.ExpandArray(pStop).ExpandArray(pBillDeliveryCost).ExpandArray(pBillDeliveryCostDiscount);
+
+            //to change reading of file
+            ParserDetalization parsedDetalization = new ParserDetalization(billList, parsers, startContract, endBillDetalization);
+            parsedDetalization.Info += TextLogAdd;
+
+            //Шапка счета
+            ParsedBill bill = new ParsedBill();
+            bill.ServicesOfHeaderOfBill = parsedDetalization.GetHeaderOfBill();
+            textBoxLog.AppendLine("Парсеры загруженного счета:");
+            textBoxLog.AppendLine(bill.ServicesOfHeaderOfBill.ToString());
             textBoxLog.AppendLine("- - - -");
             textBoxLog.AppendLine();
 
-            foreach (var f in contract.DetalizationOfContract.Output)
-            { textBoxLog.AppendLine( f.Date + "\t" + f.DurationA+"\t"+f.NumberTarget+ "\t" + f.Cost); }
-            textBoxLog.AppendLine();
+
+            //Распарсенные контракты
+            ContractsRawOfBill wholeContractsRaw=  parsedDetalization.SplitWholeBillToSeparatedContracts();
+            List<ContractOfBill> contracts = parsedDetalization.ParseContracts(wholeContractsRaw);
+            textBoxLog.AppendLine("Распарсеных контрактов: " + contracts.Count);
             textBoxLog.AppendLine("- - - -");
             textBoxLog.AppendLine();
 
+
+            //1-й распарсенный контракт:
+            try
+            {
+                ContractOfBill contract = contracts.ElementAt(1);
+                textBoxLog.AppendLine("1-й контракт:");
+                textBoxLog.AppendLine("MobileNumber: " + contract?.Header?.MobileNumber);
+                textBoxLog.AppendLine("ContractId: " + contract?.Header?.ContractId);
+                textBoxLog.AppendLine("TarifPackage: " + contract?.Header?.TarifPackage);
+                textBoxLog.AppendLine("Всего сервисов в контракте: " + contract?.ServicesOfContract?.Output?.Count);
+                textBoxLog.AppendLine("Сервисы в контракте:");
+                textBoxLog.AppendLine(contract.ServicesOfContract.ToString());
+                textBoxLog.AppendLine("- - - -");
+                textBoxLog.AppendLine();
+
+                textBoxLog.AppendLine("Всего детализаций в контракте: " + contract?.DetalizationOfContract?.Output?.Count);
+                textBoxLog.AppendLine("Строки с детализацией в контракте:");
+                textBoxLog.AppendLine(contract.DetalizationOfContract.ToString());
+                textBoxLog.AppendLine("- - - -");
+                textBoxLog.AppendLine();
+            }
+            catch { }
 
             List<string> tmp = new List<string>();
             List<string> service = new List<string>();
 
-            foreach (var s in contracts)
+            if (contracts?.Count > 0)
             {
-                foreach (var x in s?.ServicesOfContract?.Output)
+                foreach (var s in contracts)
                 {
-                    service.Add(x.Name);
-                };
+                    if (s?.ServicesOfContract?.Output?.Count > 0)
+                    {
+                        foreach (var x in s?.ServicesOfContract?.Output)
+                        {
+                            if (x?.Name?.Length > 0)
+                                service.Add(x.Name);
+                        };
+                    }
+                }
             }
             service.Sort();
 
+            textBoxLog.AppendLine("Перечень всех сервисов в контрактах:");
             foreach (var t in service.Distinct())
             {
                 textBoxLog.AppendLine(t);
             }
 
+            textBoxLog.AppendLine("- - - -");
+            textBoxLog.AppendLine();
+
+            textBoxLog.AppendLine("Перечень контрактов:");
+            int k = 1;
+            if (contracts?.Count > 0)
+            {
+                foreach (var s in contracts)
+                {
+                   // if (s?.Header?.ContractId?.Length > 0)
+                    {
+                        textBoxLog.AppendLine(k+".\t"+s?.Header?.ToString());
+                        k++;
+                    }
+                }
+            }
+            textBoxLog.AppendLine("- - - -");
             textBoxLog.AppendLine();
 
 
-            parsedDetalization.status -= TextLogAdd;
+            parsedDetalization.Info -= TextLogAdd;
 
             textBoxLog.Visible = true;
         }
