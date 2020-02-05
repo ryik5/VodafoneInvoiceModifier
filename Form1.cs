@@ -1692,21 +1692,22 @@ namespace MobileNumbersDetailizationReportGenerator
                             mcpCurrent.EndDayPeriodBill = dataEnd;
                             mcpCurrent.TaxCost = CalculateTax(mcpCurrent.TotalCost);
                             mcpCurrent.PFCost = CalculatePf(mcpCurrent.TotalCost);
-                            mcpCurrent.TotalCostWithTax = mcpCurrent.TotalCost * 1.275;  //number spend+НДС+ПФ
+                            mcpCurrent.TotalCostWithTax = mcpCurrent.TotalCost * 1.275;  //полная сумма к оплате с налогами
 
                             searchNumber = mcpCurrent.CellNumber;
-                            foreach (DataRow dr in dtOwnerOfMobileWithinSelectedPeriod.Rows)
-                            {
-                                if (dr.ItemArray[0].ToString().Contains(searchNumber))
-                                {
-                                    mcpCurrent.OwnerName = dr.ItemArray[1].ToString();
-                                    mcpCurrent.NAV = dr.ItemArray[2].ToString();
-                                    mcpCurrent.Department = dr.ItemArray[3].ToString();
-                                    mcpCurrent.StartDayOfModelCompensation = dr.ItemArray[5].ToString();
-                                    mcpCurrent.ModelCompensation = dr.ItemArray[6].ToString();
-                                    break;
-                                }
-                            }
+
+
+                            var data = dtOwnerOfMobileWithinSelectedPeriod.AsEnumerable()
+                                    .Where(r => r.Field<string>("Номер телефона").Contains(searchNumber)).FirstOrDefault();
+
+                            mcpCurrent.OwnerName = data.Field<string>("ФИО").ToString();
+                            mcpCurrent.NAV = data.Field<string>("NAV").ToString();
+                            mcpCurrent.Department = data.Field<string>("Подразделение").ToString();
+                            mcpCurrent.StartDayOfModelCompensation = data.Field<string>("Действует c").ToString();
+                            mcpCurrent.ModelCompensation = data.Field<string>("Модель компенсации").ToString();
+
+
+
                             mcpCurrent.payOwner = ClaculateAmountPaymentOfContractOwner(mcpCurrent);
                             mcpCurrent.isUsedNumber = isUsedCurrent;
                             if (mcpCurrent.TotalCostWithTax > 0)
@@ -1849,7 +1850,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 row[17] = dataEnd;
                 row[18] = "E22";
                 row[19] = "IT-дирекция";
-                row[21] = "T[6] L100% корпорация";
+                row[21] = "Тарифная модель[6] L100% корпорация";
                 dtMobile.Rows.Add(row);
             }
             catch (Exception Expt) { MessageBox.Show(Expt.ToString(), Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error); }
@@ -1930,7 +1931,7 @@ namespace MobileNumbersDetailizationReportGenerator
                                     row["Подразделение"] = record["org_unit_name"].ToString().Trim();
                                     row["Основной"] = DefineMainPhone(record["main"].ToString());
                                     row["Действует c"] = record["from_dt"].ToString().Trim().Split(' ')[0];
-                                    row["Модель компенсации"] = "T[" + record["pay_model_id"].ToString().Trim() + "] " + model;
+                                    row["Модель компенсации"] = "Тарифная модель[" + record["pay_model_id"].ToString().Trim() + "] " + model;
 
                                     //record contracts with error
                                     if (record["pay_model_id"].ToString().Trim().Length == 0) sbError.AppendLine(row["Номер телефона"].ToString().Trim() + ", " + row["ФИО"].ToString().Trim() + " - " + row["Модель компенсации"]);
