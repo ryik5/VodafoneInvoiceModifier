@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("©Yuri Ryabchenko")]
 [assembly: AssemblyProduct("MobileNumbersDetailizationReportGenerator")]
-[assembly: AssemblyCopyright("©Yuri Ryabchenko 2016 - 2019")]
+[assembly: AssemblyCopyright("©Yuri Ryabchenko 2016 - 2020")]
 [assembly: AssemblyTrademark("©Yuri Ryabchenko")]
 [assembly: AssemblyCulture("")]
 
