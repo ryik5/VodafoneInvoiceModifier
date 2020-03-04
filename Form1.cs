@@ -33,7 +33,7 @@ namespace MobileNumbersDetailizationReportGenerator
         bool checkedNomerRahunku = false;
         bool checkedPeriod = false;
 
-        //  private string pConnection = ""; //string connection to MS SQL DB
+        string pConnection = ""; //string connection to MS SQL DB
         string pConnectionServer = ""; //string connection to MS SQL DB
         string pConnectionUserName = ""; //string connection to MS SQL DB
         string pConnectionUserPasswords = ""; //string connection to MS SQL DB
@@ -1332,7 +1332,7 @@ namespace MobileNumbersDetailizationReportGenerator
         private bool CheckAliveDbServer()
         {
             bool state = false;
-            string pConnection =
+            pConnection =
                 $"Data Source={pConnectionServer}; Initial Catalog=EBP; Type System Version=SQL Server 2005; Persist Security Info =True" +
                 $"; User ID={pConnectionUserName}; Password={pConnectionUserPasswords}; Connect Timeout=5";
 
@@ -1861,6 +1861,31 @@ namespace MobileNumbersDetailizationReportGenerator
 
         private DataTable GetDataWithModel()  // получение данных из базы ТФактура
         {
+            pConnection = $"Data Source={pConnectionServer}; Initial Catalog=EBP;Type System Version=SQL Server 2005;Persist Security Info =True;User ID=" +
+                          $"{pConnectionUserName}; Password={pConnectionUserPasswords}; Connect Timeout=180";
+
+            //work with entity
+            //using (System.Data.Entity.Core.EntityClient.EntityConnection entityConn =
+            //      new System.Data.Entity.Core.EntityClient.EntityConnection(
+            //          EFConnectionBuilder.Build(pConnection).ToString()))
+            //{
+            //    entityConn.Open();
+
+            //    EBPEntities entities = new EBPEntities(entityConn.ConnectionString);
+            //    var result = entities.v_rs_contract_detail.Where(x => x.till_dt == null)
+            //       // .Join( )
+            //        ;
+            //    var toShow = string.Empty;
+            //    foreach (var s in result)
+            //    {
+            //        toShow += s.phone_no+" "+s.contract_id+"\n";
+            //    }
+            //    MessageBox.Show(toShow);
+
+            //    entityConn.Close();
+            //}
+
+
             DataTable dt = dtOwnerOfMobileWithinSelectedPeriod.Clone();
 
             string dataFromLabel = ControlReturnText(labelPeriod);
@@ -1902,10 +1927,6 @@ namespace MobileNumbersDetailizationReportGenerator
 
             try
             {
-                string pConnection = "Data Source=" + pConnectionServer +
-                "; Initial Catalog=EBP;Type System Version=SQL Server 2005;Persist Security Info =True;User ID=" +
-                pConnectionUserName + "; Password=" + pConnectionUserPasswords + "; Connect Timeout=180";
-
                 using (System.Data.SqlClient.SqlConnection sqlConnection = new System.Data.SqlClient.SqlConnection(pConnection))
                 {
                     sqlConnection.Open();
