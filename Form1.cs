@@ -1695,8 +1695,7 @@ namespace MobileNumbersDetailizationReportGenerator
                             mcpCurrent.TotalCostWithTax = mcpCurrent.TotalCost * 1.275;  //полная сумма к оплате с налогами
 
                             searchNumber = mcpCurrent.CellNumber;
-
-
+                            
                             var data = dtOwnerOfMobileWithinSelectedPeriod.AsEnumerable()
                                     .Where(r => r.Field<string>("Номер телефона").Contains(searchNumber)).FirstOrDefault();
 
@@ -1705,9 +1704,7 @@ namespace MobileNumbersDetailizationReportGenerator
                             mcpCurrent.Department = data.Field<string>("Подразделение").ToString();
                             mcpCurrent.StartDayOfModelCompensation = data.Field<string>("Действует c").ToString();
                             mcpCurrent.ModelCompensation = data.Field<string>("Модель компенсации").ToString();
-
-
-
+                                                       
                             mcpCurrent.payOwner = ClaculateAmountPaymentOfContractOwner(mcpCurrent);
                             mcpCurrent.isUsedNumber = isUsedCurrent;
                             if (mcpCurrent.TotalCostWithTax > 0)
