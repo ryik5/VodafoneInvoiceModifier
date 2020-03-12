@@ -14,11 +14,20 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
         //Access to Control from other threads
-        public static string OpenFileDialogReturnPath(this OpenFileDialog ofd) //Return its name 
+        public static string OpenFileDialogReturnPath(this OpenFileDialog ofd, string title) //Return its name 
         {
-            ofd.FileName = @"";
-            ofd.Filter = Properties.Resources.OpenDialogTextFiles;
+            if (ofd == null)
+            {
+                ofd = new OpenFileDialog
+                {
+                    Title = title,
+                    FileName = @"",
+                    Filter = Properties.Resources.OpenDialogTextFiles
+                };
+            }
+                    
             ofd.ShowDialog();
+
             string filePath = ofd.FileName;
 
             return filePath;

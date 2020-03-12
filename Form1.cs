@@ -446,7 +446,7 @@ namespace MobileNumbersDetailizationReportGenerator
         private async void prepareBillItem_Click(object sender, EventArgs e)
         {
             dtMarket?.Rows?.Clear();
-            await Task.Run(() => LoadBillIntoMemoryToFilter());
+            LoadBillIntoMemoryToFilter();
 
             string pathToFile = Path.Combine(Path.GetDirectoryName(filepathLoadedData), $"{Path.GetFileNameWithoutExtension(filepathLoadedData)}");
             string[] columnsCollection;
@@ -786,7 +786,7 @@ namespace MobileNumbersDetailizationReportGenerator
             string s = "";
             int i = 0; // it is not empty's rows in the selected file
 
-            string filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
+            string filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath("Открыть текстовый файл");
             if (filepathLoadedData?.Length > 0)
             {
                 try
@@ -826,35 +826,17 @@ namespace MobileNumbersDetailizationReportGenerator
             int listMaxLength = 500000;
             List<string> listRows = new List<string>(listMaxLength);
             string loadedString = "",clearedLoadedString;
-            bool oldSavedInvoice = strSavedPathToInvoice?.Length > 2 ? true : false;
-            bool currentInvoice = filepathLoadedData?.Length > 2 ? true : false;
+          //  bool oldSavedInvoice = strSavedPathToInvoice?.Length > 2?true:false ;
+           // bool currentInvoice = filepathLoadedData?.Length > 2 ? true : false;
             try
             {
                 bool startLoadData = false;
                 bool endLoadData = false;
                 var Coder = Encoding.GetEncoding(1251);
 
-                if (oldSavedInvoice)
-                {
-                    DialogResult result = MessageBox.Show(
-                          "Использовать предыдущий выбор файла?" + Environment.NewLine + strSavedPathToInvoice,
-                          Properties.Resources.Attention,
-                          MessageBoxButtons.YesNo,
-                          MessageBoxIcon.Exclamation,
-                          MessageBoxDefaultButton.Button1);
-                    if (result == DialogResult.No)
-                    {
-                        filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
-                    }
-                    else
-                    {
-                        filepathLoadedData = strSavedPathToInvoice;
-                    }
-                }
-                else if (!currentInvoice)
-                {
-                    filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
-                }
+                
+                filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath("Открыть счет в текстовом виде");
+
 
                 if (filepathLoadedData?.Length > 2 && File.Exists(filepathLoadedData))
                 {
@@ -1408,7 +1390,7 @@ namespace MobileNumbersDetailizationReportGenerator
             bool ChosenFile;
             int i = 0; //amount contracts in the current bill
             listTempContract.Clear();
-            filePathSourceTxt = openFileDialog1.OpenFileDialogReturnPath();
+            filePathSourceTxt = openFileDialog1.OpenFileDialogReturnPath("Открыть счет в текстовом файле");
 
             if (filePathSourceTxt?.Length > 3)
             {
