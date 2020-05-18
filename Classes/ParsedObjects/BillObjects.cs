@@ -1,29 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
 
-    public class ParsedBill //: IParseable
+    public class ParsedBill 
     {
-        List<string> WholeBill { get; set; }
         public ServicesOfBill ServicesOfHeaderOfBill { get; set; }
 
-        public List<ContractOfBill> ContractsOfBill { get; set; }
-
         public ParsedBill() { }
-
-        public ParsedBill(List<string> wholeBill)
-        {
-            this.WholeBill = wholeBill;
-        }
-
     }
-
 
     /// <summary>
     /// only fully parsed contract with header and body detalization
@@ -35,18 +23,6 @@ namespace MobileNumbersDetailizationReportGenerator
         public ServicesOfBill ServicesOfContract { get; set; }
 
         public DetalizationOfContractOfBill DetalizationOfContract { get; set; }
-
-        public List<string> Source { get; private set; }
-
-
-        public ContractOfBill()
-        {
-            Header = new HeaderOfContractOfBill();
-            ServicesOfContract = new ServicesOfBill();
-            DetalizationOfContract = new DetalizationOfContractOfBill();
-        }
-
-        public ContractOfBill(List<string> source) { Source = source; }
 
         public ContractOfBill(HeaderOfContractOfBill header, ServicesOfBill services, DetalizationOfContractOfBill detalization)
         {
@@ -69,8 +45,8 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public void Add(List<string> list)
         {
-            if (this.first == null)
-                this.first = new ContractRawListNode
+            if (first == null)
+                first = new ContractRawListNode
                 {
                     Value = list
                 };
@@ -109,9 +85,6 @@ namespace MobileNumbersDetailizationReportGenerator
 
     public class ServicesOfBill : AbstractPartOfContractDetalization<ServiceOfBill>//, IParseable
     {
-        public ServicesOfBill() { }
-
-        public ServicesOfBill(List<string> source) : base(source) { }
 
         public ServicesOfBill(List<ServiceOfBill> list)
         { Output = list; }
@@ -136,9 +109,7 @@ namespace MobileNumbersDetailizationReportGenerator
     {
         public DetalizationOfContractOfBill() { }
         public DetalizationOfContractOfBill(DetalizationOfContractOfBill detalization)
-        {
-            Output = detalization.Output;
-        }
+        { Output = detalization.Output; }
 
         public DetalizationOfContractOfBill(List<string> source) : base(source) { }
 
@@ -170,13 +141,6 @@ namespace MobileNumbersDetailizationReportGenerator
     {
         public HeaderOfContractOfBill() { }
 
-        public HeaderOfContractOfBill(ContractOfBill contract)
-        {
-            ContractId = contract.Header.ContractId;
-            MobileNumber = contract.Header.MobileNumber;
-            TarifPackage = contract.Header.TarifPackage;
-        }
-
         public HeaderOfContractOfBill(HeaderOfContractOfBill header)
         {
             ContractId = header.ContractId;
@@ -190,10 +154,6 @@ namespace MobileNumbersDetailizationReportGenerator
             MobileNumber = number;
             TarifPackage = tarif;
         }
-
-        public HeaderOfContractOfBill(List<string> source) { Source = source; }
-
-        public List<string> Source { get; private set; }
 
         public string ContractId { get; private set; }
 

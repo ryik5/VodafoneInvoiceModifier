@@ -71,54 +71,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
             return dt;
         }
-
-        /*
-                //public DataTable GroupBy(DataTable source, string groupByColumn)
-                //{
-                //    DataView dv = new DataView(source);
-
-                //    //getting distinct values for group column
-                //    DataTable dtGroup = dv.ToTable(true, new string[] { groupByColumn });
-
-                //    //returning grouped/counted result
-                //    return dtGroup;
-                //}
-                //public DataTable ComputeAndGroupBy(string i_sGroupByColumn, string i_sAggregateColumn, DataTable i_dSourceTable)
-                //{
-                //    DataView dv = new DataView(i_dSourceTable);
-
-                //    //getting distinct values for group column
-                //    DataTable dtGroup = dv.ToTable(true, new string[] { i_sGroupByColumn });
-
-                //    //adding column for the row count
-                //    //   dtGroup.Columns.Add("Sum", typeof(decimal));
-
-                //    //looping thru distinct values for the group, counting
-                //    foreach (DataRow dr in dtGroup.Rows)
-                //    {
-                //        //     dr["Sum"] = i_dSourceTable.Compute("Sum(" + i_sAggregateColumn + ")", i_sGroupByColumn + " = '" + dr[i_sGroupByColumn] + "'");
-                //    }
-
-                //    //returning grouped/counted result
-                //    return dtGroup;
-                //}
-
-                //private DataColumnCollection SourceDataTableInfo(string calledByMethod)
-                //{
-                //    List<string> columnsName = new List<string>();
-                //    DataColumnCollection columns = _source.Columns;
-                //    foreach (DataColumn dc in columns)
-                //    {
-                //        columnsName.Add(dc.ColumnName);
-                //    }
-                //    Status?.Invoke(this, new TextEventArgs($"Calling method: {calledByMethod}"));
-                //    Status?.Invoke(this, new TextEventArgs($"Колонок в таблице: {_source.Columns.Count}{Environment.NewLine}Колонки в таблице:{Environment.NewLine}{columnsName.AsString(Environment.NewLine)}"));
-                //    Status?.Invoke(this, new TextEventArgs($"Строк в таблице: {_source.Rows.Count}"));
-
-                //    return columns;
-                //}
-                */
-
+                
         public virtual DataTable MakePivot()
         {
 
@@ -205,25 +158,6 @@ namespace MobileNumbersDetailizationReportGenerator
         public DataTable Source { get { return _source; } }
     }
 
-    /// <summary>
-    /// It will always return a copy of DataTable
-    /// </summary>
-    //public abstract class Datatable
-    //{
-    //    DataTable _source;
-    //    public DataTable Source
-    //    {
-    //        get { return _source.Copy(); }
-    //        set { _source = value; }
-    //    }
-    //}
-
-    //public interface IFilterableDataTable
-    //{
-    //    DataTable MakePivotDataTable1(DataTable source);
-    //    DataTable MakePivotDataTable2(DataTable source);
-    //}
-
     public class ConditionForMakingPivotTable
     {
         /// <summary>
@@ -261,17 +195,4 @@ namespace MobileNumbersDetailizationReportGenerator
      //   public TypeData TypeResultCalcultedData { get; set; }
     }
 
-    //[Flags]
-    //public enum TypeData
-    //{
-    //    None = 0,
-    //    DataBool = 1,
-    //    DataInt = 2,
-    //    DataLong = 4,
-    //    DataDouble = 8,
-    //    DataString = 16,
-    //    DataStringMb = 32,
-    //    DataStringkB = 64,
-    //    DataStringB = 128,
-    //}
 }

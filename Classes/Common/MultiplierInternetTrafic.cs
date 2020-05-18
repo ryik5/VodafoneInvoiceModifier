@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
@@ -34,8 +33,7 @@ namespace MobileNumbersDetailizationReportGenerator
             }
             return result;
         }
-
-
+        
         /// <summary>
         /// waiting source as '20 Gb' or '20 Mb' or '20 Kb' or '20 b' 
         /// formResult as 'Gb' or 'Mb' or 'Kb' or 'b'

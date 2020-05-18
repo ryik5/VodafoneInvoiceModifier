@@ -1,7 +1,4 @@
-﻿
-using System.Text.RegularExpressions;
-
-namespace MobileNumbersDetailizationReportGenerator
+﻿namespace MobileNumbersDetailizationReportGenerator
 {
 
 
@@ -29,17 +26,12 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public ParsingStringDetalizationOfBill() { }
 
-        public ParsingStringDetalizationOfBill(string detalizationString)
-        { DetalizationString = detalizationString; }
-
         public ParsingStringDetalizationOfBill(string detalizationString, ParsedContractOfBill parsedString)
         {
             DetalizationString = detalizationString;
             ParsedString = parsedString;
         }
 
-        public ParsingStringDetalizationOfBill(ParsedContractOfBill parsedString)
-        { ParsedString = parsedString; }
 
         /// <summary>
         /// if string of Detalization has correct's length (from 95 to) it will return true
@@ -63,35 +55,6 @@ namespace MobileNumbersDetailizationReportGenerator
             ParsedString.DurationB = DetalizationString?.Substring(84, 9)?.Trim() ?? "";
             ParsedString.Cost = DetalizationString?.Substring(95)?.Trim() ?? "";
           
-            return true;
-        }
-
-        public bool ParseFirstStringOfHeaderOfContractOfBill(string headerContract)
-        {
-            if (!(headerContract?.Length > 0))
-                return false;
-
-            ParsedString = new ParsedContractOfBill
-            {
-                contract = Regex.Split(headerContract.Substring(headerContract.IndexOf('№') + 1).Trim(), " ")[0].Trim()
-            };
-
-            string tempRow = headerContract.Substring(headerContract.IndexOf(':') + 1).Trim();
- 
-            //set format number like '+380...'
-            if (tempRow.StartsWith("+"))
-            { ParsedString.numberOwner = tempRow; }
-            else
-            { ParsedString.numberOwner = "+" + tempRow; }
-
-            //   "Проверьте правильность выбора файла с контрактами с детализацией разговоров!" + Environment.NewLine +
-            //    "Возможно поменялся формат." + Environment.NewLine +
-            //    "Правильный формат первых строк с новым контрактом:" + Environment.NewLine +
-            //    @"Моб.номер" + " 000000000  Моб.номер: 380000000000" + Environment.NewLine +
-            //    @"Ціновий Пакет: название_пакета" + Environment.NewLine + "далее - детализацией разговоров контракта" + Environment.NewLine +
-            //    "В данном случае строка с началом разбираемого контракта имеет форму:" + Environment.NewLine +
-            //    row + Environment.NewLine + "Ошибка: " + err.ToString()
-
             return true;
         }
 

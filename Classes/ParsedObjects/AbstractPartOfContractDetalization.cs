@@ -14,13 +14,11 @@ namespace MobileNumbersDetailizationReportGenerator
 
         public List<T> Output { get; protected set; }
 
-        //  public virtual void Parse() { }
-
         public AbstractPartOfContractDetalization() { }
 
         public AbstractPartOfContractDetalization(List<string> source)
         {
-            this.Source = source;
+            Source = source;
         }
     }
 }

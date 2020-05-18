@@ -37,7 +37,7 @@ namespace MobileNumbersDetailizationReportGenerator
         string pConnectionServer = ""; //string connection to MS SQL DB
         string pConnectionUserName = ""; //string connection to MS SQL DB
         string pConnectionUserPasswords = ""; //string connection to MS SQL DB
-        
+
         string[] parsers = new string[] //Features of the mobile contract and db that have the values
        {
             // со счета
@@ -248,8 +248,9 @@ namespace MobileNumbersDetailizationReportGenerator
             ListsRegistryDataCheck();
             useSavedDataItem.Enabled = foundSavedData;
             useSavedDataItem.ToolTipText = "Использовать сохраненный список файлов и сервисов из предыдущей сессии";
-        }
 
+            CheckConditionEnableMarketingReport();
+        }
 
         private void AboutSoft()
         {
@@ -577,21 +578,15 @@ namespace MobileNumbersDetailizationReportGenerator
         }
 
         private void MessageShow(string text)
-        { 
-            Task.Run(() => MessageBox.Show(text)); 
-        }
-
-        private void MessageShow(object sender, TextEventArgs e)
-        { 
-            MessageShow(e.Message);
+        {
+            Task.Run(() => MessageBox.Show(text));
         }
 
         private void TextLogAdd(object sender, TextEventArgs e)
         {
             textBoxLog.AppendLine(e.Message);
         }
-
-
+        
         private void LoadBillIntoMemoryToFilter()
         {
             ProgressBar1Start();
@@ -773,9 +768,9 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 ToolStripMenuItemEnabled(prepareBillItem, true);
             }
-            else if (selectedServices && selectedNumbers)
+            else
             {
-                ToolStripMenuItemEnabled(prepareBillItem, true);
+                ToolStripMenuItemEnabled(prepareBillItem, false);
             }
         }
 
@@ -825,36 +820,14 @@ namespace MobileNumbersDetailizationReportGenerator
             int countStepProgressBar = 500;
             int listMaxLength = 500000;
             List<string> listRows = new List<string>(listMaxLength);
-            string loadedString = "",clearedLoadedString;
-            bool oldSavedInvoice = strSavedPathToInvoice?.Length > 2 ? true : false;
-            bool currentInvoice = filepathLoadedData?.Length > 2 ? true : false;
+            string loadedString = "", clearedLoadedString;
+
             try
             {
                 bool startLoadData = false;
                 bool endLoadData = false;
                 var Coder = Encoding.GetEncoding(1251);
 
-                if (oldSavedInvoice)
-                {
-                    DialogResult result = MessageBox.Show(
-                          "Использовать предыдущий выбор файла?" + Environment.NewLine + strSavedPathToInvoice,
-                          Properties.Resources.Attention,
-                          MessageBoxButtons.YesNo,
-                          MessageBoxIcon.Exclamation,
-                          MessageBoxDefaultButton.Button1);
-                    if (result == DialogResult.No)
-                    {
-                        filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
-                    }
-                    else
-                    {
-                        filepathLoadedData = strSavedPathToInvoice;
-                    }
-                }
-                else if (!currentInvoice)
-                {
-                    filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
-                }
 
                 if (filepathLoadedData?.Length > 2 && File.Exists(filepathLoadedData))
                 {
@@ -889,13 +862,13 @@ namespace MobileNumbersDetailizationReportGenerator
                                     {
                                         foreach (string parameterString in listParameters)
                                         {
-                                            if (noLoadStringWithText!=null && clearedLoadedString.StartsWith(parameterString) && !clearedLoadedString.Contains(noLoadStringWithText))
+                                            if (noLoadStringWithText != null && clearedLoadedString.StartsWith(parameterString) && !clearedLoadedString.Contains(noLoadStringWithText))
                                             {
                                                 listRows.Add(clearedLoadedString);
                                                 counter++;
                                                 break;
                                             }
-                                           else if (clearedLoadedString.StartsWith(parameterString))
+                                            else if (clearedLoadedString.StartsWith(parameterString))
                                             {
                                                 listRows.Add(clearedLoadedString);
                                                 counter++;
@@ -952,7 +925,7 @@ namespace MobileNumbersDetailizationReportGenerator
             if (listSavedServices?.Count > 0)
             { listServices = listSavedServices; }
 
-            if (listSavedNumbers?.Count > 0 && listSavedServices?.Count > 0)
+            if (listSavedNumbers?.Count > 0 && listSavedServices?.Count > 0 && filepathLoadedData?.Length > 2 && File.Exists(filepathLoadedData))
             { prepareBillItem.Enabled = true; }
         }
 
@@ -961,7 +934,7 @@ namespace MobileNumbersDetailizationReportGenerator
             dtMobile?.Rows?.Clear();
             filePathSourceTxt = null;
             sbError = new StringBuilder();
-            StatusLabel1.BackColor = System.Drawing.SystemColors.Control;
+            StatusLabel1.BackColor = SystemColors.Control;
 
             textBoxLog.Visible = false;
             newModels = false;
@@ -1183,7 +1156,7 @@ namespace MobileNumbersDetailizationReportGenerator
         {
             string s = "", info = "";
             bool b1 = false, b2 = false;
-            toolTip1.SetToolTip(this.groupBox1, "Использованы исходные настройки программы");
+            toolTip1.SetToolTip(groupBox1, "Использованы исходные настройки программы");
 
             if (File.Exists(pathToIni))
             {
@@ -1287,10 +1260,10 @@ namespace MobileNumbersDetailizationReportGenerator
 
                 ProgressBar1Start();
                 string infoStatus = null, infoStatusTooltip = null;
-                System.Drawing.Color infoStatusBackColor = System.Drawing.SystemColors.Menu;
+                Color infoStatusBackColor = SystemColors.Menu;
                 using (Timer timer1 = new Timer { Interval = 200, Enabled = true })
                 {
-                    timer1.Tick += new System.EventHandler(this.timer1_Tick);
+                    timer1.Tick += new EventHandler(this.timer1_Tick);
                     timer1.Start();
 
                     bool aliveServer = true;
@@ -2048,8 +2021,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 { newModels = true; }
             }
         }
-
-
+        
 
         private void ProgressWork1Step(string text = "") //add into progressBar Value 2 from other threads
         {
@@ -2100,7 +2072,6 @@ namespace MobileNumbersDetailizationReportGenerator
             }
         }
 
-
         private void timer1_Tick(object sender, EventArgs e) //Change a Color of the Font on Status by the Timer
         {
             if (InvokeRequired)
@@ -2137,8 +2108,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 ProgressBar1.Value += 1;
             }
         }
-
-
+        
         private string ControlReturnText(Control controlText) //Return its name 
         {
             string tBox = "";
@@ -2304,7 +2274,7 @@ namespace MobileNumbersDetailizationReportGenerator
             textBoxLog.Visible = false;
             string startBillHeader = @"ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА";
             string startContract = @"Контракт №";
-            string endBillDetalization= @"ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
+            string endBillDetalization = @"ЗАГАЛОМ ЗА ВСІМА КОНТРАКТАМИ";
 
             List<string> billList = LoadDataUsingParameters(null, startBillHeader, endBillDetalization, null);
             textBoxLog.AppendLine("В прочитаном счете строк: " + billList.Count.ToString());
@@ -2334,7 +2304,7 @@ namespace MobileNumbersDetailizationReportGenerator
 
 
             //Распарсенные контракты
-            ContractsRawOfBill wholeContractsRaw=  parsedDetalization.SplitWholeBillToSeparatedContracts();
+            ContractsRawOfBill wholeContractsRaw = parsedDetalization.SplitWholeBillToSeparatedContracts();
             List<ContractOfBill> contracts = parsedDetalization.ParseContracts(wholeContractsRaw);
             textBoxLog.AppendLine("Распарсеных контрактов: " + contracts.Count);
             textBoxLog.AppendLine("- - - -");
@@ -2397,9 +2367,9 @@ namespace MobileNumbersDetailizationReportGenerator
             {
                 foreach (var s in contracts)
                 {
-                   // if (s?.Header?.ContractId?.Length > 0)
+                    // if (s?.Header?.ContractId?.Length > 0)
                     {
-                        textBoxLog.AppendLine(k+".\t"+s?.Header?.ToString());
+                        textBoxLog.AppendLine(k + ".\t" + s?.Header?.ToString());
                         k++;
                     }
                 }
@@ -2412,21 +2382,5 @@ namespace MobileNumbersDetailizationReportGenerator
 
             textBoxLog.Visible = true;
         }
-
-
-        private string MessageWrite(object sender, TextEventArgs e)
-        { return e.Message; }
-
-
     }
-
-    public enum StringOfDetalizationsOfContract
-    {
-        None = 0,
-        ContractIdentification = 1,
-        Header = 4,
-        Body = 8,
-        Stop = 16
-    }
-
 }

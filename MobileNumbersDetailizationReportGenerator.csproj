@@ -111,15 +111,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Common\TaskExtensionForEachAsync.cs" />
     <Compile Include="Classes\NeedToRemove\ParsedContractOfBill.cs" />
-    <Compile Include="Classes\ParsedObjects\IDetalizationParseable.cs" />
     <Compile Include="Classes\ParsedObjects\AbstractPartOfContractDetalization.cs" />
     <Compile Include="Classes\ParsedObjects\BillObjects.cs" />
     <Compile Include="Classes\ParsingDetalization\ParserDetalization.cs" />
-    <Compile Include="Classes\NeedToRemove\UnUsedColumnInfo.cs" />
-    <Compile Include="Classes\NeedToRemove\UnUsedDataTableExtensions.cs" />
-    <Compile Include="Classes\Common\ListExtensions.cs" />
     <Compile Include="Classes\Common\MakingPivotTable.cs" />
     <Compile Include="Classes\Common\DataTableExtensions.cs" />
     <Compile Include="Classes\ParsedObjects\Bill.cs" />

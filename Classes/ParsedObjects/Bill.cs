@@ -1,5 +1,4 @@
-﻿
-namespace MobileNumbersDetailizationReportGenerator
+﻿namespace MobileNumbersDetailizationReportGenerator
 {
     public class Bill
     {

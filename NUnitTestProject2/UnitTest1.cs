@@ -265,7 +265,7 @@ namespace NUnitTestProject
             string text = "Контракт № 395409092966  Моб.номер: 380500251894";
 
             //Act
-            var result = ParserDetalizationExtensions.GetMobileNumber(text);
+            var result = ParserDetalizationExtensions.SetMobileNumber(text);
 
             //Assert
             Assert.AreEqual("+380500251894", result);

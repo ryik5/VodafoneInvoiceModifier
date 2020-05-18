@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MobileNumbersDetailizationReportGenerator
 {
     public class ParserDetalization
     {
-        List<ContractOfBill> contracts;
         List<string> contractRaw;
         List<string> billDetalizationList;
 
@@ -16,9 +12,6 @@ namespace MobileNumbersDetailizationReportGenerator
         string beginningOfFirstLineOfContract, stopParsing;
         public delegate void Status(object sender, TextEventArgs e);
         public event Status Info;
-
-
-        public ParserDetalization() { }
 
         public ParserDetalization(List<string> billDetalizationList, string[] parsers, string beginningOfFirstLineOfContract, string stopParsing)
         {
@@ -39,7 +32,6 @@ namespace MobileNumbersDetailizationReportGenerator
             //second variant
             //Raw Contract data
             contractRaw = new List<string>(); //the whole list of contract detalization
-            contracts = new List<ContractOfBill>();//List of Contracts with splited on separated parts
             bool headerOfBillFinished = false;
             //first variant
             ContractsRawOfBill wholeContractsRaw = new ContractsRawOfBill();
@@ -188,16 +180,13 @@ namespace MobileNumbersDetailizationReportGenerator
 
             foreach (var rawData in list)
             {
-                // if (!(rawData?.Length > 0))
-                //     continue;
-
                 if (rawData.Contains(parsers[1]))           //"Контракт №"  //Raw data = Контракт № 395409092966  Моб.номер: 380500251894 
                 {
                     //look for Contract's ID
                     contractId = GetContractId(rawData);
 
                     //look for Contract's Mobile number
-                    mobileNumber = GetMobileNumber(rawData);
+                    mobileNumber = SetMobileNumber(rawData);
                 }
                 else if (rawData.Contains(parsers[3]))  //@"Ціновий Пакет" //Raw data = Ціновий Пакет: RED Business M
                 {
@@ -214,11 +203,16 @@ namespace MobileNumbersDetailizationReportGenerator
             return System.Text.RegularExpressions.Regex.Split(data.Substring(data.IndexOf('№') + 1).Trim(), " ")[0].Trim();
         }
 
-        public static string GetMobileNumber(string data)
+        /// <summary>
+        /// set format number like '+380...'
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string SetMobileNumber(string data)
         {
             string mobileNumber;
             string tempRow = data.Substring(data.IndexOf(':') + 1).Trim();
-            //set format number like '+380...'
+
             if (tempRow.StartsWith("+"))
             { mobileNumber = tempRow; }
             else
@@ -283,16 +277,12 @@ namespace MobileNumbersDetailizationReportGenerator
         /// <param name="rawData">likes 'ВАРТІСТЬ ПАКЕТА/ЩОМІСЯЧНА ПЛАТА:  . . . . . . . . . . . . . . . . . . . .     0.0000  141.1760  141.1760'</param>
         public static double ParseCostOfServiceOfBill(this string rawData)
         {
-            double cost = 0;
             string parsed = rawData.Substring(rawData.LastIndexOf(' '))?.Trim();
-            if (double.TryParse(parsed, out cost))
-            {
+            
+            if (double.TryParse(parsed, out double cost))
                 return cost;
-            }
             else
-            {
                 return 0;
-            }
         }
 
         public static string ParseNameOfServiceOfBill(this string rawString, char parserInLineWithMainService)
@@ -348,8 +338,6 @@ namespace MobileNumbersDetailizationReportGenerator
         {
             if (DetalizationString == null || DetalizationString?.Length < 100)
             { return null; }
-
-            // status?.Invoke(this, new TextEventArgs(DetalizationString));
 
             return new StringOfDetalizationOfContractOfBill
             {

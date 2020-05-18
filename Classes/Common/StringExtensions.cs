@@ -40,24 +40,5 @@ namespace MobileNumbersDetailizationReportGenerator
            
             return temp;
         }
-
-        /// <summary>
-        /// Expand array upto an extra cell
-        /// </summary>
-        /// <param name="source">array which need to expand</param>
-        /// <param name="extraCell">an extra cell</param>
-        /// <returns></returns>
-        public static int[] ExpandArray(this int[] source, int extraCell)
-        {
-            if (!(source?.Length > 0))
-            { return source; }
-
-            List<int> list = source.ToList();
-            list.Add(extraCell);
-            int[] temp = list.ToArray();
-
-            return temp;
-        }
-
     }
 }
