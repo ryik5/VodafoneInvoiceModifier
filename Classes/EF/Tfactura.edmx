@@ -1,0 +1,269 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="EBPModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2005" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="os_contract_link">
+          <Key>
+            <PropertyRef Name="contract_link_id" />
+          </Key>
+          <Property Name="contract_link_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="contract_id" Type="int" Nullable="false" />
+          <Property Name="org_unit_id" Type="int" />
+          <Property Name="emp_id" Type="int" />
+          <Property Name="from_dt" Type="datetime" Nullable="false" />
+          <Property Name="till_dt" Type="datetime" />
+          <Property Name="pay_model_id" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'EBP.dbo.v_dp_contract_bill_detail_ex' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="v_dp_contract_bill_detail_ex">
+          <Key>
+            <PropertyRef Name="contract_bill_id" />
+            <PropertyRef Name="contract_id" />
+            <PropertyRef Name="begin_dt" />
+            <PropertyRef Name="end_dt" />
+            <PropertyRef Name="provider_cd" />
+            <PropertyRef Name="account_name" />
+          </Key>
+          <Property Name="contract_bill_id" Type="int" Nullable="false" />
+          <Property Name="contract_id" Type="int" Nullable="false" />
+          <Property Name="begin_dt" Type="datetime" Nullable="false" />
+          <Property Name="end_dt" Type="datetime" Nullable="false" />
+          <Property Name="tariff_package_name" Type="varchar" MaxLength="80" />
+          <Property Name="contract_total" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="emp_name" Type="varchar" MaxLength="194" />
+          <Property Name="org_unit_name" Type="varchar" MaxLength="200" />
+          <Property Name="warning_cnt" Type="int" />
+          <Property Name="provider_cd" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="account_name" Type="varchar" MaxLength="64" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'EBP.dbo.v_rs_contract_detail' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="v_rs_contract_detail">
+          <Key>
+            <PropertyRef Name="contract_id" />
+            <PropertyRef Name="account_id" />
+            <PropertyRef Name="phone_no" />
+            <PropertyRef Name="state" />
+            <PropertyRef Name="account_name" />
+          </Key>
+          <Property Name="contract_id" Type="int" Nullable="false" />
+          <Property Name="account_id" Type="int" Nullable="false" />
+          <Property Name="contract_no" Type="varchar" MaxLength="30" />
+          <Property Name="phone_no" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="phone_no_raw" Type="varchar" MaxLength="30" />
+          <Property Name="state" Type="char" MaxLength="1" Nullable="false" />
+          <Property Name="descr" Type="varchar" MaxLength="300" />
+          <Property Name="account_name" Type="varchar" MaxLength="64" Nullable="false" />
+          <Property Name="owner_org_unit_id" Type="int" />
+          <Property Name="org_unit_id" Type="int" />
+          <Property Name="emp_id" Type="int" />
+          <Property Name="emp_name" Type="varchar" MaxLength="194" />
+          <Property Name="emp_position" Type="varchar" MaxLength="200" />
+          <Property Name="org_unit_name" Type="varchar" MaxLength="200" />
+          <Property Name="org_unit_cd_path" Type="varchar" MaxLength="1000" />
+          <Property Name="org_unit_cd_path_name" Type="varchar" MaxLength="1201" />
+          <Property Name="contract_link_id" Type="int" />
+          <Property Name="from_dt" Type="datetime" />
+          <Property Name="till_dt" Type="datetime" />
+        </EntityType>
+        <EntityContainer Name="EBPModelStoreContainer">
+          <EntitySet Name="os_contract_link" EntityType="Self.os_contract_link" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="v_dp_contract_bill_detail_ex" EntityType="Self.v_dp_contract_bill_detail_ex" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [v_dp_contract_bill_detail_ex].[contract_bill_id] AS [contract_bill_id], 
+    [v_dp_contract_bill_detail_ex].[contract_id] AS [contract_id], 
+    [v_dp_contract_bill_detail_ex].[begin_dt] AS [begin_dt], 
+    [v_dp_contract_bill_detail_ex].[end_dt] AS [end_dt], 
+    [v_dp_contract_bill_detail_ex].[tariff_package_name] AS [tariff_package_name], 
+    [v_dp_contract_bill_detail_ex].[contract_total] AS [contract_total], 
+    [v_dp_contract_bill_detail_ex].[emp_name] AS [emp_name], 
+    [v_dp_contract_bill_detail_ex].[org_unit_name] AS [org_unit_name], 
+    [v_dp_contract_bill_detail_ex].[warning_cnt] AS [warning_cnt], 
+    [v_dp_contract_bill_detail_ex].[provider_cd] AS [provider_cd], 
+    [v_dp_contract_bill_detail_ex].[account_name] AS [account_name]
+    FROM [dbo].[v_dp_contract_bill_detail_ex] AS [v_dp_contract_bill_detail_ex]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="v_rs_contract_detail" EntityType="Self.v_rs_contract_detail" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [v_rs_contract_detail].[contract_id] AS [contract_id], 
+    [v_rs_contract_detail].[account_id] AS [account_id], 
+    [v_rs_contract_detail].[contract_no] AS [contract_no], 
+    [v_rs_contract_detail].[phone_no] AS [phone_no], 
+    [v_rs_contract_detail].[phone_no_raw] AS [phone_no_raw], 
+    [v_rs_contract_detail].[state] AS [state], 
+    [v_rs_contract_detail].[descr] AS [descr], 
+    [v_rs_contract_detail].[account_name] AS [account_name], 
+    [v_rs_contract_detail].[owner_org_unit_id] AS [owner_org_unit_id], 
+    [v_rs_contract_detail].[org_unit_id] AS [org_unit_id], 
+    [v_rs_contract_detail].[emp_id] AS [emp_id], 
+    [v_rs_contract_detail].[emp_name] AS [emp_name], 
+    [v_rs_contract_detail].[emp_position] AS [emp_position], 
+    [v_rs_contract_detail].[org_unit_name] AS [org_unit_name], 
+    [v_rs_contract_detail].[org_unit_cd_path] AS [org_unit_cd_path], 
+    [v_rs_contract_detail].[org_unit_cd_path_name] AS [org_unit_cd_path_name], 
+    [v_rs_contract_detail].[contract_link_id] AS [contract_link_id], 
+    [v_rs_contract_detail].[from_dt] AS [from_dt], 
+    [v_rs_contract_detail].[till_dt] AS [till_dt]
+    FROM [dbo].[v_rs_contract_detail] AS [v_rs_contract_detail]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="EBPModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="os_contract_link">
+          <Key>
+            <PropertyRef Name="contract_link_id" />
+          </Key>
+          <Property Name="contract_link_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="contract_id" Type="Int32" Nullable="false" />
+          <Property Name="org_unit_id" Type="Int32" />
+          <Property Name="emp_id" Type="Int32" />
+          <Property Name="from_dt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="till_dt" Type="DateTime" Precision="3" />
+          <Property Name="pay_model_id" Type="Int32" />
+        </EntityType>
+        <EntityType Name="v_dp_contract_bill_detail_ex">
+          <Key>
+            <PropertyRef Name="contract_bill_id" />
+            <PropertyRef Name="contract_id" />
+            <PropertyRef Name="begin_dt" />
+            <PropertyRef Name="end_dt" />
+            <PropertyRef Name="provider_cd" />
+            <PropertyRef Name="account_name" />
+          </Key>
+          <Property Name="contract_bill_id" Type="Int32" Nullable="false" />
+          <Property Name="contract_id" Type="Int32" Nullable="false" />
+          <Property Name="begin_dt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="end_dt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="tariff_package_name" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="contract_total" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="emp_name" Type="String" MaxLength="194" FixedLength="false" Unicode="false" />
+          <Property Name="org_unit_name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="warning_cnt" Type="Int32" />
+          <Property Name="provider_cd" Type="String" MaxLength="32" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="account_name" Type="String" MaxLength="64" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityType Name="v_rs_contract_detail">
+          <Key>
+            <PropertyRef Name="contract_id" />
+            <PropertyRef Name="account_id" />
+            <PropertyRef Name="phone_no" />
+            <PropertyRef Name="state" />
+            <PropertyRef Name="account_name" />
+          </Key>
+          <Property Name="contract_id" Type="Int32" Nullable="false" />
+          <Property Name="account_id" Type="Int32" Nullable="false" />
+          <Property Name="contract_no" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="phone_no" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="phone_no_raw" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="state" Type="String" MaxLength="1" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="descr" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="account_name" Type="String" MaxLength="64" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="owner_org_unit_id" Type="Int32" />
+          <Property Name="org_unit_id" Type="Int32" />
+          <Property Name="emp_id" Type="Int32" />
+          <Property Name="emp_name" Type="String" MaxLength="194" FixedLength="false" Unicode="false" />
+          <Property Name="emp_position" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="org_unit_name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="org_unit_cd_path" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="org_unit_cd_path_name" Type="String" MaxLength="1201" FixedLength="false" Unicode="false" />
+          <Property Name="contract_link_id" Type="Int32" />
+          <Property Name="from_dt" Type="DateTime" Precision="3" />
+          <Property Name="till_dt" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityContainer Name="EBPEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="os_contract_link" EntityType="Self.os_contract_link" />
+          <EntitySet Name="v_dp_contract_bill_detail_ex" EntityType="Self.v_dp_contract_bill_detail_ex" />
+          <EntitySet Name="v_rs_contract_detail" EntityType="Self.v_rs_contract_detail" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="EBPModelStoreContainer" CdmEntityContainer="EBPEntities">
+          <EntitySetMapping Name="os_contract_link">
+            <EntityTypeMapping TypeName="EBPModel.os_contract_link">
+              <MappingFragment StoreEntitySet="os_contract_link">
+                <ScalarProperty Name="contract_link_id" ColumnName="contract_link_id" />
+                <ScalarProperty Name="contract_id" ColumnName="contract_id" />
+                <ScalarProperty Name="org_unit_id" ColumnName="org_unit_id" />
+                <ScalarProperty Name="emp_id" ColumnName="emp_id" />
+                <ScalarProperty Name="from_dt" ColumnName="from_dt" />
+                <ScalarProperty Name="till_dt" ColumnName="till_dt" />
+                <ScalarProperty Name="pay_model_id" ColumnName="pay_model_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="v_dp_contract_bill_detail_ex">
+            <EntityTypeMapping TypeName="EBPModel.v_dp_contract_bill_detail_ex">
+              <MappingFragment StoreEntitySet="v_dp_contract_bill_detail_ex">
+                <ScalarProperty Name="contract_bill_id" ColumnName="contract_bill_id" />
+                <ScalarProperty Name="contract_id" ColumnName="contract_id" />
+                <ScalarProperty Name="begin_dt" ColumnName="begin_dt" />
+                <ScalarProperty Name="end_dt" ColumnName="end_dt" />
+                <ScalarProperty Name="tariff_package_name" ColumnName="tariff_package_name" />
+                <ScalarProperty Name="contract_total" ColumnName="contract_total" />
+                <ScalarProperty Name="emp_name" ColumnName="emp_name" />
+                <ScalarProperty Name="org_unit_name" ColumnName="org_unit_name" />
+                <ScalarProperty Name="warning_cnt" ColumnName="warning_cnt" />
+                <ScalarProperty Name="provider_cd" ColumnName="provider_cd" />
+                <ScalarProperty Name="account_name" ColumnName="account_name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="v_rs_contract_detail">
+            <EntityTypeMapping TypeName="EBPModel.v_rs_contract_detail">
+              <MappingFragment StoreEntitySet="v_rs_contract_detail">
+                <ScalarProperty Name="contract_id" ColumnName="contract_id" />
+                <ScalarProperty Name="account_id" ColumnName="account_id" />
+                <ScalarProperty Name="contract_no" ColumnName="contract_no" />
+                <ScalarProperty Name="phone_no" ColumnName="phone_no" />
+                <ScalarProperty Name="phone_no_raw" ColumnName="phone_no_raw" />
+                <ScalarProperty Name="state" ColumnName="state" />
+                <ScalarProperty Name="descr" ColumnName="descr" />
+                <ScalarProperty Name="account_name" ColumnName="account_name" />
+                <ScalarProperty Name="owner_org_unit_id" ColumnName="owner_org_unit_id" />
+                <ScalarProperty Name="org_unit_id" ColumnName="org_unit_id" />
+                <ScalarProperty Name="emp_id" ColumnName="emp_id" />
+                <ScalarProperty Name="emp_name" ColumnName="emp_name" />
+                <ScalarProperty Name="emp_position" ColumnName="emp_position" />
+                <ScalarProperty Name="org_unit_name" ColumnName="org_unit_name" />
+                <ScalarProperty Name="org_unit_cd_path" ColumnName="org_unit_cd_path" />
+                <ScalarProperty Name="org_unit_cd_path_name" ColumnName="org_unit_cd_path_name" />
+                <ScalarProperty Name="contract_link_id" ColumnName="contract_link_id" />
+                <ScalarProperty Name="from_dt" ColumnName="from_dt" />
+                <ScalarProperty Name="till_dt" ColumnName="till_dt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
