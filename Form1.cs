@@ -780,8 +780,17 @@ namespace MobileNumbersDetailizationReportGenerator
             List<string> listValue = new List<string>(listMaxLength);
             string s = "";
             int i = 0; // it is not empty's rows in the selected file
+            string filepathLoadedData = null;
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                filepathLoadedData = ofd.OpenFileDialogReturnPath("Открыть текстовый счет МТС(Вудафон)");
 
-            string filepathLoadedData = openFileDialog1.OpenFileDialogReturnPath();
+                if (string.IsNullOrWhiteSpace(filePathSourceTxt))
+                {
+                    return listValue;
+                }
+            }
+
             if (filepathLoadedData?.Length > 0)
             {
                 try
@@ -1381,8 +1390,16 @@ namespace MobileNumbersDetailizationReportGenerator
             bool ChosenFile;
             int i = 0; //amount contracts in the current bill
             listTempContract.Clear();
-            filePathSourceTxt = openFileDialog1.OpenFileDialogReturnPath();
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                filePathSourceTxt = ofd.OpenFileDialogReturnPath("Открыть текстовый счет МТС(Вудафон)");
 
+                if (string.IsNullOrWhiteSpace(filePathSourceTxt))
+                {
+                    return false;
+                }
+            }
+            
             if (filePathSourceTxt?.Length > 3)
             {
                 try
