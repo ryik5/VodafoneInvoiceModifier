@@ -14,10 +14,12 @@ namespace MobileNumbersDetailizationReportGenerator
         [STAThread]
         static void Main()
         {
-            #if DEBUG
+#if DEBUG
             //https://habr.com/ru/post/221681/
             EFlogger.EntityFramework6.EFloggerFor6.Initialize();
-            #endif
+#endif
+
+            AssemblyLoader.RegisterAssemblyLoader();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
