@@ -1841,6 +1841,7 @@ namespace MobileNumbersDetailizationReportGenerator
                 row[18] = "E22";
                 row[19] = "IT-дирекция";
                 row[21] = "Тарифная модель[6] L100% корпорация";
+                row[22] = 0;
                 dtMobile.Rows.Add(row);
             }
             catch (Exception Expt) { MessageBox.Show(Expt.ToString(), Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error); }
