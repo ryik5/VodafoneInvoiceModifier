@@ -14,10 +14,6 @@ namespace MobileNumbersDetailizationReportGenerator
         [STAThread]
         static void Main()
         {
-#if DEBUG
-            //https://habr.com/ru/post/221681/
-            EFlogger.EntityFramework6.EFloggerFor6.Initialize();
-#endif
 
             AssemblyLoader.RegisterAssemblyLoader();
 

@@ -1664,78 +1664,85 @@ namespace MobileNumbersDetailizationReportGenerator
             string[] substrings;
 
             strNewModels = "";
-
+            DataRow data = dtMobile.NewRow();
             MobileContractPerson mcpCurrent = new MobileContractPerson();
             try
             {
                 foreach (string s in listTempContract.ToArray())
                 {
-                    if (s.Contains(parsers[1]) || s.Contains(pStop))  //Начало учетов парсеров каждого кокретного контракта после упоминания ключевого слова в переменной 'p[1]'
+                    if (s!=null && (s.Contains(parsers[1]) || s.Contains(pStop)))  //Начало учетов парсеров каждого кокретного контракта после упоминания ключевого слова в переменной 'p[1]'
                     {
                         //Начало учетов парсеров контракта начинаем после упоминания ключевого слова в переменной 'p[1]'
                         //перед началов учета парсеров этого контракта сначала записываем все собранные данные по предыдущему контракту
                         //для последнего в счете контракта маркером окночания данных является ключевое слово в переменной 'pStop'
                         isCheckFinishedTitles = false;
-                        if (mcpCurrent.Сontract?.Length > 1)
+
+                        try
                         {
-                            mcpCurrent.StartDatePeriodBill = dataStart;
-                            mcpCurrent.EndDayPeriodBill = dataEnd;
-                            mcpCurrent.TaxCost = CalculateTax(mcpCurrent.TotalCost);
-                            mcpCurrent.PFCost = CalculatePf(mcpCurrent.TotalCost);
-                            mcpCurrent.TotalCostWithTax = mcpCurrent.TotalCost * 1.275;  //полная сумма к оплате с налогами
+                            if (mcpCurrent.Сontract?.Length > 1)
+                            {
+                                mcpCurrent.StartDatePeriodBill = dataStart;
+                                mcpCurrent.EndDayPeriodBill = dataEnd;
+                                mcpCurrent.TaxCost = CalculateTax(mcpCurrent.TotalCost);
+                                mcpCurrent.PFCost = CalculatePf(mcpCurrent.TotalCost);
+                                mcpCurrent.TotalCostWithTax = mcpCurrent.TotalCost * 1.275;  //полная сумма к оплате с налогами
 
-                            searchNumber = mcpCurrent.CellNumber;
-
-
-                            var data = dtOwnerOfMobileWithinSelectedPeriod.AsEnumerable()
-                                    .Where(r => r.Field<string>("Номер телефона").Contains(searchNumber)).FirstOrDefault();
-
-                            mcpCurrent.OwnerName = data.Field<string>("ФИО").ToString();
-                            mcpCurrent.NAV = data.Field<string>("NAV").ToString();
-                            mcpCurrent.Department = data.Field<string>("Подразделение").ToString();
-                            mcpCurrent.StartDayOfModelCompensation = data.Field<string>("Действует c").ToString();
-                            mcpCurrent.ModelCompensation = data.Field<string>("Модель компенсации").ToString();
+                                searchNumber = mcpCurrent.CellNumber;
 
 
+                                data = dtOwnerOfMobileWithinSelectedPeriod.AsEnumerable()
+                                        .Where(r => r.Field<string>("Номер телефона").Contains(searchNumber)).FirstOrDefault();
 
-                            mcpCurrent.payOwner = ClaculateAmountPaymentOfContractOwner(mcpCurrent);
-                            mcpCurrent.isUsedNumber = isUsedCurrent;
-                            if (mcpCurrent.TotalCostWithTax > 0)
-                            { mcpCurrent.isUnblockedNumber = true; }
+                                mcpCurrent.OwnerName = data.Field<string>("ФИО");
+                                mcpCurrent.NAV = data.Field<string>("NAV");
+                                mcpCurrent.Department = data.Field<string>("Подразделение");
+                                mcpCurrent.StartDayOfModelCompensation = data.Field<string>("Действует c");
+                                mcpCurrent.ModelCompensation = data.Field<string>("Модель компенсации");
 
-                            row = dtMobile.NewRow();
-                            row[0] = mcpCurrent.OwnerName;
-                            row[1] = mcpCurrent.Сontract;
-                            row[2] = mcpCurrent.CellNumber;
-                            row[3] = mcpCurrent.NumberTarifPackageName;
-                            row[4] = Math.Round(mcpCurrent.NumberMonthCost, 2);
-                            row[5] = Math.Round(mcpCurrent.RoamingSummary, 2);
-                            row[6] = Math.Round(mcpCurrent.ContractDiscount, 2);
-                            row[7] = Math.Round(mcpCurrent.TotalCost, 2);
-                            row[8] = Math.Round(mcpCurrent.TaxCost, 2);
-                            row[9] = Math.Round(mcpCurrent.PFCost, 2);
-                            row[10] = Math.Round(mcpCurrent.TotalCostWithTax, 2);
-                            row[11] = Math.Round(mcpCurrent.RomingDetalization, 2);
-                            row[12] = Math.Round(mcpCurrent.PaidExtraOfTarifPackageInternetService, 2);
-                            row[13] = Math.Round(mcpCurrent.PaidExtraOfTarifOutCallsToCity, 2);
-                            row[14] = Math.Round(mcpCurrent.ExtraService, 2);
-                            row[15] = Math.Round(mcpCurrent.PaidExtraContentOfTarifPackage, 2);
-                            row[16] = mcpCurrent.StartDatePeriodBill;
-                            row[17] = mcpCurrent.EndDayPeriodBill;
-                            row[18] = mcpCurrent.NAV;
-                            row[19] = mcpCurrent.Department;
-                            row[20] = mcpCurrent.StartDayOfModelCompensation;
-                            row[21] = mcpCurrent.ModelCompensation;
-                            row[22] = Math.Round(mcpCurrent.payOwner, 2);
-                            row[23] = Math.Round(mcpCurrent.PaidExtraOfTarifPackageServices, 2);
-                            //проверки контракта
-                            row[24] = mcpCurrent.isUsedNumber;
-                            row[25] = mcpCurrent.isUnblockedNumber;
 
-                            //запись сформированной строки в таблицу
-                            dtMobile.Rows.Add(row);
+
+                                mcpCurrent.payOwner = ClaculateAmountPaymentOfContractOwner(mcpCurrent);
+                                mcpCurrent.isUsedNumber = isUsedCurrent;
+                                if (mcpCurrent.TotalCostWithTax > 0)
+                                { mcpCurrent.isUnblockedNumber = true; }
+
+                                row = dtMobile.NewRow();
+                                row[0] = mcpCurrent.OwnerName;
+                                row[1] = mcpCurrent.Сontract;
+                                row[2] = mcpCurrent.CellNumber;
+                                row[3] = mcpCurrent.NumberTarifPackageName;
+                                row[4] = Math.Round(mcpCurrent.NumberMonthCost, 2);
+                                row[5] = Math.Round(mcpCurrent.RoamingSummary, 2);
+                                row[6] = Math.Round(mcpCurrent.ContractDiscount, 2);
+                                row[7] = Math.Round(mcpCurrent.TotalCost, 2);
+                                row[8] = Math.Round(mcpCurrent.TaxCost, 2);
+                                row[9] = Math.Round(mcpCurrent.PFCost, 2);
+                                row[10] = Math.Round(mcpCurrent.TotalCostWithTax, 2);
+                                row[11] = Math.Round(mcpCurrent.RomingDetalization, 2);
+                                row[12] = Math.Round(mcpCurrent.PaidExtraOfTarifPackageInternetService, 2);
+                                row[13] = Math.Round(mcpCurrent.PaidExtraOfTarifOutCallsToCity, 2);
+                                row[14] = Math.Round(mcpCurrent.ExtraService, 2);
+                                row[15] = Math.Round(mcpCurrent.PaidExtraContentOfTarifPackage, 2);
+                                row[16] = mcpCurrent.StartDatePeriodBill;
+                                row[17] = mcpCurrent.EndDayPeriodBill;
+                                row[18] = mcpCurrent.NAV;
+                                row[19] = mcpCurrent.Department;
+                                row[20] = mcpCurrent.StartDayOfModelCompensation;
+                                row[21] = mcpCurrent.ModelCompensation;
+                                row[22] = Math.Round(mcpCurrent.payOwner, 2);
+                                row[23] = Math.Round(mcpCurrent.PaidExtraOfTarifPackageServices, 2);
+                                //проверки контракта
+                                row[24] = mcpCurrent.isUsedNumber;
+                                row[25] = mcpCurrent.isUnblockedNumber;
+
+                                //запись сформированной строки в таблицу
+                                dtMobile.Rows.Add(row);
+                            }
                         }
+                        catch(Exception excpt) {
 
+                            MessageBox.Show("Error with contract number in DB:\n"+ mcpCurrent.CellNumber+"\nnext row in the bill is: "+ s + ":\n" + excpt.ToString(), Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                         mcpCurrent = new MobileContractPerson();
                         substrings = s.Split('№')[s.Split('№').Length - 1].Trim().Split(' ');
                         mcpCurrent.Сontract = substrings[0].Trim();
@@ -1844,7 +1851,8 @@ namespace MobileNumbersDetailizationReportGenerator
                 row[22] = 0;
                 dtMobile.Rows.Add(row);
             }
-            catch (Exception Expt) { MessageBox.Show(Expt.ToString(), Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception Expt) 
+            { MessageBox.Show(Expt.ToString(), Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
             listTempContract.Clear();
         }
